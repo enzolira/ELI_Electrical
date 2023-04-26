@@ -1,7 +1,52 @@
-{% extends "house_base.html" %} 
+{% extends "base.html" %} 
 
-{% block title %} Create Clients {% endblock%}
+{% block title %} Proyectos {% endblock%}
 
 {% block content %}
-    <h1>Modulo Houses</h1>
+<select class="form-select mb-3">
+    <option selected>Seleccione Proyecto</option>
+    <option value="1">Proyecto 1</option>
+    <option value="2">Proyecto 2</option>
+    <option value="3">Proyecto 3</option>
+</select>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">TD</th>
+            <th scope="col">Cto. N°</th>
+            <th scope="col">T. Centros</th>
+            <th scope="col">T. Potencia (kw)</th>
+            <th scope="col">T. Intensidad (A)</th>
+            <th scope="col">Scal (mm2)</th>
+            <th scope="col">Scom (mm2)</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        <tr>
+            <td>Iluminacion</td>
+            <td>1</td>
+            <td>6</td>
+            <td class="d-flex">
+                350.2
+                <button class="btn btn-sm btn-outline-success ms-auto me-5"><i class="fa-regular fa-eye fa-lg"></i></button>
+            </td>
+            <td>10</td>
+            <td>6</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>Cocina</td>
+            <td>1</td>
+            <td>2</td>
+            <td class="d-flex">
+                500.1
+                <button class="btn btn-sm btn-outline-success ms-auto me-5"><i class="fa-regular fa-eye fa-lg"></i></button>
+            </td>
+            <td>20</td>
+            <td>8</td>
+            <td>10</td>
+        </tr>
+    </tbody>
+</table>
 {% endblock %}
