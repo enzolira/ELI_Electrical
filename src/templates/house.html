@@ -3,13 +3,26 @@
 {% block title %} Proyectos {% endblock%}
 
 {% block content %}
-<select class="form-select mb-3">
-    <option selected>Seleccione Proyecto</option>
-    <option value="1">Proyecto 1</option>
-    <option value="2">Proyecto 2</option>
-    <option value="3">Proyecto 3</option>
+
+<select class="form-select mb-3 selectpicker" id="proyect-select" onchange="myTds()" data-live-search="true">
+    <option selected>-Seleccione Proyecto-</option>
+    {% for proyect in proyects %}
+        <option value="{{ proyect.id }}">{{ proyect.name }}</option>
+    {% endfor %}
 </select>
 
+  
+<select class="form-select mb-3" name="" id="td-select">
+    <option selected>-Seleccione Tablero-</option>
+    {% for td in tds %}
+        <option value="{{ td.id }}">{{ td.name }}</option>
+    {% endfor %}     
+</select>
+
+
+<div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Agregar Circuitos</button>
+</div>
 <table class="table table-hover">
     <thead>
         <tr>
@@ -23,30 +36,109 @@
         </tr>
     </thead>
     <tbody class="table-group-divider">
-        <tr>
+        <!-- <tr>
             <td>Iluminacion</td>
             <td>1</td>
             <td>6</td>
-            <td class="d-flex">
-                350.2
-                <button class="btn btn-sm btn-outline-success ms-auto me-5"><i class="fa-regular fa-eye fa-lg"></i></button>
-            </td>
             <td>10</td>
             <td>6</td>
-            <td>10</td>
-        </tr>
-        <tr>
-            <td>Cocina</td>
-            <td>1</td>
-            <td>2</td>
-            <td class="d-flex">
-                500.1
-                <button class="btn btn-sm btn-outline-success ms-auto me-5"><i class="fa-regular fa-eye fa-lg"></i></button>
-            </td>
-            <td>20</td>
-            <td>8</td>
-            <td>10</td>
-        </tr>
+            <td>10</td>>
+        </tr> -->
     </tbody>
 </table>
+
+<!-- Modal -->
+{% with messages = get_flashed_messages(category_filter=['circuito']) %}
+{% if messages %}
+<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="alertModalLabel">Error:</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for message in messages %}
+                        <p class="text-danger">{{message}}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(category_filter=['circuito']) %}
+{% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var alertModal = new bootstrap.Modal(document.getElementById('alertModal'), {
+                keyboard: false
+            });
+            alertModal.show();
+        });
+    </script>
+{% endif %}
+{% endwith %}
+
+<div class="modal fade modal-lg modal-sm" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/new_circuit" method="post">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Agregando Circuitos</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group my-3">
+                        <span class="input-group-text" id="basic-addon1">N° de Circuito</span>
+                        <input type="text" name="name" class="form-control" placeholder="Ingresa numero" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mt-3">
+                        <span class="input-group-text" id="basic-addon1">Ingresa el Voltaje</span>
+                        <select class="form-select" aria-label="Default select example" name="voltage">
+                            <option selected>Selecciona un voltaje</option>
+                            <option value="0.220">220</option>
+                            <option value="0.380" disabled>380</option>
+                        </select>
+                    </div>
+                    <div class="input-group mt-3">
+                        <span class="input-group-text" id="basic-addon1">Tipo de Metodo</span>
+                        <select class="form-select" aria-label="Default select example" name="methods">
+                            <option selected>Selecciona un metodo</option>
+                            <option value="a1">Metodo A1</option>
+                            <option value="a2">Metodo A2</option>
+                            <option value="b1">Metodo B1</option>
+                            <option value="b2">Metodo B2</option>
+                            <option value="d1">Metodo D1</option>
+                            <option value="d2">Metodo D2</option>
+                            <option value="e">Metodo E</option>
+                            <option value="f">Metodo F</option>
+                        </select>
+                    </div>
+                    <div class="input-group mt-3">
+                        <span class="input-group-text" id="basic-addon1">Cantidad de cargas</span>
+                        <input type="text" class="form-control" placeholder="Ingresa numero" aria-label="Username" aria-describedby="basic-addon1" name="qty">
+                    </div>
+                    <div class="input-group mt-3">
+                        <span class="input-group-text" id="basic-addon1">Potencia de la carga</span>
+                        <input type="text" class="form-control" placeholder="Ingresa la potencia" aria-label="Username" aria-describedby="basic-addon1" name="load">
+                    </div>
+                    <div class="form-text" id="basic-addon4">Lo potencia debe ser en watt.</div>
+                    <div class="my-3">
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon3">Largo del Circuito</span>
+                            <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.12" name="lenght">
+                        </div>
+                        <div class="form-text" id="basic-addon4">Ingresa el largo en metros separados por punto.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

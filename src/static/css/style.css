@@ -1,3 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+
 .margin {
     margin-top: 80px;
 }
+
+
+.table {
+    font-family:'Roboto', sans-serif;
+    font-size: normal;
+    font-weight:bolder;
+  }
+
+  .input-group-text {
+    display: inline-block;
+    width: 180px; /* set the desired width here */
+    text-align: right; /* align the text to the right */
+  }
+  
+
+
