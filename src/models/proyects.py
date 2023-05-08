@@ -25,39 +25,27 @@ class Proyect:
         return proyects
 
     @classmethod
-    def get_all_tds_by_proyect_id_and_user_id(cls,data):
-        query = "SELECT	* FROM tds LEFT JOIN proyects ON proyects.id = tds.proyect_id \
-            LEFT JOIN users ON users.id = proyects.user_id WHERE users.id = %(id)s;"
+    def get_all_tgs_by_proyect_id_and_user_id(cls,data):
+        query = "SELECT tgs.name FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE user_id = %(id)s"
         results = connectToMySQL(cls.db).query_db(query,data)
         tds = []
         for pro in results:
             tds.append(pro)
         return tds
     
+    
     @classmethod
-    def seccion(cls,data):
-        query = "SELECT * FROM wiresthrv WHERE secction_mm2 > %(secc_min)s OR ABS(secction_mm2 - %(secc_min)s) < 0.40 ORDER BY secction_mm2 LIMIT 1;"
+    def current(cls,data):
+        query = "SELECT * FROM wiresthrv WHERE " + data.get('method') + " >= %(total_current)s OR ABS(" + data.get('method') + " - %(total_current)s ) < 0.20 ORDER BY " + data.get('method') + " LIMIT 1;"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
     
     @classmethod
-    def current(cls,data):
-        query = "SELECT * FROM wiresthrv WHERE %(method)s >= %(total_current)s OR ABS(%(method)s - %(total_current)s ) < 0.20 ORDER BY %(method)s LIMIT 1;"
-        result = connectToMySQL(cls.db).query_db(query,data)
-        return result
+    def get_all_wires(cls):
+        query = "SELECT * FROM wires"
+        results = connectToMySQL(cls.db).query_db(query)
+        return results
 
-
-    # @classmethod
-    # def methods_wiresthrv(cls,data):
-    #     query = "SELECT * FROM wiresthrv WHERE %(method)s = %(scalmin)s;"
-    #     result = connectToMySQL(cls.db).query_db(query,data)
-    #     return result
-
-    # @classmethod
-    # def methodds_wiresh07z(cls,scalmin,methods):
-    #     query = "SELECT * FROM wiresh07z WHERE %(methods)s = %(scalmin)s;"
-    #     result = connectToMySQL(cls.db).query_db(query,scalmin,methods)
-    #     return result
     
 
     @staticmethod
@@ -75,7 +63,10 @@ class Proyect:
         if not data['qty']:
             flash("Ingresa la cantidad de cargas del circuito !!!","circuito")
             is_valid = False
-        if not data['lenght']:
+        if not data['load']:
+            flash("Ingresa la potencia de cada carga del circuito !!!","circuito")
+            is_valid = False
+        if not data['length']:
             flash("Ingresa el largo del circuito !!!","circuito")
             is_valid = False
         return is_valid

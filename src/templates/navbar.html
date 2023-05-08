@@ -1,57 +1,18 @@
-<nav class="navbar fixed-top" style="background-color: #e3f2fd;">
+<nav class="navbar navbar-expand-lg fixed-top" style="background-color: #e3f2fd;">
     <div class="container-fluid">
-        <a class="navbar-brand" style=" color: rgba(65, 68, 65, 0.981);">Bienvenido {{ user.first_name }}</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <a class="navbar-brand" style=" color: rgba(65, 68, 65, 0.981);">Bienvenido</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasNavbarLabel">ELI ELECTRICAL</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="dashboard">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Domiciliario
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Proyectos</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Nuevo Proyecto</a></li>
-                            <li><a class="dropdown-item" href="#">Agregar TDF</a></li>
-                            <li><a class="dropdown-item" href="#">Agregar Circuitos</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Industrial
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Proyectos</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Nuevo Proyecto</a></li>
-                            <li><a class="dropdown-item" href="#">Agregar TDF</a></li>
-                            <li><a class="dropdown-item" href="#">Agregar Circuitos</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <form class="d-flex mt-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form>
-                <a href="/logout" onclick="confirmar(event)" class="btn btn-secondary mt-3 ms-auto">Salir</a>
-            </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <span class="nav-link">@{{ user.first_name }}</span>
+                </li>
+                <li class="nav-item mx-1">
+                    <a href="/logout" onclick="confirmar(event)" class="btn btn-secondary">Salir</a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>

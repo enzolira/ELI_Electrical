@@ -6,17 +6,13 @@
 }
 
 
-.table {
-    font-family:'Roboto', sans-serif;
-    font-size: normal;
-    font-weight:bolder;
-  }
-
   .input-group-text {
     display: inline-block;
     width: 180px; /* set the desired width here */
     text-align: right; /* align the text to the right */
   }
   
-
-
+  .navbar {
+    height: 50px;
+  }
+  

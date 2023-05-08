@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`users` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
+AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -55,22 +56,39 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`tgs`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`tgs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `proyect_id` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `tag` VARCHAR(45) NOT NULL,
+  `created_at` DATETIME NULL DEFAULT NULL,
+  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_tgs_proyects1_idx` (`proyect_id` ASC) VISIBLE,
+  CONSTRAINT `fk_tgs_proyects1`
+    FOREIGN KEY (`proyect_id`)
+    REFERENCES `ELI_ELECTRICAL`.`proyects` (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
 -- Table `ELI_ELECTRICAL`.`tds`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`tds` (
   `id` INT NOT NULL AUTO_INCREMENT,
+  `tg_id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
   `tag` VARCHAR(45) NOT NULL,
   `created_at` DATETIME NULL DEFAULT NULL,
-  `updated_at` DATETIME NULL DEFAULT NOW(),
-  `proyect_id` INT NOT NULL,
+  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX `fk_tds_proyects1_idx` (`proyect_id` ASC) VISIBLE,
-  CONSTRAINT `fk_tds_proyects1`
-    FOREIGN KEY (`proyect_id`)
-    REFERENCES `ELI_ELECTRICAL`.`proyects` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  INDEX `fk_tds_tgs1_idx` (`tg_id` ASC) VISIBLE,
+  CONSTRAINT `fk_tds_tgs1`
+    FOREIGN KEY (`tg_id`)
+    REFERENCES `ELI_ELECTRICAL`.`tgs` (`id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
@@ -80,42 +98,33 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NOT NULL,
-  `created_at` DATETIME NULL DEFAULT NULL,
-  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  `td_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_circuits_tds1_idx` (`td_id` ASC) VISIBLE,
-  CONSTRAINT `fk_circuits_tds1`
-    FOREIGN KEY (`td_id`)
-    REFERENCES `ELI_ELECTRICAL`.`tds` (`id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `ELI_ELECTRICAL`.`loads`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
   `ref` TEXT NOT NULL,
-  `qty` INT NOT NULL,
-  `load` INT NOT NULL,
-  `total_load` INT NULL DEFAULT NULL,
-  `voltage` INT NOT NULL,
+  `total_load` DECIMAL(6,2) NOT NULL,
+  `single_voltage` DECIMAL(4,3) NOT NULL,
   `fp` INT NULL DEFAULT '1',
-  `total_current` INT NULL DEFAULT NULL,
-  `lenght` INT NULL DEFAULT NULL,
-  `min_secction` INT NULL DEFAULT NULL,
-  `created_at` DATETIME NULL DEFAULT NULL,
-  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-  `circuit_id` INT NOT NULL,
+  `total_current` DECIMAL(6,2) NOT NULL,
+  `lenght` DECIMAL(6,2) NOT NULL,
+  `secctionmm2` DECIMAL(6,2) NOT NULL,
+  `method` VARCHAR(255) NOT NULL,
+  `wires` VARCHAR(255) NOT NULL,
+  `current_by_method` DECIMAL(5,2) NOT NULL,
+  `type_circuit` VARCHAR(255) NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  `tg_id` INT NOT NULL,
+  `td_id` INT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_loads_circuits1_idx` (`circuit_id` ASC) VISIBLE,
-  CONSTRAINT `fk_loads_circuits1`
-    FOREIGN KEY (`circuit_id`)
-    REFERENCES `ELI_ELECTRICAL`.`circuits` (`id`)
+  INDEX `fk_loads_tgs1_idx` (`tg_id` ASC) VISIBLE,
+  INDEX `fk_loads_tds1_idx` (`td_id` ASC) VISIBLE,
+  CONSTRAINT `fk_loads_tgs1`
+    FOREIGN KEY (`tg_id`)
+    REFERENCES `ELI_ELECTRICAL`.`tgs` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_loads_tds1`
+    FOREIGN KEY (`td_id`)
+    REFERENCES `ELI_ELECTRICAL`.`tds` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -162,32 +171,6 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `ELI_ELECTRICAL`.`methods`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`methods` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `methods` VARCHAR(45) NOT NULL,
-  `created_at` VARCHAR(45) NULL DEFAULT 'NOW()',
-  `updated_at` VARCHAR(45) NULL DEFAULT 'NOW()',
-  `wiresh07z_id` INT NOT NULL,
-  `wiresthrv_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_methods_wiresh07z1_idx` (`wiresh07z_id` ASC) VISIBLE,
-  INDEX `fk_methods_wiresthrv1_idx` (`wiresthrv_id` ASC) VISIBLE,
-  CONSTRAINT `fk_methods_wiresh07z1`
-    FOREIGN KEY (`wiresh07z_id`)
-    REFERENCES `ELI_ELECTRICAL`.`wiresh07z` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_methods_wiresthrv1`
-    FOREIGN KEY (`wiresthrv_id`)
-    REFERENCES `ELI_ELECTRICAL`.`wiresthrv` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `ELI_ELECTRICAL`.`wires`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`wires` (
@@ -196,6 +179,26 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`wires` (
   `created_at` DATETIME NULL DEFAULT NOW(),
   `updated_at` DATETIME NULL DEFAULT NOW(),
   PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`loads`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `qty` INT NOT NULL,
+  `load` DECIMAL(6,2) NOT NULL,
+  `created_at` VARCHAR(45) NOT NULL DEFAULT 'NOW()',
+  `updated_at` VARCHAR(45) NOT NULL DEFAULT 'NOW()',
+  `circuit_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_loads_circuits1_idx` (`circuit_id` ASC) VISIBLE,
+  CONSTRAINT `fk_loads_circuits1`
+    FOREIGN KEY (`circuit_id`)
+    REFERENCES `ELI_ELECTRICAL`.`circuits` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
