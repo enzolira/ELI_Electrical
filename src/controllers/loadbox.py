@@ -3,6 +3,8 @@ from src import app
 from src.models.user import User
 from src.models.proyects import Proyect
 from src.models.tgs import Tgs
+from src.models.circuits import Circuit
+from src.models.loads import Load
 
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt(app)
@@ -21,7 +23,9 @@ def loadbox():
     proyects = Proyect.get_all_proyect_by_user_id(data)
     tgs = Proyect.get_all_tgs_by_proyect_id_and_user_id(data)
     wires= Proyect.get_all_wires()
-    return render_template('house.html', user=user, proyects=proyects, tgs=tgs, wires=wires)
+    circuits = Circuit.get_all_circuits_by_user_user_id(data)
+    print(circuits)
+    return render_template('house.html', user=user, proyects=proyects, tgs=tgs, wires=wires, circuits=circuits)
 
 # -------------NEW PROYECT------------------
 
@@ -35,7 +39,6 @@ def new_proyect():
     }
 
     Proyect.save(data)
-    print(data)
     return redirect('/loadbox')
 
 # ---------------ADD NEW GENERAL TABLE------------------
@@ -84,34 +87,47 @@ def new_circuits():
     data = {
         'name': request.form['name'],
         'ref': request.form['ref'],
-        'qty': request.form['qty'],
-        'load': request.form['load'],
-        'voltage': request.form['voltage'],
-        'methods': request.form['methods'],
+        'single_voltage': request.form['single_voltage'],
+        'method': request.form['method'],
+        'fp': request.form['fp'],
         'length': request.form['length'],
-        'tg_id' : request.form['tg_id']
+        'tg_id' : request.form['tg_id'],
+        'wires' : request.form['type_isolation'],
+        'type_circuit' : request.form['type_circuit']
     }
-
-    total_power = (int(data['qty']) * int(data['load']))/1000 
-    total_current = round(total_power/float(data['voltage']),2)
-    data1 = {'method':data['methods'],'total_current':total_current}
+    circuit_id = Circuit.add_circuit(data)
+    data['qty'] = request.form['qty']
+    data['power'] = request.form['power']
+    total_power = (int(data['qty']) * int(data['power']))/1000
+    total_current = round(total_power/float(data['single_voltage']),2)
+    data1 = {'method':data['method'],'total_current':total_current}
     current_by_method= Proyect.current(data1)
     secc_min = round((2*0.018*float(data['length'])*total_current)/4.5, 2)
-    data['total_power'] = total_power
-    data['secctionmm2'] = current_by_method[0]['secction_mm2']
-    data['total_current'] = total_current
-    data['fp'] = 1
-
-    print(data)
-    print(total_current)
-    print(secc_min)
-    print(current_by_method[0]['secction_mm2'])
+    data2 = {}
+    data2['secctionmm2'] = current_by_method[0]['secction_mm2']
+    print(data2)
+    # vp_real = round((2*0.018*float(data['length']*total_current))/data2[0]['secctionmm2'],2)
+    # data['vp'] = vp_real
+    data2['current_by_method'] = current_by_method[0][data['method']]
+    circuit_id = Circuit.add_circuit(data)
+    print(circuit_id)
+    if circuit_id:
+        data3 = {'qty': data['qty'], 'power':data['power'], 'single_voltage':data['single_voltage'],'circuit_id': circuit_id}
+        Load.save(data3)
+    else:
+        pass
+    # Aquí puedes tomar medidas en consecuencia si no se pudo agregar el circuito
+    # print(data)
+    # print(total_current)
+    # print(secc_min)
+    # print(current_by_method[0]['secction_mm2'])
+    # print(data2)
 
     return redirect('/loadbox/')
 
 
 
-# ------------ PRUEBA AJAX----------------------
+# ------------ AJAX----------------------
 
 @app.route('/api/tgs', methods=['POST'])
 def get_tgs():

@@ -54,16 +54,16 @@ class Proyect:
         if not data['name']:
             flash("Ingresa el numero de circuito !!!","circuito")
             is_valid = False
-        if not data['voltage']:
+        if not data['single_voltage']:
             flash("Ingresa el voltage del circuito !!!","circuito")
             is_valid = False
-        if not data['methods']:
+        if not data['method']:
             flash("Ingresa el tipo de metodo del circuito !!!","circuito")
             is_valid = False
         if not data['qty']:
             flash("Ingresa la cantidad de cargas del circuito !!!","circuito")
             is_valid = False
-        if not data['load']:
+        if not data['power']:
             flash("Ingresa la potencia de cada carga del circuito !!!","circuito")
             is_valid = False
         if not data['length']:

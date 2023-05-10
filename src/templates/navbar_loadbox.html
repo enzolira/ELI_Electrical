@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg fixed-top" style="background-color: #e3f2fd;">
+<nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #e3f2fd;">
     <div class="container-fluid">
         <a class="navbar-brand" style=" color: rgba(65, 68, 65, 0.981);">Bienvenido</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,21 +10,12 @@
                     <a class="nav-link text-decoration-underline" aria-current="page" href="/dashboard">Inicio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-decoration-underline" data-bs-toggle="modal" href="#" data-bs-target="#staticProyect">Crear Proyecto</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-decoration-underline" data-bs-toggle="modal" href="#" data-bs-target="#staticTableroGeneral">Agregar Tablero General</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-decoration-underline" data-bs-toggle="modal" href="#" data-bs-target="#staticTableroDistribucion">Agregar Tablero Distribución</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link text-decoration-underline" href="#">Ver Resumén</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item mx-1">
-                    <span class="nav-link">@{{ user.first_name }}</span>
+                    <span class="nav-link">@{{ user.first_name }} {{ user.last_name }}</span>
                 </li>
                 <li class="nav-item ms-auto">
                     <a href="/logout" onclick="confirmar(event)" class="btn btn-secondary">Salir</a>
@@ -33,101 +24,3 @@
         </div>
     </div>
 </nav>
-
-
-  
-<!-- Modal nuevo proyecto-->
-<div class="modal fade" id="staticProyect" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Proyecto</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-            <form action="/new_proyect" method="post" id="myProyect">
-                <div class="modal-body">
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 180px;">Nombre del Proyecto</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre del proyecto" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>                                                          
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal nuevo tablero general-->
-<div class="modal fade" id="staticTableroGeneral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Tablero General</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-            <form action="/add_tgs" method="post" id="myGeneralTable">
-                <div class="modal-body">
-                    <p>Debes elegir un proyecto para agregar un tablero principal.</p>
-                    <select class="form-select my-3 selectpicker" id="proyect-select" data-live-search="true" name="proyect_id">
-                        <option selected>-Seleccione Proyecto-</option>
-                        {% for proyect in proyects %}
-                            <option value="{{ proyect.id }}">{{ proyect.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nombre Tablero General</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre del tablero" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
-                        <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-                    </div>                                                           
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </div>
-            </form>
-      </div>
-    </div>
-</div>
-
-<!-- Modal nuevo tablero distribucion-->
-<div class="modal fade" id="staticTableroDistribucion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Tablero de Distribución</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-            <form action="/add_tds" method="post" id="myGeneralTable">
-                <div class="modal-body">
-                    <p>Debes elegir un tablero general para agregar un tablero de distribucion.</p>
-                    <select class="form-select my-3 selectpicker" id="proyect-select" data-live-search="true" name="proyect_id">
-                        <option selected>-Seleccione Proyecto-</option>
-                        {% for tg in tgs %}
-                            <option value="{{ tg.id }}">{{ tg.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 230px;">Nombre Tablero distribucion</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
-                        <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-                    </div>                                                           
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </div>
-            </form>
-      </div>
-    </div>
-</div>
-
-

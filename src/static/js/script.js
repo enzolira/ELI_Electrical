@@ -7,7 +7,6 @@ function confirmar(event) {
   }
 }
 
-
 // -----------------------------------------------------------------------------------
 // -------------------------agregar circuito como tabla ------------------------------
 
@@ -18,24 +17,7 @@ function confirmar(event) {
 // });
 
 // ------------------------------------------------------------------------------------
-// -------------------------crear input de tablero de distribuicion--------------------
-
-
-// function addTable() {
-//   var tableSelect = document.getElementById("table-select");
-//   var nameTdGroup = document.getElementById("name-td-group");
-
-//   if (tableSelect.value == 1) {
-//     var input = document.createElement("input");
-//     input.type = "text";
-//     input.className = "form-control";
-//     input.placeholder = "Ingresa nombre del tablero";
-//     input.name = "name_td";
-//     nameTdGroup.appendChild(input);
-//   } else {
-//     nameTdGroup.innerHTML = "";
-//   }
-// }
+// -------------------------crear select con tableros generales segun proyecto --------------------
 
 function proyect(element){
   console.log(element.value);
@@ -49,7 +31,7 @@ function proyect(element){
         tableSelect = document.getElementById("td-select");
         content = '<option selected>-Seleccione Tablero-</option>';
         data.map(elmt => {
-          content += `<option id=${elmt.id}>${elmt.name}</option>`
+          content += `<option value=${elmt.id}>${elmt.name}</option>`
         });
         tableSelect.innerHTML = content;
       }

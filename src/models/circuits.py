@@ -7,13 +7,13 @@ class Circuit:
         self.id = data['id']
         self.name = data['name']
         self.ref = data['ref']
-        self.qty = data['qty']
-        self.load = data['load']
-        self.total_power = data['total_power']
-        self.voltage = data['voltage']
+        self.total_center = data['total_center']
+        self.single_voltage = data['simgle_voltage']
         self.fp = data['fp']
         self.method = data['method']
-        self.total_current = data['total_current']
+        self.sumary_current = data['sumary_current']
+        self.type_circuit = data['type_circuit']
+        self.type_vp = data['vp']
         self.length = data['length']
         self.seccionmm2 = data['secctionmm2']
         self.wires = data['wires']
@@ -23,21 +23,31 @@ class Circuit:
         self.tg_id = data['tg_id']
         self.td_id = data['td_id']
 
+    
+    @classmethod
+    def get_all_circuits_by_user_user_id(cls, data):
+        query = "SELECT * FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id LEFT JOIN tgs ON tgs.id = circuits.tg_id \
+                LEFT JOIN proyects ON proyects.id = tgs.proyect_id LEFT JOIN users ON users.id = proyects.user_id WHERE users.id = %(id)s;"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        if (not results):
+            return []
+        circuits = []
+        for ct in results:
+            circuits.append(ct)
+        return circuits
+
 
     @classmethod
     def add_circuit(cls,data):
-        query = "INSERT INTO circuits (name, ref, qty, load, total_load, voltage, fp, total_current, length, secctionmm2, method, wires, current_by_method, created_at, updated_at, tg_id, td_id) \
-                SELECT '%(name)s', '%(qty)s', '%(load)s', '%(total_load)s', '%(voltage)s', '%(fp)s', '%(total_current)s', '%(length)s', '%(secctionmm2)s', '%(method)s', '%(wires)s', '%(current_by_method)s', NOW(), NOW(), '%(tg_id)s', '%(td_id)s'\
-                FROM dual WHERE NOT EXISTS ( SELECT 1 FROM circuits WHERE name = '%(name)s' AND tg_id = '%(tg_id)s' AND td_id = '%(td_id)s');"
+        query = "INSERT INTO circuits (name, ref, total_center, single_voltage, fp, method, sumary_current, type_circuit, vp, length, secctionmm2, wires, current_by_method, created_at, updated_at, tg_id, td_id) VALUES (%(name)s, %(ref)s, NULL, %(single_voltage)s, %(fp)s, %(method)s, NULL, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NOW(), NOW(), %(tg_id)s, NULL);"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
 
-    # @classmethod
-    # def methodds_wiresh07z(cls,scalmin,methods):
-    #     query = "SELECT * FROM wiresh07z WHERE %(methods)s = %(scalmin)s;"
-    #     result = connectToMySQL(cls.db).query_db(query,scalmin,methods)
-    #     return result
-    
+    @classmethod
+    def update_circuits(cls, data):
+        query = "UPDATE circuits SET secctionmm2 = %(secctionmm2)s, current_by_method = %(current_by_method)s, vp = %(vp_real)s, sumary_current = (SELECT SUM(total_current) FROM loads) WHERE circuits.id = %(circuit_id)s, "
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
 
     # @staticmethod
     # def validate_circuit(data):
