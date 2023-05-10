@@ -25,13 +25,13 @@
         <th scope="col">Referencia</th>
         <th scope="col">N° Circuito</th>
         <th scope="col">Cantidad de cargas</th>
-        <th scope="col">Total de Centros</th>
-        <th scope="col">Potencia Total</th>
+        <th scope="col">Potencia por carga (W)</th>
+        <th scope="col">Potencia Total (Kw)</th>
         <th scope="col">Intensidad Total (A)</th>
         <th scope="col">Voltaje (V)</th>
         <th scope="col">Fp</th>
         <th scope="col">Largo (MT)</th>
-        <th scope="col">Vp</th>
+        <th scope="col">Vp (V)</th>
         <th scope="col">Metodo de Instalación</th>
         <th scope="col">Sección del Conductor</th>
         <th scope="col">Tipo de Aislación</th>
@@ -43,14 +43,28 @@
             <th scope="row">{{ circuit.ref }}</th>
             <td scope="row">{{ circuit.name }}</td>
             <td scope="row">{{ circuit.qty }}</td>
-            <td scope="row">{{ circuit.total_center }}</td>
-            <td scope="row">{{ circuit.total_power }}</td>
+                {% if circuit.power % 1 !=0 %}
+                <td scope="row">{{ circuit.power }}</td>
+                {% else %}
+                <td scope="row">{{ circuit.power|int }}</td>
+                {% endif %}
+                {% if circuit.total_power % 1 !=0 %}
+                <td scope="row">{{ circuit.total_power }}</td>
+                {% else %}
+                <td scope="row">{{ circuit.total_power|int }}</td>
+                {% endif %}
             <td scope="row">{{ circuit.total_current }}</td>
-            <td scope="row">{{ circuit.single_voltage }}</td>
+                {% if circuit.single_voltage %}
+                <td scope="row">220</td>
+                {% endif %}
             <td scope="row">{{ circuit.fp }}</td>
+            {% if circuit.length % 1 !=0 %}
             <td scope="row">{{ circuit.length }}</td>
-            <td scope="row">falta</td>
-            <td scope="row">{{ circuit.method }}</td>
+            {% else %}
+            <td scope="row">{{ circuit.length|int }}</td>
+            {% endif %}
+            <td scope="row">{{ circuit.vp }}</td>
+            <td scope="row">{{ circuit.method|upper }}</td>
             <td scope="row">{{ circuit.secctionmm2 }}</td>
             <td scope="row">{{ circuit.wires }}</td>
         </tr>

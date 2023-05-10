@@ -24,7 +24,7 @@ def loadbox():
     tgs = Proyect.get_all_tgs_by_proyect_id_and_user_id(data)
     wires= Proyect.get_all_wires()
     circuits = Circuit.get_all_circuits_by_user_user_id(data)
-    print(circuits)
+    print(tgs)
     return render_template('house.html', user=user, proyects=proyects, tgs=tgs, wires=wires, circuits=circuits)
 
 # -------------NEW PROYECT------------------
@@ -98,31 +98,22 @@ def new_circuits():
     circuit_id = Circuit.add_circuit(data)
     data['qty'] = request.form['qty']
     data['power'] = request.form['power']
-    total_power = (int(data['qty']) * int(data['power']))/1000
+    total_power = round((int(data['qty']) * float(data['power']))/1000,2)
     total_current = round(total_power/float(data['single_voltage']),2)
     data1 = {'method':data['method'],'total_current':total_current}
     current_by_method= Proyect.current(data1)
-    secc_min = round((2*0.018*float(data['length'])*total_current)/4.5, 2)
     data2 = {}
-    data2['secctionmm2'] = current_by_method[0]['secction_mm2']
-    print(data2)
-    # vp_real = round((2*0.018*float(data['length']*total_current))/data2[0]['secctionmm2'],2)
-    # data['vp'] = vp_real
+    data2['secctionmm2'] = float(current_by_method[0]['secction_mm2'])
     data2['current_by_method'] = current_by_method[0][data['method']]
-    circuit_id = Circuit.add_circuit(data)
-    print(circuit_id)
+    data2['circuit_id'] = circuit_id
+    Circuit.update_secctionmm2(data2)
+    data3 = { 'vp':round((2*0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
+    Circuit.update_vp(data3)
     if circuit_id:
-        data3 = {'qty': data['qty'], 'power':data['power'], 'single_voltage':data['single_voltage'],'circuit_id': circuit_id}
-        Load.save(data3)
+        data4 = {'qty': data['qty'], 'power':data['power'], 'single_voltage':data['single_voltage'],'circuit_id': circuit_id}
+        Load.save(data4)
     else:
         pass
-    # Aquí puedes tomar medidas en consecuencia si no se pudo agregar el circuito
-    # print(data)
-    # print(total_current)
-    # print(secc_min)
-    # print(current_by_method[0]['secction_mm2'])
-    # print(data2)
-
     return redirect('/loadbox/')
 
 

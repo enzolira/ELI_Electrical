@@ -7,13 +7,11 @@ class Circuit:
         self.id = data['id']
         self.name = data['name']
         self.ref = data['ref']
-        self.total_center = data['total_center']
-        self.single_voltage = data['simgle_voltage']
+        self.single_voltage = data['single_voltage']
         self.fp = data['fp']
         self.method = data['method']
-        self.sumary_current = data['sumary_current']
         self.type_circuit = data['type_circuit']
-        self.type_vp = data['vp']
+        self.vp = data['vp']
         self.length = data['length']
         self.seccionmm2 = data['secctionmm2']
         self.wires = data['wires']
@@ -39,35 +37,24 @@ class Circuit:
 
     @classmethod
     def add_circuit(cls,data):
-        query = "INSERT INTO circuits (name, ref, total_center, single_voltage, fp, method, sumary_current, type_circuit, vp, length, secctionmm2, wires, current_by_method, created_at, updated_at, tg_id, td_id) VALUES (%(name)s, %(ref)s, NULL, %(single_voltage)s, %(fp)s, %(method)s, NULL, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NOW(), NOW(), %(tg_id)s, NULL);"
+        query = "INSERT INTO circuits (name, ref, single_voltage, fp, method, type_circuit, vp, length, secctionmm2, wires, current_by_method, created_at, updated_at, tg_id, td_id) VALUES (%(name)s, %(ref)s, %(single_voltage)s, %(fp)s, %(method)s, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NOW(), NOW(), %(tg_id)s, NULL);"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
 
     @classmethod
-    def update_circuits(cls, data):
-        query = "UPDATE circuits SET secctionmm2 = %(secctionmm2)s, current_by_method = %(current_by_method)s, vp = %(vp_real)s, sumary_current = (SELECT SUM(total_current) FROM loads) WHERE circuits.id = %(circuit_id)s, "
+    def update_method(cls, data):
+        query = "UPDATE circuits SET current_by_method = %(current_by_method)s WHERE circuits.id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+    
+    @classmethod
+    def update_vp(cls, data):
+        query = "UPDATE circuits SET vp = %(vp)s WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
 
-    # @staticmethod
-    # def validate_circuit(data):
-    #     is_valid = True
-    #     if not data['name']:
-    #         flash("Ingresa el numero de circuito !!!","circuito")
-    #         is_valid = False
-    #     if not data['voltage']:
-    #         flash("Ingresa el voltage del circuito !!!","circuito")
-    #         is_valid = False
-    #     if not data['methods']:
-    #         flash("Ingresa el tipo de metodo del circuito !!!","circuito")
-    #         is_valid = False
-    #     if not data['qty']:
-    #         flash("Ingresa la cantidad de cargas del circuito !!!","circuito")
-    #         is_valid = False
-    #     if not data['load']:
-    #         flash("Ingresa la potencia de cada carga del circuito !!!","circuito")
-    #         is_valid = False
-    #     if not data['length']:
-    #         flash("Ingresa el largo del circuito !!!","circuito")
-    #         is_valid = False
-    #     return is_valid
+    @classmethod
+    def update_secctionmm2(cls, data):
+        query = "UPDATE circuits SET secctionmm2 = %(secctionmm2)s WHERE circuits.id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
