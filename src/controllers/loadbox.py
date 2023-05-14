@@ -5,6 +5,7 @@ from src.models.proyects import Proyect
 from src.models.tgs import Tgs
 from src.models.circuits import Circuit
 from src.models.loads import Load
+from src.models.tds import Tds
 
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt(app)
@@ -24,7 +25,6 @@ def loadbox():
     tgs = Proyect.get_all_tgs_by_proyect_id_and_user_id(data)
     wires= Proyect.get_all_wires()
     circuits = Circuit.get_all_circuits_by_user_user_id(data)
-    print(tgs)
     return render_template('house.html', user=user, proyects=proyects, tgs=tgs, wires=wires, circuits=circuits)
 
 # -------------NEW PROYECT------------------
@@ -69,8 +69,8 @@ def add_tds():
         'tag': request.form['tag'],
         'tg_id': request.form['tg_id']
     }
-
-    Tgs.add_tgs(data)
+    print(data)
+    Tds.add_tds(data)
     return redirect('/loadbox')
 
 # -------------- CREATE CIRCUITS--------------------------
@@ -91,10 +91,16 @@ def new_circuits():
         'method': request.form['method'],
         'fp': request.form['fp'],
         'length': request.form['length'],
-        'tg_id' : request.form['tg_id'],
-        'wires' : request.form['type_isolation'],
-        'type_circuit' : request.form['type_circuit']
+        'tg_id' : request.form['tg_id']
     }
+    if request.form['td_id']: 
+        data['td_id'] = request.form['td_id']
+    else:
+        data['td_id'] = None
+
+    data['wires'] = request.form['type_isolation']
+    data['type_circuit'] = request.form['type_circuit']
+    
     circuit_id = Circuit.add_circuit(data)
     data['qty'] = request.form['qty']
     data['power'] = request.form['power']
@@ -102,11 +108,18 @@ def new_circuits():
     total_current = round(total_power/float(data['single_voltage']),2)
     data1 = {'method':data['method'],'total_current':total_current}
     current_by_method= Proyect.current(data1)
+    print(current_by_method)
     data2 = {}
+    data2['circuit_id'] = circuit_id
     data2['secctionmm2'] = float(current_by_method[0]['secction_mm2'])
     data2['current_by_method'] = current_by_method[0][data['method']]
-    data2['circuit_id'] = circuit_id
+    data2['breakers'] = current_by_method[0]['disyuntor']
+    data2['elect_differencial'] = current_by_method[0]['diferencial']
+    print(data2)
+    Circuit.update_method(data2)
     Circuit.update_secctionmm2(data2)
+    Circuit.update_breakers(data2)
+    Circuit.update_elect_differencial(data2)
     data3 = { 'vp':round((2*0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
     Circuit.update_vp(data3)
     if circuit_id:
@@ -115,6 +128,18 @@ def new_circuits():
     else:
         pass
     return redirect('/loadbox/')
+
+# --------- PROBANDO ---------------
+
+@app.route('/pro')
+def pro():
+    if 'user_id' not in session:
+        return redirect('/logout')
+
+    data ={'id': session['user_id']}
+
+    user = User.get_by_id(data)
+    return render_template('house_tds.html', user=user)
 
 
 
@@ -126,5 +151,24 @@ def get_tgs():
     tgs = Tgs.get_tgs_by_project({'proyect_id': proyect})
     return jsonify(tgs)
 
+@app.route('/api/tds', methods=['POST'])
+def get_tds():
+    tgs = request.form['tgs']
+    tgs = Tds.get_all_tds_by_tg_id({'tg_id':tgs})
+    circuit_tg = Circuit.get_all_circuits_by_tg_id({'tg_id':tgs[0]['tg_id']})
+    print(tgs)
+    return jsonify(tgs, circuit_tg)
 
 
+@app.route('/api/circuits_td', methods=['POST'])
+def get_all_circuits_by_tds():
+
+    tgs_values = request.form.getlist('tgs[]')
+    tds_values = request.form.getlist('tds[]')
+
+    data = {
+        'tg_id': tgs_values,
+        'td_id': tds_values
+    }
+    circuit_td = Circuit.get_all_circuit_and_tds_by_tg(data)
+    return jsonify(circuit_td)

@@ -4,269 +4,107 @@
 
 {% block content %}
 
-<div class="d-flex">
-    <div>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticProyect">Crear Proyecto</button>
-    </div>
-    <div>
-        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#staticTableroGeneral">Agregar Tablero General</button>
-    </div>
-    <div>
-        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#staticTableroDistribucion">Agregar Tablero Distribucion</button>
-    </div>
-    <div>
-        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Agregar Circuitos</button>
-    </div>
-</div>
+<!------------------------------- VIEW PROYECTS------>
 
-<table class="table table-hover mt-3">
-    <thead class="table-light text-center">
-      <tr class="align-middle">
-        <th scope="col">Referencia</th>
-        <th scope="col">N° Circuito</th>
-        <th scope="col">Cantidad de cargas</th>
-        <th scope="col">Potencia por carga (W)</th>
-        <th scope="col">Potencia Total (Kw)</th>
-        <th scope="col">Intensidad Total (A)</th>
-        <th scope="col">Voltaje (V)</th>
-        <th scope="col">Fp</th>
-        <th scope="col">Largo (MT)</th>
-        <th scope="col">Vp (V)</th>
-        <th scope="col">Metodo de Instalación</th>
-        <th scope="col">Sección del Conductor</th>
-        <th scope="col">Tipo de Aislación</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for circuit in circuits %}
-        <tr class="text-center">
-            <th scope="row">{{ circuit.ref }}</th>
-            <td scope="row">{{ circuit.name }}</td>
-            <td scope="row">{{ circuit.qty }}</td>
-                {% if circuit.power % 1 !=0 %}
-                <td scope="row">{{ circuit.power }}</td>
-                {% else %}
-                <td scope="row">{{ circuit.power|int }}</td>
-                {% endif %}
-                {% if circuit.total_power % 1 !=0 %}
-                <td scope="row">{{ circuit.total_power }}</td>
-                {% else %}
-                <td scope="row">{{ circuit.total_power|int }}</td>
-                {% endif %}
-            <td scope="row">{{ circuit.total_current }}</td>
-                {% if circuit.single_voltage %}
-                <td scope="row">220</td>
-                {% endif %}
-            <td scope="row">{{ circuit.fp }}</td>
-            {% if circuit.length % 1 !=0 %}
-            <td scope="row">{{ circuit.length }}</td>
-            {% else %}
-            <td scope="row">{{ circuit.length|int }}</td>
-            {% endif %}
-            <td scope="row">{{ circuit.vp }}</td>
-            <td scope="row">{{ circuit.method|upper }}</td>
-            <td scope="row">{{ circuit.secctionmm2 }}</td>
-            <td scope="row">{{ circuit.wires }}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<!-------------- VIEW DETAIL FROM PROYECTS, TABLES AND CIRCUITS --------------->
 
-<!-- Modal nuevo proyecto-->
-<div class="modal fade" id="staticProyect" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Proyecto</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="container-fluid mt-3">
+
+<!-------------- PROYECTS --------------->
+
+    <div class="row justify-content-around" style="height: 100%;">
+        <div class="col-sm col-lg ms-2 border border-1">
+            <h4 class="mt-1">Proyecto</h4>
+            <h6 id="h6-pro" style="display: none;">Para comenzar crea un proyecto.</h6>
+            <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="proyect-id" onchange="select_proyect(this)" style="display: block;">
+                {% for proyect in proyects %}
+                    <option value="{{ proyect.id }}">{{ proyect.name }}</option>
+                {% endfor %}
+            </select>
         </div>
-            <form action="/new_proyect" method="post" id="myProyect">
-                <div class="modal-body">
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 180px;">Nombre del Proyecto</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre del proyecto" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>                                                          
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </div>
-            </form>
+<!-------------- TABLES GENERALS --------------->
+
+        <div class="col-sm col-lg mx-2 border border-1">
+            <h4 class="mt-1">Tablero General</h4>
+            <h6 id="h6-tgs" style="display: block;">Selecciona un proyecto para continuar o agrega un tablero general.</h6>
+            <div id="for-tgs" style="display: none;">
+                <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tgs-id" onchange="select_tds(this)"></select>
+            </div>
+        </div>
+<!-------------- TABLES DISTRIBUTIONS --------------->
+
+        <div class="col-sm col-lg me-2 border border-1">
+            <h4 class="mt-1">Tablero Distribucion</h4>
+            <h6 id="h6-tds" style="display: block;">Si hay tableros de distribución asociados, aparecerán aquí.</h6>
+            <div id="for-tds" style="display: none;">
+            <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tds-id" onchange="select_circuitTD(this)"; ></select>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Modal nuevo tablero general-->
-<div class="modal fade" id="staticTableroGeneral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Tablero General</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-------------- CIRCUITS --------------->
+
+
+<div class="container-fluid mt-3" id="h6-circuit" style="display: block;">
+    <div class="row">
+        <div class="col-sm col-lg mx-2 border border-1">
+            <div class="text-center my-1">
+                <h4>Circuito</h4>
+                <h6>Aquí se verán los circuitos asociados al tablero correspondiente.</h6>
+            </div>
         </div>
-            <form action="/add_tgs" method="post" id="myGeneralTable">
-                <div class="modal-body">
-                    <p>Debes elegir un proyecto para agregar un tablero principal.</p>
-                    <select class="form-select my-3 selectpicker" id="proyect-select" data-live-search="true" name="proyect_id">
-                        <option selected>-Seleccione Proyecto-</option>
-                        {% for proyect in proyects %}
-                            <option value="{{ proyect.id }}">{{ proyect.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nombre Tablero General</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre del tablero" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
-                        <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-                    </div>                                                           
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </div>
-            </form>
-      </div>
     </div>
 </div>
 
-<!-- Modal nuevo tablero distribucion-->
-<div class="modal fade" id="staticTableroDistribucion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Tablero de Distribución</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-------------- CIRCUITS BY TGS--------------->
+
+
+<div class="container-fluid mt-3" style="display: none;" id="tg-circuit">
+    <div class="row">
+        <div class="col-sm col-lg mx-2 border border-1">
+            <div class="text-center mt-1">
+                <h4>Circuito</h4>
+            </div>
+            <table class="w-100">
+                <thead>
+                    <tr class="text-center">
+                        <th class="border border-start-0 border-dark-subtle">Nombre</th>
+                        <th class="border border-dark-subtle px-1">N° Circuito</th>
+                        <th class="border border-dark-subtle px-1">Total Potencia [KW]</th>
+                        <th class="border border-dark-subtle px-1">Total Intensidad [A]</th>
+                        <th class="border border-dark-subtle px-1">Voltaje [V]</th>
+                        <th class="border border-end-0 border-dark-subtle ps-1">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tg-tbody-td"></tbody>
+            </table>
         </div>
-            <form action="/add_tds" method="post" id="myGeneralTable">
-                <div class="modal-body">
-                    <p>Debes elegir un tablero general para agregar un tablero de distribucion.</p>
-                    <select class="form-select my-2 selectpicker" id="proyect-select" data-live-search="true" name="proyect_id">
-                        <option selected>-Seleccione Proyecto-</option>
-                        {% for tg in tgs %}
-                            <option value="{{ tg.id }}">{{ tg.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="input-group my-2">
-                        <span class="input-group-text" id="basic-addon1" style="width: 230px;">Nombre Tablero distribucion</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group my-2">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
-                        <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-                    </div>                                                           
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </div>
-            </form>
-      </div>
     </div>
 </div>
 
-<!-- Modal agregar circuitos-->
-{% with messages = get_flashed_messages(category_filter=['circuito']) %}
-{% if messages %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Error:</strong>
-    {% for message in messages %}
-        <p>{{message}}</p>
-    {% endfor %}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endif %}
-{% endwith %}
+<!-------------- CIRCUITS BY TDS --------------->
 
-<div class="modal fade modal-lg modal-sm" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="/new_circuit" method="post" id="myCircuit" onsubmit="addCircuit(event)">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Agregando Circuitos</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>Primero debes elegir tu proyecto</h6>
-                    <select class="form-select my-3 selectpicker" id="proyect-select" data-live-search="true" onchange="proyect(this)" name="proyect_id">
-                        <option selected>-Seleccione Proyecto-</option>
-                        {% for proyect in proyects %}
-                            <option value="{{ proyect.id }}">{{ proyect.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <h6>A continuacion elige un tablero al que deseas agregar circuitos</h6>
-                    <select class="form-select my-3" name="tg_id" id="td-select">
-                        <option selected>-Seleccione Tablero-</option>     
-                    </select>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1">Referencia</span>
-                        <input type="text" class="form-control" placeholder="Ubicacion o Referencia" aria-label="Username" aria-describedby="basic-addon1" name="ref">
-                    </div>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1">N° de Circuito</span>
-                        <input type="number" class="form-control" placeholder="Ingresa numero de circuito" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de Metodo</span>
-                        <select class="form-select" aria-label="Default select example" name="method">
-                            <option selected>Selecciona un metodo</option>
-                            <option value="a1">Metodo A1</option>
-                            <option value="a2">Metodo A2</option>
-                            <option value="b1">Metodo B1</option>
-                            <option value="b2">Metodo B2</option>
-                            <option value="d1">Metodo D1</option>
-                            <option value="d2">Metodo D2</option>
-                            <option value="e">Metodo E</option>
-                            <option value="f">Metodo F</option>
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de Aislación</span>
-                        <select class="form-select" aria-label="Default select example" name="type_isolation">
-                            <option selected>Selecciona tipo aislación</option>
-                            {% for wire in wires %}
-                                <option value="{{ wire.name }}">{{ wire.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de circuito</span>
-                        <select class="form-select" aria-label="Default select example" name="type_circuit">
-                            <option selected>Selecciona un tipo</option>
-                            <option value="feeder">Alimentador</option>
-                            <option value="subfeeder">Subalimentador</option>
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Cantidad de Cargas</span>
-                        <input type="number" class="form-control" placeholder="Ingresa la cantidad total de cargas" aria-label="Username" aria-describedby="basic-addon1" name="qty">
-                        <input type="hidden" class="form-control" placeholder="Ingresa la cantidad total de cargas" aria-label="Username" aria-describedby="basic-addon1" name="fp" value="1">
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
-                        <input type="text" class="form-control" placeholder="Ingresa la potencia por carga" aria-label="Username" aria-describedby="basic-addon1" name="power">
-                    </div>
-                    <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Ingresa el Voltaje</span>
-                        <select class="form-select" aria-label="Default select example" name="single_voltage">
-                            <option selected>Selecciona un voltaje</option>
-                            <option value="0.220">220</option>
-                            <option value="0.380" disabled>380</option>
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon3">Largo del Circuito</span>
-                        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
-                    </div>
-                    <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" onclick="succes()">Agregar</button>
-                </div>
-            </form>
+
+<div class="container-fluid mt-3" style="display: none;" id="td-circuit">
+    <div class="row">
+        <div class="col-sm col-lg mx-2 border border-1">
+            <div class="text-center mt-1">
+                <h4>Circuito</h4>
+            </div>
+            <table class="w-100">
+                <thead>
+                    <tr class="text-center">
+                        <th class="border border-start-0 border-dark-subtle">Nombre</th>
+                        <th class="border border-dark-subtle px-1">N° Circuito</th>
+                        <th class="border border-dark-subtle px-1">Total Potencia [KW]</th>
+                        <th class="border border-dark-subtle px-1">Total Intensidad [A]</th>
+                        <th class="border border-dark-subtle px-1">Voltaje [V]</th>
+                        <th class="border border-end-0 border-dark-subtle ps-1">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="td-tbody-td"></tbody>
+            </table>
         </div>
     </div>
 </div>

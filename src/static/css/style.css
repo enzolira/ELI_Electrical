@@ -14,4 +14,34 @@
   .navbar {
     height: 50px;
   }
+
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+
+.col {
+  width: 100%; /* Ocupa todo el ancho del contenedor */
+  margin: 0.5em 0; /* Márgenes superiores e inferiores */
+}
+
+.h4 {
+  font-size: 1.5rem; /* Tamaño de fuente relativo */
+}
+
+.h6 {
+  font-size: 1rem; /* Tamaño de fuente relativo */
+}
+
+@media (min-width: 768px) {
+  .col {
+    width: 50%; /* Ocupa el 50% del ancho del contenedor en pantallas grandes */
+  }
+}
+
+
   

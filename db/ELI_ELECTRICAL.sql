@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   `ref` TEXT NULL,
+  `total_center` INT NULL,
   `single_voltage` DECIMAL(4,3) NULL,
   `fp` INT NULL,
   `length` DECIMAL(6,2) NULL,
@@ -109,6 +110,8 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `type_circuit` VARCHAR(255) NULL,
   `vp` DECIMAL(6,2) NULL,
   `created_at` DATETIME NOT NULL DEFAULT NOW(),
+  `breakers` VARCHAR(255) NULL,
+  `elect_differencial` VARCHAR(45) NULL,
   `updated_at` DATETIME NOT NULL DEFAULT NOW(),
   `tg_id` INT NOT NULL,
   `td_id` INT NULL,
@@ -199,6 +202,58 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
     REFERENCES `ELI_ELECTRICAL`.`circuits` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`singles_breakers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`singles_breakers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`three_breakers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`three_breakers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`singles_elect_diff`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`singles_elect_diff` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`three_elect_diff`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`three_elect_diff` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 

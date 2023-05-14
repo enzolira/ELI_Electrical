@@ -26,7 +26,7 @@ class Proyect:
 
     @classmethod
     def get_all_tgs_by_proyect_id_and_user_id(cls,data):
-        query = "SELECT tgs.name FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE user_id = %(id)s"
+        query = "SELECT * FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE user_id = %(id)s"
         results = connectToMySQL(cls.db).query_db(query,data)
         tds = []
         for pro in results:
@@ -34,12 +34,31 @@ class Proyect:
         return tds
     
     
-    @classmethod
-    def current(cls,data):
-        query = "SELECT * FROM wiresthrv WHERE " + data.get('method') + " >= %(total_current)s OR ABS(" + data.get('method') + " - %(total_current)s ) < 0.20 ORDER BY " + data.get('method') + " LIMIT 1;"
-        result = connectToMySQL(cls.db).query_db(query,data)
-        return result
+    # @classmethod
+    # def current(cls,data):
+    #     query = "SELECT * FROM wiresthrv WHERE " + data.get('method') + " >= %(total_current)s OR ABS(" + data.get('method') + " - %(total_current)s ) < 0.20 ORDER BY " + data.get('method') + " LIMIT 1;"
+    #     result = connectToMySQL(cls.db).query_db(query,data)
+    #     return result
     
+    # @classmethod
+    # def current(cls,data):
+    #     query = "SELECT singles_break.name AS breakers, singles_diff.name AS elect_differencial, wiresthrv.secction_mm2, wiresthrv. " + data.get('method') + " FROM \
+    #     (SELECT * FROM singles_breakers WHERE capacity > " + data.get('total_current') + " OR ABS(capacity - " + data.get('total_current') + ") < 0.40 ORDER BY capacity LIMIT 1) AS singles_break JOIN \
+    #     (SELECT * FROM singles_elect_diff WHERE capacity > " + data.get('total_current') + " OR ABS(capacity - " + data.get('total_current') + ") < 0.40 ORDER BY capacity LIMIT 1) AS singles_diff JOIN \
+    #     (SELECT * FROM wiresthrv WHERE " + data.get('method') + " > " + data.get('total_current') + " OR ABS( " + data.get('method') + " - " + data.get('total_current') + ") < 0.40 ORDER BY secction_mm2 LIMIT 1) AS wiresthrv ON 1=1;"
+    #     result = connectToMySQL(cls.db).query_db(query,data)
+    #     return result
+    
+    @classmethod
+    def current(cls, data):
+        query = "SELECT singles_break.name AS disyuntor, singles_diff.name AS diferencial, wiresthrv.secction_mm2, wiresthrv." + str(data.get('method')) + " FROM \
+            (SELECT * FROM singles_breakers WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS singles_break JOIN \
+            (SELECT * FROM singles_elect_diff WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS singles_diff JOIN \
+            (SELECT * FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + " OR ABS( " + str(data.get('method')) + " - " + str(data.get('total_current')) + ") < 0.40 ORDER BY secction_mm2 LIMIT 1) AS wiresthrv ON 1=1;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+
     @classmethod
     def get_all_wires(cls):
         query = "SELECT * FROM wires"
