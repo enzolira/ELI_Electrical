@@ -93,14 +93,15 @@ def new_circuits():
         'length': request.form['length'],
         'tg_id' : request.form['tg_id']
     }
-    if request.form['td_id']: 
+    if 'td_id' in request.form and len(request.form['td_id']) > 0:
         data['td_id'] = request.form['td_id']
     else:
         data['td_id'] = None
 
+
     data['wires'] = request.form['type_isolation']
     data['type_circuit'] = request.form['type_circuit']
-    
+    print(data)
     circuit_id = Circuit.add_circuit(data)
     data['qty'] = request.form['qty']
     data['power'] = request.form['power']
@@ -149,14 +150,15 @@ def pro():
 def get_tgs():
     proyect = request.form['proyect']
     tgs = Tgs.get_tgs_by_project({'proyect_id': proyect})
+    print(tgs)
     return jsonify(tgs)
 
 @app.route('/api/tds', methods=['POST'])
 def get_tds():
-    tgs = request.form['tgs']
-    tgs = Tds.get_all_tds_by_tg_id({'tg_id':tgs})
-    circuit_tg = Circuit.get_all_circuits_by_tg_id({'tg_id':tgs[0]['tg_id']})
-    print(tgs)
+    tg_id = request.form['tgs']
+    circuit_tg = Circuit.get_all_circuits_by_tg_id({'tg_id':tg_id})
+    tgs = Tds.get_all_tds_by_tg_id({'tg_id':tg_id})
+    print(circuit_tg)
     return jsonify(tgs, circuit_tg)
 
 
@@ -170,5 +172,9 @@ def get_all_circuits_by_tds():
         'tg_id': tgs_values,
         'td_id': tds_values
     }
-    circuit_td = Circuit.get_all_circuit_and_tds_by_tg(data)
+    circuit_td = {}
+    if data['td_id'] and data['tg_id']:
+        circuit_td = Circuit.get_all_circuit_and_tds_by_tg(data)
+    else:
+        pass
     return jsonify(circuit_td)

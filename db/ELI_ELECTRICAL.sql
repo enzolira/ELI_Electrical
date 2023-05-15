@@ -99,7 +99,6 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   `ref` TEXT NULL,
-  `total_center` INT NULL,
   `single_voltage` DECIMAL(4,3) NULL,
   `fp` INT NULL,
   `length` DECIMAL(6,2) NULL,

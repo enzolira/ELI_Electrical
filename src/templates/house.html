@@ -22,6 +22,16 @@
                 {% endfor %}
             </select>
         </div>
+        <script>
+            var proyects = { proyects };
+            
+            if (proyects.length === 0) {
+              var h6Pro = document.getElementById("h6-pro");
+              var proyect = document.getElementById("proyect-id");
+              h6Pro.style.display = "block";
+              proyect.style.display = "none"; 
+            } 
+        </script>
 <!-------------- TABLES GENERALS --------------->
 
         <div class="col-sm col-lg mx-2 border border-1">

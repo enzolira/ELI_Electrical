@@ -70,13 +70,15 @@ function tds(element) {
       
         const selectElement = document.getElementById("td-select");
         selectElement.style.display = 'none';
+        selectElement.innerHTML = '';
       }
-      },
-      error: (xhr, textStatus, error) => {
-        console.log(xhr, textStatus, error);
-      },
-    });
+    },
+    error: (xhr, textStatus, error) => {
+      console.log(xhr, textStatus, error);
+    },
+  });
 }
+
 // ----------- VIEW LOADBOX PAGE -----------------------
 
 // ----------- SELECT PROYECTS AND TGS -----------------------
@@ -93,13 +95,8 @@ function select_proyect(element){
         // Cambiar el estado de display del select
         const selectElement1 = document.getElementById("for-tgs");
         const selectElement2 = document.getElementById("h6-tgs");
-        const selectElement6= document.getElementById("proyect-id");
-        const selectElement7= document.getElementById("h6-pro");
         selectElement1.style.display = 'block';
         selectElement2.style.display = 'none';
-        selectElement6.style.display = 'block';
-        selectElement7.style.display = 'none';
-
         tableSelect = document.getElementById("tgs-id");
         content = '';
         data.map(xl => {
@@ -116,8 +113,8 @@ function select_proyect(element){
         selectElement3.style.display = 'none';
         selectElement4.style.display = 'block';
         selectElement5.style.display = 'none';
-        selectElement6.style.display = 'block';
-        selectElement7.style.display = 'none';
+        // selectElement6.style.display = 'block';
+        // selectElement7.style.display = 'none';
       }
       else {
         // Código para cuando data está vacío
@@ -128,8 +125,6 @@ function select_proyect(element){
         const selectElement3 = document.getElementById("tg-circuit");
         const selectElement4 = document.getElementById("h6-circuit");
         const selectElement5 = document.getElementById("td-circuit");
-        const selectElement6= document.getElementById("proyect-id");
-        const selectElement7= document.getElementById("h6-pro");
         divhide1.style.display = 'none';
         divhide2.style.display = 'block';
         divhide3.style.display = 'none';
@@ -137,8 +132,6 @@ function select_proyect(element){
         selectElement3.style.display = 'none';
         selectElement4.style.display = 'block';
         selectElement5.style.display = 'none';
-        selectElement6.style.display = 'none';
-        selectElement7.style.display = 'block';
       }
       },
       error: (xhr, textStatus, error) => {
@@ -164,15 +157,25 @@ function select_tds(element) {
         const selectElement2 = document.getElementById("h6-tds");
         selectElement2.style.display = 'none';
         selectElement1.style.display = 'block';
+        const selectElement4 = document.getElementById("td-circuit");
+        const selectElement5 = document.getElementById("h6-circuit");
+        selectElement4.style.display = 'none';
+        selectElement5.style.display = 'none';
         tableSelect = document.getElementById("tds-id");
         content = '';
         data[0].map(xl => {
           content += `<option value=${xl.id}>${xl.name}</option>`;
         });
         tableSelect.innerHTML = content;
+      }
         if (Array.isArray(data[1]) && data[1].length > 0) {
+          console.log(data[1]);
           const selectElement1 = document.getElementById("tg-circuit");
           const selectElement2 = document.getElementById("h6-circuit");
+          const selectElement4 = document.getElementById("td-circuit");
+          const selectElement5 = document.getElementById("h6-circuit");
+          selectElement4.style.display = 'none';
+          selectElement5.style.display = 'none';
           selectElement1.style.display = 'block';
           selectElement2.style.display = 'none';
         
@@ -184,7 +187,7 @@ function select_tds(element) {
               <tr class="border-top border-dark-subtle text-center">
                 <td class="border-end border-dark-subtle">${xl.ref}</td>
                 <td class="border-end border-dark-subtle">${xl.name}</td>
-                <td class="border-end border-dark-subtle">${xl.power}</td>
+                <td class="border-end border-dark-subtle">${xl.total_power}</td>
                 <td class="border-end border-dark-subtle">${xl.total_current}</td>
                 <td class="border-end border-dark-subtle">220</td>
                 <td><a href="#" class="me-2">Ver</a><a href="#" class="me-2">Editar</a><a href="#" class="me-2">Borrar</a></td>
@@ -196,18 +199,16 @@ function select_tds(element) {
         } else {
           const selectElement1 = document.getElementById("tg-circuit");
           const selectElement2 = document.getElementById("h6-circuit");
+          const selectElement3 = document.getElementById("td-circuit");
           selectElement1.style.display = 'none';
           selectElement2.style.display = 'block';
-        }
-        
-      } else {
-        // Código para cuando data está vacío
-        const divhide = document.getElementById('for-tds');
-        const divshow = document.getElementById('h6-tds');
-        divhide.style.display = 'none';
-        divshow.style.display = 'block';
-      }
-    },
+          selectElement3.style.display = 'none';
+          const divhide = document.getElementById('for-tds');
+          const divshow = document.getElementById('h6-tds');
+          divhide.style.display = 'none';
+          divshow.style.display = 'block';
+        }  
+      },
     error: (xhr, textStatus, error) => {
       console.log(xhr, textStatus, error);
     },
@@ -244,19 +245,21 @@ function getSelectedValues(select) {
 }
 
 function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
-  console.log(tgsSelectedValues, tdsSelectedValues);
   $.ajax({
     url: '/api/circuits_td',
     method: 'POST',
     data: { tgs: tgsSelectedValues, tds: tdsSelectedValues },
     success: (data, textStatus, xhr) => {
-      console.log(data);
       if (Array.isArray(data) && data.length > 0) {
         // Cambiar el estado de display del select
         const selectElement1 = document.getElementById("td-circuit");
         const selectElement2 = document.getElementById("h6-circuit");
         selectElement1.style.display = 'block';
         selectElement2.style.display = 'none';
+        const selectElement3 = document.getElementById("tg-circuit");
+        const selectElement4 = document.getElementById("h6-circuit");
+        selectElement3.style.display = 'none';
+        selectElement4.style.display = 'none';
         const tableCircuit = document.getElementById("td-tbody-td")
         content = '';
         data.map(xl => {
@@ -264,7 +267,7 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
           `<tr class="border-top border-dark-subtle text-center">
             <td class="border-end border-dark-subtle">${xl.ref}</td>
             <td class="border-end border-dark-subtle">${xl.name}</td>
-            <td class="border-end border-dark-subtle">${xl.power}</td>
+            <td class="border-end border-dark-subtle">${xl.total_power}</td>
             <td class="border-end border-dark-subtle">${xl.total_current}</td>
             <td class="border-end border-dark-subtle">220</td>
             <td><a href="#" class="me-2">Ver</a><a href="#" class="me-2">Editar</a><a href="#" class="me-2">Borrar</a></td>
@@ -272,13 +275,12 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
         });
         console.log(content);
         tableCircuit.innerHTML = content;
-        console.log(tableCircuit);
       } else {
         // Código para cuando data está vacío
         const selectElement1 = document.getElementById("tg-circuit");
         const selectElement2 = document.getElementById("h6-circuit");
         selectElement1.style.display = 'none';
-        selectElement2.style.display = 'block';
+        selectElement2.style.display = 'none';
       }
     },
     error: (xhr, textStatus, error) => {
