@@ -58,6 +58,16 @@ class Circuit:
             circuit_tds.append(ctd)
         return circuit_tds
 
+    @classmethod
+    def detail_circuit_by_id(cls, data):
+        query = "SELECT *, circuits.length AS largo FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.id = %(circuit_id)s;"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        circuits = []
+        if (not results):
+            return []
+        for ct in results:
+            circuits.append(ct)
+        return circuits
 
     @classmethod
     def add_circuit(cls,data):
@@ -71,6 +81,17 @@ class Circuit:
         query = "UPDATE circuits SET current_by_method = %(current_by_method)s WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+    
+    @classmethod
+    def vp_real(cls, data):
+        query = "SELECT secction_mm2 , " + str(data.get('method')) + " AS method  FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + ";"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        currents = []
+        if (not results):
+            return []
+        for cu in results:
+            currents.append(cu)
+        return currents
     
     @classmethod
     def update_vp(cls, data):

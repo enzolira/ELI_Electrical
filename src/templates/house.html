@@ -23,7 +23,7 @@
             </select>
         </div>
         <script>
-            var proyects = { proyects };
+            var proyects = {{ proyects }};
             
             if (proyects.length === 0) {
               var h6Pro = document.getElementById("h6-pro");
@@ -47,7 +47,7 @@
             <h4 class="mt-1">Tablero Distribucion</h4>
             <h6 id="h6-tds" style="display: block;">Si hay tableros de distribución asociados, aparecerán aquí.</h6>
             <div id="for-tds" style="display: none;">
-            <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tds-id" onchange="select_circuitTD(this)"; ></select>
+                <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tds-id" onchange="select_circuitTD(this)"; ></select>
             </div>
         </div>
     </div>
@@ -61,11 +61,13 @@
         <div class="col-sm col-lg mx-2 border border-1">
             <div class="text-center my-1">
                 <h4>Circuito</h4>
-                <h6>Aquí se verán los circuitos asociados al tablero correspondiente.</h6>
+                <h6 id="h6-circuit2" style="display: block;">Aquí se verán los circuitos asociados al tablero correspondiente.</h6>
+                <h5 id="h5-circuit" style="display: none;">No tienes circuitos.</h5>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-------------- CIRCUITS BY TGS--------------->
 
@@ -118,4 +120,50 @@
         </div>
     </div>
 </div>
+
+<!-- ------------MODAL DETAIL --------------->
+
+<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="nameCircuit"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table id="table-detail">
+                <thead>
+                    <tr class="text-center">
+                        <th class="border border-dark-subtle px-1">Nombre</th>
+                        <th class="border border-dark-subtle px-1">N° Circuito</th>
+                        <th class="border border-dark-subtle px-1">Cantidad de Cargas</th>
+                        <th class="border border-dark-subtle px-1">Potencia por Carga [W]</th>
+                        <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                        <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                        <th class="border border-dark-subtle px-1">Tipo de Circuito</th>
+                        <th class="border border-dark-subtle px-1">Largo [MT]</th>
+                        <th class="border border-dark-subtle px-1">Fp</th>
+                        <th class="border border-dark-subtle px-1">Vp [V]</th>
+                        <th class="border border-dark-subtle px-1">Tipo de Aislacion</th>
+                        <th class="border border-dark-subtle px-1">Sección del Conductor [mm2]</th>
+                        <th class="border border-dark-subtle px-1">Disyuntor</th>
+                        <th class="border border-dark-subtle px-1">Prot. Diferencial</th>
+                    </tr>
+                </thead>
+                <tbody id="detail-circuit"></tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Understood</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ------------MODAL EDIT ----------------->
+<!-- ------------MODAL DELETE --------------->
+
+
+
 {% endblock %}

@@ -20,11 +20,13 @@ class Tds:
 
     @classmethod
     def get_all_tds_by_tg_id(cls, data):
-        query = "SELECT * FROM tds WHERE tg_id = %(tg_id)s;"
+        query = "SELECT * FROM tds WHERE tg_id = " + str(data.get('tg_id')) + ";"
         results = connectToMySQL(cls.db).query_db(query, data)
+        print(results)
         if (not results):
             return []
         tds = []
         for i in results:
             tds.append(i)
+            print(tds)
         return tds

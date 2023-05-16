@@ -106,21 +106,42 @@
         </div>
             <form action="/add_tds" method="post" id="myGeneralTable">
                 <div class="modal-body">
-                    <p>Debes elegir un tablero general para agregar un tablero de distribucion.</p>
-                    <select class="form-select my-2 selectpicker" id="proyect-select" data-live-search="true" name="tg_id">
-                        <option selected>-Seleccione Tablero General-</option>
-                        {% for tg in tgs %}
-                            <option value="{{ tg.id }}">{{ tg.name }}</option>
+                    <p>Elige un proyecto.</p>
+                    <select class="form-select my-3 selectpicker" id="proyect-select2" data-live-search="true" onchange="proyect(this)" name="proyect_id">
+                        <option selected>-Seleccione Proyecto-</option>
+                        {% for proyect in proyects %}
+                            <option value="{{ proyect.id }}">{{ proyect.name }}</option>
                         {% endfor %}
                     </select>
-                    <div class="input-group my-2">
+                    <h5 id="tg-h5" style="display: none;">Debes crear un tablero general para este proyecto.</h5>
+                    <div id="div-tg" style="display:block;">
+                        <p>Selecciona el tablero general.</p>
+                        <!-- <h5 id="tg-h5" style="display: none;">Debes crear un tablero general para este proyecto.</h5> -->
+                        <select class="form-select my-3" name="tg_id" id="tg-select2">
+                            <option selected>-Seleccione Tablero General-</option> 
+                        </select>
+                        <div class="input-group my-3">
+                            <span class="input-group-text" id="basic-addon1" style="width: 230px;">Nombre Tablero distribucion</span>
+                            <input type="text" class="form-control" placeholder="Ingresa nombre" aria-label="Username" aria-describedby="basic-addon1" name="name">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
+                            <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
+                        </div>         
+                    </div>
+                    <!-- <p id="tg-h6" style="display: none;">Selecciona el tablero general.</p>
+                    <h5 id="tg-h5" style="display: none;">Debes crear un tablero general para este proyecto.</h5>
+                    <select class="form-select my-3" name="tg_id" id="tg-select2" style="display: none;">
+                        <option selected>-Seleccione Tablero General-</option> 
+                    </select>
+                    <div class="input-group my-3 d-none" id="name_dist">
                         <span class="input-group-text" id="basic-addon1" style="width: 230px;">Nombre Tablero distribucion</span>
                         <input type="text" class="form-control" placeholder="Ingresa nombre" aria-label="Username" aria-describedby="basic-addon1" name="name">
                     </div>
-                    <div class="input-group my-2">
+                    <div class="input-group d-none" id="name_dist2">
                         <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
                         <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-                    </div>                                                           
+                    </div>                                                            -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
@@ -233,7 +254,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" onclick="succes()">Agregar</button>
+                    <button type="submit" class="btn btn-primary" onclick="addCircuit(this)">Agregar</button>
                 </div>
             </form>
         </div>

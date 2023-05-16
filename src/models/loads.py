@@ -15,6 +15,6 @@ class Load:
 
     @classmethod
     def save(cls, data):
-        query = "INSERT INTO loads (qty, power, total_power, total_current, created_at, updated_at, circuit_id) VALUES (%(qty)s, %(power)s, ((" + data.get('qty') + " * " + data.get('power') + ")/1000), ROUND(((" + data.get('qty') + " * " + data.get('power') + ")/1000)/" + data.get('single_voltage') + ",2), NOW(), NOW(), %(circuit_id)s);"
+        query = "INSERT INTO loads (qty, power, total_power, total_current, created_at, updated_at, circuit_id) VALUES (%(qty)s, %(power)s, %(total_power)s, %(total_current)s, NOW(), NOW(), %(circuit_id)s);"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
