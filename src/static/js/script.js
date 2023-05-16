@@ -81,7 +81,6 @@ function tds(element) {
     method: 'POST',
     data: { tgs: element.value },
     success: (data, textStatus, xhr) => {
-      console.log(data)
       if (Array.isArray(data[0]) && data[0].length > 0) {
         // Cambiar el estado de display del select
         const selectElement = document.getElementById("td-select");
@@ -122,7 +121,6 @@ function select_proyect(element){
     method: 'POST',
     data: {proyect: element.value},
     success: (data, textStatus, xhr) => {
-      console.log(data)
       if (Array.isArray(data) && data.length > 0) {
         // Cambiar el estado de display del select
         const selectElement1 = document.getElementById("for-tgs");
@@ -188,10 +186,8 @@ function select_tds(element) {
     method: 'POST',
     data: { tgs: element.value},
     success: (data, textStatus, xhr) => {
-      console.log(data[0]);
       if (Array.isArray(data[0]) && data[0].length > 0) {
         // Cambiar el estado de display del select
-        console.log(data[0]);
         const selectElement1 = document.getElementById("for-tds");
         const selectElement2 = document.getElementById("h6-tds");
         selectElement2.style.display = 'none';
@@ -217,16 +213,19 @@ function select_tds(element) {
         selectElement3.style.display = 'none';
         selectElement6.style.display = 'none';
         selectElement7.style.display = 'block';
+        const selectElement11 = document.getElementById("for-tds");
+        const selectElement22 = document.getElementById("h6-tds");
+        selectElement22.style.display = 'block';
+        selectElement11.style.display = 'none';
         }
       if (Array.isArray(data[1]) && data[1].length > 0) {
-        console.log(data[1]);
         const selectElement11 = document.getElementById("tg-circuit");
         const selectElement22 = document.getElementById("h6-circuit");
         const selectElement44 = document.getElementById("td-circuit");
         selectElement11.style.display = 'block';
         selectElement22.style.display = 'none';
         selectElement44.style.display = 'none';
-      
+        
         const tableCircuit = document.getElementById("tg-tbody-td");
         let content = '';
       
@@ -238,11 +237,10 @@ function select_tds(element) {
               <td class="border-end border-dark-subtle">${xl.total_power}</td>
               <td class="border-end border-dark-subtle">${xl.total_current}</td>
               <td class="border-end border-dark-subtle">220</td>
-              <td><button class="btn border" onclick="detail_circuit_tds(this)" data-circuit-id="${xl.id}" class="me-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn border" class="me-2">Editar</button><button class="btn border"  class="me-2">Borrar</button></td>
+              <td><button type="button" class="btn btn-outline-secondary" onclick="detail_circuit_tds(this)" data-circuit-id="${xl.id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary mx-2">Editar</button><button class="btn btn-outline-secondary">Borrar</button></td>
             </tr>`;
           });
 
-          console.log(content);
           tableCircuit.innerHTML = content;
 
       } else {
@@ -300,9 +298,8 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
         selectElement1.style.display = 'block';
         selectElement2.style.display = 'none';
         const selectElement3 = document.getElementById("tg-circuit");
-        const selectElement4 = document.getElementById("h6-circuit");
         selectElement3.style.display = 'none';
-        selectElement4.style.display = 'none';
+     
         const tableCircuit = document.getElementById("td-tbody-td")
         content = '';
         data.map(xl => {
@@ -313,10 +310,9 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
             <td class="border-end border-dark-subtle">${xl.total_power}</td>
             <td class="border-end border-dark-subtle">${xl.total_current}</td>
             <td class="border-end border-dark-subtle">220</td>
-            <td><button class="btn border" onclick="detail_circuit_tds(this)" data-circuit-id="${xl.id}" class="me-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn border" class="me-2">Editar</button><button class="btn border"  class="me-2">Borrar</button></td>
+            <td><button type="button" class="btn btn-outline-secondary" onclick="detail_circuit_tds(this)" data-circuit-id="${xl.id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary mx-2">Editar</button><button class="btn btn-outline-secondary">Borrar</button></td>
           </tr>`;
         });
-        console.log(content);
         tableCircuit.innerHTML = content;
       } else {
         // Código para cuando data está vacío
@@ -324,10 +320,12 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
         const selectElement2 = document.getElementById("h6-circuit");
         const selectElement4 = document.getElementById("h6-circuit2");
         const selectElement3 = document.getElementById("h5-circuit");
+        const selectElement33 = document.getElementById("td-circuit");
         selectElement1.style.display = 'none';
         selectElement4.style.display = 'none';
         selectElement2.style.display = 'block';
         selectElement3.style.display = 'block';
+        selectElement33.style.display = 'none';
       }
     },
     error: (xhr, textStatus, error) => {
@@ -340,7 +338,6 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
 
 function detail_circuit_tds(element) {
   var circuitId = element.getAttribute("data-circuit-id");
-  console.log(circuitId);
   $.ajax({
     url: `/api/detail/tds`,
     method: "POST",
@@ -376,8 +373,6 @@ function detail_circuit_tds(element) {
             <td class="border border-dark-subtle">${ct.elect_differencial}</td>
           </tr>`;        
         });
-        console.log(content);
-        console.log(data[0]['ref']);
         detailTable.innerHTML = content;
         nameCircuit.innerHTML = "Circuito: " + data[0]['ref'];
       }
