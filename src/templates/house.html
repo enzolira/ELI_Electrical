@@ -4,14 +4,13 @@
 
 {% block content %}
 
-<!------------------------------- VIEW PROYECTS------>
+<!------------------------------------------------- VIEW PROYECTS------------------------------------------------------->
 
-<!-------------- VIEW DETAIL FROM PROYECTS, TABLES AND CIRCUITS --------------->
+<!------------------------------------ VIEW DETAIL FROM PROYECTS, TABLES AND CIRCUITS --------------------------------->
+
+<!--------------------------------------------------- PROYECTS --------------------------------------------------------->
 
 <div class="container-fluid mt-3">
-
-<!-------------- PROYECTS --------------->
-
     <div class="row justify-content-around" style="height: 100%;">
         <div class="col-sm col-lg ms-2 border border-1">
             <h4 class="mt-1">Proyecto</h4>
@@ -32,7 +31,8 @@
               proyect.style.display = "none"; 
             } 
         </script>
-<!-------------- TABLES GENERALS --------------->
+<!--------------------------------------------------- GENERAL TABLES ----------------------------------------------->
+
 
         <div class="col-sm col-lg mx-2 border border-1">
             <h4 class="mt-1">Tablero General</h4>
@@ -41,19 +41,19 @@
                 <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tgs-id" onchange="select_tds(this)"></select>
             </div>
         </div>
-<!-------------- TABLES DISTRIBUTIONS --------------->
+<!--------------------------------------------------- DISTRIBUTIONS TABLES ----------------------------------------------->
 
         <div class="col-sm col-lg me-2 border border-1">
             <h4 class="mt-1">Tablero Distribucion</h4>
             <h6 id="h6-tds" style="display: block;">Si hay tableros de distribución asociados, aparecerán aquí.</h6>
             <div id="for-tds" style="display: none;">
-                <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tds-id" onchange="select_circuitTD(this)"; ></select>
+                <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tds-id" onchange="select_circuitTD(this)"></select>
             </div>
         </div>
     </div>
 </div>
 
-<!-------------- CIRCUITS --------------->
+<!----------------------------------------------------- CIRCUITS --------------------------------------------------------->
 
 
 <div class="container-fluid mt-3" id="h6-circuit" style="display: block;">
@@ -69,7 +69,7 @@
 </div>
 
 
-<!-------------- CIRCUITS BY TGS--------------->
+<!-------------------------------------------------- CIRCUITS BY TGS----------------------------------------------------->
 
 
 <div class="container-fluid mt-3" style="display: none;" id="tg-circuit">
@@ -83,19 +83,19 @@
                     <tr class="text-center">
                         <th class="border border-start-0 border-dark-subtle">Nombre</th>
                         <th class="border border-dark-subtle px-1">N° Circuito</th>
-                        <th class="border border-dark-subtle px-1">Total Potencia [KW]</th>
-                        <th class="border border-dark-subtle px-1">Total Intensidad [A]</th>
-                        <th class="border border-dark-subtle px-1">Voltaje [V]</th>
+                        <th class="border border-dark-subtle px-1">Total de Centros</th>
+                        <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                        <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
                         <th class="border border-end-0 border-dark-subtle ps-1">Opciones</th>
                     </tr>
                 </thead>
                 <tbody id="tg-tbody-td"></tbody>
-            </table>
+            </table>            
         </div>
     </div>
 </div>
 
-<!-------------- CIRCUITS BY TDS --------------->
+<!--------------------------------------------------- CIRCUITS BY TDS -------------------------------------------------->
 
 
 <div class="container-fluid mt-3" style="display: none;" id="td-circuit">
@@ -121,7 +121,8 @@
     </div>
 </div>
 
-<!-- ------------MODAL DETAIL --------------->
+
+<!-- ---------------------------------------------- MODAL DETAIL --------------------------------------------------------->
 
 <div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-fullscreen">
@@ -131,38 +132,74 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <table id="table-detail">
-                <thead>
-                    <tr class="text-center">
-                        <th class="border border-dark-subtle px-1">Nombre</th>
-                        <th class="border border-dark-subtle px-1">N° Circuito</th>
-                        <th class="border border-dark-subtle px-1">Cantidad de Cargas</th>
-                        <th class="border border-dark-subtle px-1">Potencia por Carga [W]</th>
-                        <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
-                        <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
-                        <th class="border border-dark-subtle px-1">Tipo de Circuito</th>
-                        <th class="border border-dark-subtle px-1">Largo [MT]</th>
-                        <th class="border border-dark-subtle px-1">Fp</th>
-                        <th class="border border-dark-subtle px-1">Vp [V]</th>
-                        <th class="border border-dark-subtle px-1">Tipo de Aislacion</th>
-                        <th class="border border-dark-subtle px-1">Sección del Conductor [mm2]</th>
-                        <th class="border border-dark-subtle px-1">Disyuntor</th>
-                        <th class="border border-dark-subtle px-1">Prot. Diferencial</th>
+            <div class="row flex-column">
+              <div class="col-sm col-lg mx-2">
+                <table id="table-detail" class="w-100">
+                  <thead id="detail-circuit-head">
+                    <tr class="text-center" style="font-size: 14px;">
+                      <th class="border border-dark-subtle px-1">Total de Centros</th>
+                      <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                      <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                      <th class="border border-dark-subtle px-1">Tipo de Circuito</th>
+                      <th class="border border-dark-subtle px-1">Largo [MT]</th>
+                      <th class="border border-dark-subtle px-1">Fp</th>
+                      <th class="border border-dark-subtle px-1">Vp [V]</th>
+                      <th class="border border-dark-subtle px-1">Tipo de Aislacion</th>
+                      <th class="border border-dark-subtle px-1">Sección del Conductor [mm2]</th>
+                      <th class="border border-dark-subtle px-1">Disyuntor</th>
+                      <th class="border border-dark-subtle px-1">Prot. Diferencial</th>
+                      <th class="border border-dark-subtle px-1">Opciones</th>
                     </tr>
-                </thead>
-                <tbody id="detail-circuit"></tbody>
-            </table>
-        </div>
+                  </thead>
+                  <tbody id="detail-circuit-body"></tbody>
+                </table>
+              </div>
+              <div class="col-sm col-lg mx-2 mt-3 d-flex justify-content-center">
+                <table id="table-detail-loads" class="w-100">
+                  <thead id="detail-circuit-loads-head">
+                    <tr class="text-center" style="font-size: 14px;">
+                      <th class="border border-dark-subtle px-1">Nombre</th>
+                      <th class="border border-dark-subtle px-1">Cantidad de Cargas</th>
+                      <th class="border border-dark-subtle px-1">Potencia por Carga [W]</th>
+                      <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                      <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                      <th class="border border-dark-subtle px-1">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detail-circuit-loads-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary">Understood</button>
         </div>
       </div>
     </div>
-  </div>
+</div>
 
-<!-- ------------MODAL EDIT ----------------->
-<!-- ------------MODAL DELETE --------------->
+<!-- ---------------------------------------------------- MODAL ADD LOADS -------------------------------------------------->
+
+<div class="modal fade modal-lg modal-sm" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/add_load" method="post">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Agregar Carga</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="add"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 
 

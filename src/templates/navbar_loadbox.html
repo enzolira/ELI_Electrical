@@ -194,13 +194,17 @@
                         <input type="text" class="form-control" placeholder="Ubicacion o Referencia" aria-label="Username" aria-describedby="basic-addon1" name="ref">
                     </div>
                     <div class="input-group my-3">
+                        <span class="input-group-text" id="basic-addon1">Nombre de la Carga</span>
+                        <input type="text" class="form-control" placeholder="Ingresa nombre del Consumo" aria-label="Username" aria-describedby="basic-addon1" name="nameloads">
+                    </div>
+                    <div class="input-group my-3">
                         <span class="input-group-text" id="basic-addon1">N° de Circuito</span>
-                        <input type="number" class="form-control" placeholder="Ingresa numero de circuito" aria-label="Username" aria-describedby="basic-addon1" name="name">
+                        <input type="number" class="form-control" placeholder="Ingresa numero de Circuito" aria-label="Username" aria-describedby="basic-addon1" name="name">
                     </div>
                     <div class="input-group mt-3">
                         <span class="input-group-text" id="basic-addon1">Tipo de Metodo</span>
                         <select class="form-select" aria-label="Default select example" name="method">
-                            <option selected>Selecciona un metodo</option>
+                            <option selected>Selecciona un Metodo</option>
                             <option value="a1">Metodo A1</option>
                             <option value="a2">Metodo A2</option>
                             <option value="b1">Metodo B1</option>
@@ -214,16 +218,16 @@
                     <div class="input-group mt-3">
                         <span class="input-group-text" id="basic-addon1">Tipo de Aislación</span>
                         <select class="form-select" aria-label="Default select example" name="type_isolation">
-                            <option selected>Selecciona tipo aislación</option>
+                            <option selected>Selecciona tipo Aislación</option>
                             {% for wire in wires %}
                                 <option value="{{ wire.name }}">{{ wire.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de circuito</span>
+                        <span class="input-group-text" id="basic-addon1">Tipo de Conductor</span>
                         <select class="form-select" aria-label="Default select example" name="type_circuit">
-                            <option selected>Selecciona un tipo</option>
+                            <option selected>Selecciona un Tipo</option>
                             <option value="feeder">Alimentador</option>
                             <option value="subfeeder">Subalimentador</option>
                         </select>

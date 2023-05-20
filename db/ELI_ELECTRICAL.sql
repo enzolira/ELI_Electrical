@@ -108,9 +108,12 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `current_by_method` DECIMAL(5,2) NULL,
   `type_circuit` VARCHAR(255) NULL,
   `vp` DECIMAL(6,2) NULL,
-  `created_at` DATETIME NOT NULL DEFAULT NOW(),
   `breakers` VARCHAR(255) NULL,
   `elect_differencial` VARCHAR(45) NULL,
+  `total_center` INT NULL,
+  `total_current_ct` DECIMAL(6,2) NULL,
+  `total_power_ct` DECIMAL(6,2) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT NOW(),
   `updated_at` DATETIME NOT NULL DEFAULT NOW(),
   `tg_id` INT NOT NULL,
   `td_id` INT NULL,
@@ -187,6 +190,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
   `id` INT NOT NULL AUTO_INCREMENT,
+  `nameloads` VARCHAR(255) NULL,
   `qty` INT NULL,
   `power` DECIMAL(6,2) NULL,
   `total_power` DECIMAL(6,2) NULL,

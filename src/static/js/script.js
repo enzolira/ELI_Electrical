@@ -15,7 +15,7 @@ function addCircuit(event){
 
 // ------------------------- CREATE CIRCUITS BY PROYECTS, TGS AND TDS --------------------
 
-// ----------- SELECT PROYECTS -----------------------
+// ------------------------------------------------- SELECT PROYECTS --------------------------------------------------
 
 function proyect(element) {
   console.log(element.value);
@@ -72,7 +72,7 @@ function proyect(element) {
 
 
 
-// ----------- SELECT TDS BY TGS -----------------------
+// ----------------------------------------------- SELECT TDS BY TGS ---------------------------------------------------
 
 function tds(element) {
   console.log(element.value);
@@ -110,9 +110,9 @@ function tds(element) {
   });
 }
 
-// ----------- VIEW LOADBOX PAGE -----------------------
+// -------------------------------------------- VIEW LOADBOX PAGE -----------------------------------------------------
 
-// ----------- SELECT PROYECTS AND TGS -----------------------
+// ----------------------------------------- SELECT PROYECTS AND TGS --------------------------------------------------
 
 function select_proyect(element){
   console.log(element.value);
@@ -125,49 +125,49 @@ function select_proyect(element){
         // Cambiar el estado de display del select
         const selectElement1 = document.getElementById("for-tgs");
         const selectElement2 = document.getElementById("h6-tgs");
+        const selectElement3 = document.getElementById('for-tds');
+        const selectElement4 = document.getElementById('h6-tds');
+        const selectElement5 = document.getElementById("tg-circuit");
+        const selectElement6 = document.getElementById("h6-circuit");
+        const selectElement7 = document.getElementById("td-circuit");
+        const selectElement8 = document.getElementById("h6-circuit2");
+        const selectElement9 = document.getElementById("h5-circuit");        
         selectElement1.style.display = 'block';
         selectElement2.style.display = 'none';
+        selectElement3.style.display = 'none';
+        selectElement4.style.display = 'block';
+        selectElement5.style.display = 'none';
+        selectElement6.style.display = 'block';
+        selectElement7.style.display = 'none';
+        selectElement8.style.display = 'block';
+        selectElement9.style.display = 'none';
         tableSelect = document.getElementById("tgs-id");
         content = '';
         data.map(xl => {
           content += `<option value=${xl.id}>${xl.name}</option>`
         });
         tableSelect.innerHTML = content;
-        const divhide = document.getElementById('for-tds');
-        const divshow = document.getElementById('h6-tds');
-        divhide.style.display = 'none';
-        divshow.style.display = 'block';
-        const selectElement3 = document.getElementById("tg-circuit");
-        const selectElement4 = document.getElementById("h6-circuit");
-        const selectElement5 = document.getElementById("td-circuit");
-        // const selectElement6 = document.getElementById("h6-circuit2");
-        // const selectElement7 = document.getElementById("h5-circuit");
-        selectElement3.style.display = 'none';
-        selectElement4.style.display = 'block';
-        selectElement5.style.display = 'none';
-        // selectElement6.style.display = 'block';
-        // selectElement7.style.display = 'none';
       }
       else {
         // Código para cuando data está vacío
-        const divhide1 = document.getElementById('for-tgs');
-        const divhide2 = document.getElementById('h6-tgs');
-        const divhide3 = document.getElementById('for-tds');
-        const divshow4 = document.getElementById('h6-tds');
-        const selectElement3 = document.getElementById("tg-circuit");
-        const selectElement4 = document.getElementById("h6-circuit");
-        const selectElement5 = document.getElementById("td-circuit");
-        const selectElement6 = document.getElementById("h6-circuit2");
-        const selectElement7 = document.getElementById("h5-circuit");
-        divhide1.style.display = 'none';
-        divhide2.style.display = 'block';
-        divhide3.style.display = 'none';
-        divshow4.style.display = 'block';
+        const selectElement1 = document.getElementById("for-tgs");
+        const selectElement2 = document.getElementById("h6-tgs");
+        const selectElement3 = document.getElementById('for-tds');
+        const selectElement4 = document.getElementById('h6-tds');
+        const selectElement5 = document.getElementById("tg-circuit");
+        const selectElement6 = document.getElementById("h6-circuit");
+        const selectElement7 = document.getElementById("td-circuit");
+        const selectElement8 = document.getElementById("h6-circuit2");
+        const selectElement9 = document.getElementById("h5-circuit");        
+        selectElement1.style.display = 'none';
+        selectElement2.style.display = 'block';
         selectElement3.style.display = 'none';
         selectElement4.style.display = 'block';
         selectElement5.style.display = 'none';
         selectElement6.style.display = 'block';
         selectElement7.style.display = 'none';
+        selectElement8.style.display = 'block';
+        selectElement9.style.display = 'none';
       }
       },
       error: (xhr, textStatus, error) => {
@@ -188,14 +188,10 @@ function select_tds(element) {
     success: (data, textStatus, xhr) => {
       if (Array.isArray(data[0]) && data[0].length > 0) {
         // Cambiar el estado de display del select
-        const selectElement1 = document.getElementById("for-tds");
-        const selectElement2 = document.getElementById("h6-tds");
-        selectElement2.style.display = 'none';
-        selectElement1.style.display = 'block';        
-        const selectElement4 = document.getElementById("td-circuit");
-        const selectElement5 = document.getElementById("h6-circuit");
-        selectElement4.style.display = 'none';
-        selectElement5.style.display = 'none';
+        const selectElement1 = document.getElementById("h6-tds");
+        const selectElement2 = document.getElementById("for-tds");
+        selectElement1.style.display = 'none';
+        selectElement2.style.display = 'block';        
         tableSelect = document.getElementById("tds-id");
         content = '';
         data[0].map(xl => {
@@ -203,51 +199,56 @@ function select_tds(element) {
         });
         tableSelect.innerHTML = content;
       } else {
-        const selectElement1 = document.getElementById("tg-circuit");
-        const selectElement2 = document.getElementById("h6-circuit");
-        const selectElement3 = document.getElementById("td-circuit");
-        const selectElement6 = document.getElementById("h6-circuit2");
-        const selectElement7 = document.getElementById("h5-circuit");
-        selectElement1.style.display = 'none';
-        selectElement2.style.display = 'block';
-        selectElement3.style.display = 'none';
-        selectElement6.style.display = 'none';
-        selectElement7.style.display = 'block';
-        const selectElement11 = document.getElementById("for-tds");
-        const selectElement22 = document.getElementById("h6-tds");
-        selectElement22.style.display = 'block';
-        selectElement11.style.display = 'none';
+        const selectElement1 = document.getElementById("h6-tds");
+        const selectElement2 = document.getElementById("for-tds");
+        selectElement1.style.display = 'block';
+        selectElement2.style.display = 'none';
         }
+
       if (Array.isArray(data[1]) && data[1].length > 0) {
-        const selectElement11 = document.getElementById("tg-circuit");
-        const selectElement22 = document.getElementById("h6-circuit");
-        const selectElement44 = document.getElementById("td-circuit");
-        selectElement11.style.display = 'block';
-        selectElement22.style.display = 'none';
-        selectElement44.style.display = 'none';
+        const selectElement1 = document.getElementById("h6-circuit");
+        const selectElement2 = document.getElementById("h6-circuit2");
+        const selectElement3 = document.getElementById("h5-circuit");
+        const selectElement4 = document.getElementById("td-circuit");
+        const selectElement5 = document.getElementById("tg-circuit");
+        selectElement1.style.display = 'none';
+        selectElement2.style.display = 'none';
+        selectElement3.style.display = 'none';
+        selectElement4.style.display = 'none';
+        selectElement5.style.display = 'block';
         
         const tableCircuit = document.getElementById("tg-tbody-td");
         let content = '';
+        let count = [];
       
         data[1].forEach(xl => {
+          if (!count.includes(xl.circuit_id)){
           content += `
             <tr class="border-top border-dark-subtle text-center">
               <td class="border-end border-dark-subtle">${xl.ref}</td>
               <td class="border-end border-dark-subtle">${xl.name}</td>
-              <td class="border-end border-dark-subtle">${xl.total_power}</td>
-              <td class="border-end border-dark-subtle">${xl.total_current}</td>
-              <td class="border-end border-dark-subtle">220</td>
-              <td><button type="button" class="btn btn-outline-secondary" onclick="detail_circuit_tds(this)" data-circuit-id="${xl.id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary mx-2">Editar</button><button class="btn btn-outline-secondary">Borrar</button></td>
+              <td class="border-end border-dark-subtle">${xl.total_center}</td>
+              <td class="border-end border-dark-subtle">${xl.total_current_ct}</td>
+              <td class="border-end border-dark-subtle">${xl.total_power_ct}</td>
+              <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary btn-sm my-1">Borrar</button></td>
             </tr>`;
+            count.push(xl.circuit_id)
+            }
           });
 
           tableCircuit.innerHTML = content;
 
       } else {
-        const divhide = document.getElementById('for-tds');
-        const divshow = document.getElementById('h6-tds');
-        divhide.style.display = 'none';
-        divshow.style.display = 'block';
+        const selectElement1 = document.getElementById("h6-circuit");
+        const selectElement2 = document.getElementById("h6-circuit2");
+        const selectElement3 = document.getElementById("h5-circuit");
+        const selectElement4 = document.getElementById("td-circuit");
+        const selectElement5 = document.getElementById("tg-circuit");
+        selectElement1.style.display = 'block';
+        selectElement2.style.display = 'none';
+        selectElement3.style.display = 'block';
+        selectElement4.style.display = 'none';
+        selectElement5.style.display = 'none';
       }
     },
     error: (xhr, textStatus, error) => {
@@ -293,39 +294,54 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
     success: (data, textStatus, xhr) => {
       if (Array.isArray(data) && data.length > 0) {
         // Cambiar el estado de display del select
-        const selectElement1 = document.getElementById("td-circuit");
-        const selectElement2 = document.getElementById("h6-circuit");
-        selectElement1.style.display = 'block';
+        console.log(data);
+        const selectElement1 = document.getElementById("h6-circuit");
+        const selectElement2 = document.getElementById("h6-circuit2");
+        const selectElement3 = document.getElementById("h5-circuit");
+        const selectElement4 = document.getElementById("td-circuit");
+        const selectElement5 = document.getElementById("tg-circuit");
+        selectElement1.style.display = 'none';
         selectElement2.style.display = 'none';
-        const selectElement3 = document.getElementById("tg-circuit");
         selectElement3.style.display = 'none';
-     
-        const tableCircuit = document.getElementById("td-tbody-td")
-        content = '';
-        data.map(xl => {
-          content += 
-          `<tr class="border-top border-dark-subtle text-center">
-            <td class="border-end border-dark-subtle">${xl.ref}</td>
-            <td class="border-end border-dark-subtle">${xl.name}</td>
-            <td class="border-end border-dark-subtle">${xl.total_power}</td>
-            <td class="border-end border-dark-subtle">${xl.total_current}</td>
-            <td class="border-end border-dark-subtle">220</td>
-            <td><button type="button" class="btn btn-outline-secondary" onclick="detail_circuit_tds(this)" data-circuit-id="${xl.id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary mx-2">Editar</button><button class="btn btn-outline-secondary">Borrar</button></td>
-          </tr>`;
+        selectElement4.style.display = 'block';
+        selectElement5.style.display = 'none';
+
+        const tableCircuit = document.getElementById("td-tbody-td");
+        const addedNames = [];
+        let content = '';
+        
+        data.forEach(xl => {
+          if (!addedNames.includes(xl.circuit_id)) {
+            content += 
+              `<tr class="border-top border-dark-subtle text-center">
+                <td class="border-end border-dark-subtle">${xl.ref}</td>
+                <td class="border-end border-dark-subtle">${xl.name}</td>
+                <td class="border-end border-dark-subtle">${xl.total_power}</td>
+                <td class="border-end border-dark-subtle">${xl.total_current}</td>
+                <td class="border-end border-dark-subtle">220</td>
+                <td>
+                  <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
+                  <button class="btn btn-sm btn-outline-secondary my-1">Borrar</button>
+                </td>
+              </tr>`;
+            addedNames.push(xl.circuit_id);
+          }
         });
+        
         tableCircuit.innerHTML = content;
+        
       } else {
         // Código para cuando data está vacío
-        const selectElement1 = document.getElementById("tg-circuit");
-        const selectElement2 = document.getElementById("h6-circuit");
-        const selectElement4 = document.getElementById("h6-circuit2");
+        const selectElement1 = document.getElementById("h6-circuit");
+        const selectElement2 = document.getElementById("h6-circuit2");
         const selectElement3 = document.getElementById("h5-circuit");
-        const selectElement33 = document.getElementById("td-circuit");
-        selectElement1.style.display = 'none';
-        selectElement4.style.display = 'none';
-        selectElement2.style.display = 'block';
+        const selectElement4 = document.getElementById("td-circuit");
+        const selectElement5 = document.getElementById("tg-circuit");
+        selectElement1.style.display = 'block';
+        selectElement2.style.display = 'none';
         selectElement3.style.display = 'block';
-        selectElement33.style.display = 'none';
+        selectElement4.style.display = 'none';
+        selectElement5.style.display = 'none';
       }
     },
     error: (xhr, textStatus, error) => {
@@ -336,46 +352,149 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
 
 
 
-function detail_circuit_tds(element) {
+function detail_circuit(element) {
   var circuitId = element.getAttribute("data-circuit-id");
+  console.log(circuitId);
   $.ajax({
-    url: `/api/detail/tds`,
+    url: `/api/detail`,
     method: "POST",
-    data: { tds: circuitId },
+    data: { circuit: circuitId },
     success: (data, textStatus, xhr) => {
       console.log(data);
       if (textStatus === "success") {
         const nameCircuit = document.getElementById("nameCircuit")
-        const detailTable = document.getElementById("detail-circuit");
-        content = "";
-        data.forEach(ct => {
-          content += 
-          `<tr class="border border-dark-subtle text-center">
-            <td class="border border-dark-subtle">${ct.ref}</td>
-            <td class="border border-dark-subtle">${ct.name}</td>
-            <td class="border border-dark-subtle">${ct.qty}</td>
-            <td class="border border-dark-subtle">${ct.power}</td>
-            <td class="border border-dark-subtle">${ct.total_power}</td>
-            <td class="border border-dark-subtle">${ct.total_current}</td>`;
+        const detailTable = document.getElementById("detail-circuit-body");
+        const detailLoad = document.getElementById("detail-circuit-loads-body");
+        let html = '';
         
-            if (ct.type_circuit === 'feeder') {
-              content += `<td class="border border-dark-subtle">Alimentador</td>`;
-            } else {
-              content += `<td class="border border-dark-subtle">Subalimentador</td>`;
-            }
-          content += `
-            <td class="border border-dark-subtle">${ct.largo}</td>
-            <td class="border border-dark-subtle">${ct.fp}</td>
-            <td class="border border-dark-subtle">${ct.vp}</td>
-            <td class="border border-dark-subtle">${ct.wires}</td>
-            <td class="border border-dark-subtle">${ct.secctionmm2}</td>
-            <td class="border border-dark-subtle">${ct.breakers}</td>
-            <td class="border border-dark-subtle">${ct.elect_differencial}</td>
-          </tr>`;        
-        });
-        detailTable.innerHTML = content;
-        nameCircuit.innerHTML = "Circuito: " + data[0]['ref'];
+        if (data.length > 0) {
+          const xl = data[0];
+          console.log("circuitId:", circuitId);
+          console.log("xl.id:", xl.id);
+          html += 
+            `<tr class="border border-dark-subtle text-center" style="font-size: 15px;">
+              <td class="border border-dark-subtle">${xl.total_center}</td>
+              <td class="border border-dark-subtle">${xl.total_power_ct}</td>
+              <td class="border border-dark-subtle">${xl.total_current_ct}</td>`;
+        
+          if (xl.type_circuit === 'feeder') {
+            html += `<td class="border border-dark-subtle">Alimentador</td>`;
+          } else {
+            html += `<td class="border border-dark-subtle">Subalimentador</td>`;
+          }
+        
+          html += `
+              <td class="border border-dark-subtle">${xl.largo}</td>
+              <td class="border border-dark-subtle">${xl.fp}</td>
+              <td class="border border-dark-subtle">${xl.vp}</td>
+              <td class="border border-dark-subtle">${xl.wires}</td>
+              <td class="border border-dark-subtle">${xl.secctionmm2}</td>
+              <td class="border border-dark-subtle">${xl.breakers}</td>
+              <td class="border border-dark-subtle">${xl.elect_differencial}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary my-1" onclick="addload(this)" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop3">Agregar Cargas</button>
+              </td>
+            </tr>`;
+        }
+        
+        detailTable.innerHTML = html;        
+            content = '';
+            data.map(xl => {
+              content += 
+              `<tr class="border border-dark-subtle text-center">
+                <td class="border border-dark-subtle">${xl.nameloads}</td>
+                <td class="border border-dark-subtle">${xl.qty}</td>
+                <td class="border border-dark-subtle">${xl.power}</td>
+                <td class="border border-dark-subtle">${xl.total_power}</td>
+                <td class="border border-dark-subtle">${xl.total_current}</td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline-secondary my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#">Borrar</button>
+                </td>
+              </tr>`;
+            });
+        detailLoad.innerHTML = content;
+        nameCircuit.innerHTML = "Circuito N° " + circuitId;
+        const addLoad = document.getElementById("add");
+        addLoad.innerHTML = 
+        `<div class="input-group my-3">
+          <span class="input-group-text" id="basic-addon1">Referencia</span>
+          <input type="text" class="form-control" placeholder="Ubicación o referencia de la carga" aria-label="Username" aria-describedby="basic-addon1" name="nameloads">
+        </div>
+        <div class="input-group mt-3">
+              <span class="input-group-text" id="basic-addon1">Cantidad de Cargas</span>
+              <input type="number" class="form-control" placeholder="Ingresa la cantidad" aria-label="Username" aria-describedby="basic-addon1" name="qty">
+              <input type="hidden" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="circuit_id" value=${data[0]['circuit_id']}>
+        </div>
+        <div class="input-group mt-3">
+              <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
+              <input type="text" class="form-control" placeholder="Ingresa la Potencia" aria-label="Username" aria-describedby="basic-addon1" name="power">
+        </div>
+        <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>`;
       }
     }
   });
 }
+
+
+// function addload(element){
+//   var dataEdit = element.getAttribute("data-circuit-id");
+//   console.log(dataEdit);
+//   $.ajax({
+//     url:'/api/add_loads',
+//     method: "POST",
+//     data: {id_circuit: dataEdit},
+//     success: (data, textStatus, xhr) => {
+//       if (textStatus === 'success'){
+//       console.log(data)
+//       const addLoad = document.getElementById("add");
+//     }
+//       console.log(content);
+//     }
+//   });
+// }
+
+// function edit(element){
+//   var dataAdd = element.getAttribute("data-add-circuit");
+//   console.log(dataAdd);
+//   $.ajax({
+//     url:'/api/edit_circuit',
+//     method: "POST",
+//     data: {id_circuit: dataAdd},
+//     success: (data, textStatus, xhr) => {
+//       if (textStatus === 'success'){
+//       console.log(data)
+//       const editCircuit = document.getElementById("edit");
+//       content = '';
+//       data.forEach(edt => {
+//         content +=
+//         `
+//         <div class="input-group mt-3">
+//         <span class="input-group-text" id="basic-addon1">Cantidad de Cargas</span>
+//           <input type="number" class="form-control" placeholder="Ingresa la cantidad total de cargas" aria-label="Username" aria-describedby="basic-addon1" name="qty">
+//           <input type="hidden" class="form-control" placeholder="Ingresa la cantidad total de cargas" aria-label="Username" aria-describedby="basic-addon1" name="fp" value="1">
+//         </div>
+//         <div class="input-group mt-3">
+//         <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
+//         <input type="text" class="form-control" placeholder=${edt.power} aria-label="Username" aria-describedby="basic-addon1" name="power">
+//         </div>
+//         <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
+//         <div class="input-group mt-3">
+//         <span class="input-group-text" id="basic-addon1">Ingresa el Voltaje</span>
+//         <select class="form-select" aria-label="Default select example" name="single_voltage">
+//             <option selected>Selecciona un voltaje</option>
+//             <option value="0.220">220</option>
+//             <option value="0.380" disabled>380</option>
+//         </select>
+//         </div>
+//         <div class="input-group mt-3">
+//         <span class="input-group-text" id="basic-addon3">Largo del Circuito</span>
+//         <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder=${edt.largo} name="length">
+//         </div>
+//         <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>`
+//       });
+//       console.log(content);
+//       editCircuit.innerHTML = content;
+//     }
+//   }
+//   })
+// }

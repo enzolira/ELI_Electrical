@@ -11,7 +11,9 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt(app)
 
 
-#  -----------MAIN PAGE --------------------
+#  -------------------------------------------------MAIN PAGE ---------------------------------------------------
+
+
 
 @app.route('/loadbox/')
 def loadbox():
@@ -24,10 +26,13 @@ def loadbox():
     proyects = Proyect.get_all_proyect_by_user_id(data)
     tgs = Proyect.get_all_tgs_by_proyect_id_and_user_id(data)
     wires= Proyect.get_all_wires()
-    circuits = Circuit.get_all_circuits_by_user_user_id(data)
-    return render_template('house.html', user=user, proyects=proyects, tgs=tgs, wires=wires, circuits=circuits)
+    return render_template('house.html', user=user, proyects=proyects, tgs=tgs, wires=wires)
 
-# -------------NEW PROYECT------------------
+
+
+#  -------------------------------------------------NEW PROYECTS ---------------------------------------------------
+
+
 
 @app.route('/new_proyect', methods=['POST'])
 def new_proyect():
@@ -41,7 +46,11 @@ def new_proyect():
     Proyect.save(data)
     return redirect('/loadbox')
 
-# ---------------ADD NEW GENERAL TABLE------------------
+
+
+# ------------------------------------------------ADD NEW GENERAL TABLE-------------------------------------------------
+
+
 
 @app.route('/add_tgs', methods=['POST'])
 def add_tgs():
@@ -57,7 +66,10 @@ def add_tgs():
     Tgs.add_tgs(data)
     return redirect('/loadbox')
 
-# ---------------ADD NEW DISTRIBUCION TABLE------------------
+
+# ------------------------------------------------ADD NEW DISTRIBUCION TABLE--------------------------------------------
+
+
 
 @app.route('/add_tds', methods=['POST'])
 def add_tds():
@@ -73,7 +85,10 @@ def add_tds():
     Tds.add_tds(data)
     return redirect('/loadbox')
 
-# -------------- CREATE CIRCUITS--------------------------
+
+
+# ------------------------------------------------ CREATE CIRCUITS-------------------------------------------------------
+
 
 @app.route('/new_circuit', methods=['POST'])
 def new_circuits():
@@ -86,6 +101,7 @@ def new_circuits():
 
     data = {
         'name': request.form['name'],
+        'nameloads': request.form['nameloads'],
         'ref': request.form['ref'],
         'single_voltage': request.form['single_voltage'],
         'method': request.form['method'],
@@ -144,13 +160,17 @@ def new_circuits():
     print(data3)
     Circuit.update_vp(data3)
     if circuit_id:
-        data4 = {'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'total_current': total_current,'circuit_id': circuit_id}
+        data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'total_current': total_current,'circuit_id': circuit_id}
         Load.save(data4)
+        Circuit.updated_loads({'circuit_id':circuit_id})
     else:
         pass
     return redirect('/loadbox')
 
-# --------- SUMMARY ---------------
+
+# ----------------------------------------------- SUMMARY -----------------------------------------------------------
+
+
 
 @app.route('/pro')
 def pro():
@@ -164,14 +184,13 @@ def pro():
 
 
 
+# ---------------------------------------------- AJAX----------------------------------------------------------------
 
-# ------------ AJAX----------------------
 
 @app.route('/api/tgs', methods=['POST'])
 def get_tgs():
     proyect = request.form['proyect']
     tgs1 = Tgs.get_tgs_by_project({'proyect_id': proyect})
-    print(tgs1)
     return jsonify(tgs1)
 
 @app.route('/api/tds', methods=['POST'])
@@ -195,15 +214,40 @@ def get_all_circuits_by_tds():
     circuit_td = {}
     if data['td_id'] and data['tg_id']:
         circuit_td = Circuit.get_all_circuit_and_tds_by_tg(data)
+        print(circuit_td)
     else:
         pass
     return jsonify(circuit_td)
 
-# ----------- AJAX FROM AJAX ABOUT DETAIL CIRCUITS BY TDS AND TGS -----------------
-@app.route('/api/detail/tds', methods=['POST'])
+# --------------------- FROM AJAX ABOUT DETAIL CIRCUITS BY TDS AND TGS --------------------------------------------------
+
+@app.route('/api/detail', methods=['POST'])
 def detai_circuit_tds():
-    circuit_id = request.form['tds']
-    print(circuit_id)
-    circuitos = Circuit.detail_circuit_by_id({'circuit_id': circuit_id})
+    circuit_id = request.form['circuit']
+    circuitos = Circuit.detail_circuit_and_loads_by_id({'circuit_id': circuit_id})
     print(circuitos)
     return jsonify(circuitos)
+
+
+# @app.route('/api/edit_circuit', methods=["POST"])
+# def edit_circuit():
+#     edit_circuit = request.form['id_circuit']
+#     edit = Circuit.detail_circuit_by_id({'circuit_id':edit_circuit})
+#     return jsonify(edit)
+
+@app.route('/add_load', methods=['POST'])
+def add_loads():
+    circuit = Circuit.detail_circuit_and_loads_by_id({'circuit_id': request.form['circuit_id']})
+    load = {
+        'nameloads': request.form['nameloads'],
+        'qty': request.form['qty'],
+        'circuit_id': request.form['circuit_id'],
+        'power': request.form['power']
+    }
+    total_power = round(float((load['qty'])) * float(load['power'])/1000,2)
+    total_current = round(total_power/float(circuit[0]['single_voltage']),2)
+    load['total_current'] = total_current
+    load['total_power'] = total_power
+    Load.save(load)
+    Circuit.updated_loads({'circuit_id': request.form['circuit_id']})
+    return redirect('/loadbox/')

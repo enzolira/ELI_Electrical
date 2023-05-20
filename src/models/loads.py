@@ -5,6 +5,7 @@ class Load:
     db = "ELI_ELECTRICAL"
     def __init__(self,data):
         self.id = data['id']
+        self.nameloads = data['nameloads']
         self.qty = data['qty']
         self.power = data['power']
         self.total_power = data['total_power']
@@ -15,6 +16,6 @@ class Load:
 
     @classmethod
     def save(cls, data):
-        query = "INSERT INTO loads (qty, power, total_power, total_current, created_at, updated_at, circuit_id) VALUES (%(qty)s, %(power)s, %(total_power)s, %(total_current)s, NOW(), NOW(), %(circuit_id)s);"
+        query = "INSERT INTO loads (nameloads, qty, power, total_power, total_current, created_at, updated_at, circuit_id) VALUES (%(nameloads)s, %(qty)s, %(power)s, %(total_power)s, %(total_current)s, NOW(), NOW(), %(circuit_id)s);"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result

@@ -17,6 +17,9 @@ class Circuit:
         self.wires = data['wires']
         self.current_by_method = data['current_by_method']
         self.breakers = data['breakers']
+        self.total_center = data['total_center']
+        self.total_current_ct = data['total_current_ct']
+        self.total_power_ct = data['total_power_ct']
         self.elec_differencial = data['elect_differencial']
         self.created_at = data['created_at']
         self.updated_at = data['updated_at']
@@ -49,7 +52,7 @@ class Circuit:
     
     @classmethod
     def get_all_circuit_and_tds_by_tg(cls, data):
-        query = "SELECT * FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.tg_id = %(tg_id)s AND circuits.td_id = %(td_id)s;"
+        query = "SELECT *, circuits.id FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.tg_id = %(tg_id)s AND circuits.td_id = %(td_id)s;"
         results = connectToMySQL(cls.db).query_db(query, data)
         if (not results):
             return []
@@ -59,8 +62,8 @@ class Circuit:
         return circuit_tds
 
     @classmethod
-    def detail_circuit_by_id(cls, data):
-        query = "SELECT *, circuits.length AS largo FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.id = %(circuit_id)s;"
+    def detail_circuit_and_loads_by_id(cls, data):
+        query = "SELECT *, loads.id AS burden , circuits.length AS largo FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.id = %(circuit_id)s;"
         results = connectToMySQL(cls.db).query_db(query, data)
         circuits = []
         if (not results):
@@ -70,9 +73,21 @@ class Circuit:
         return circuits
 
     @classmethod
+    def detail_circuit_by_id(cls, data):
+        query = "SELECT * FROM circuits WHERE id = %(circuit_id)s;"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        circuits = []
+        if (not results):
+            return []
+        for ct in results:
+            circuits.append(ct)
+        return circuits
+
+
+    @classmethod
     def add_circuit(cls,data):
-        query = "INSERT INTO circuits (name, ref, single_voltage, fp, method, type_circuit, vp, length, secctionmm2, wires, current_by_method, breakers, elect_differencial, created_at, updated_at, tg_id, td_id) VALUES \
-                (%(name)s, %(ref)s, %(single_voltage)s, %(fp)s, %(method)s, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NULL, NULL, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
+        query = "INSERT INTO circuits (name, ref, single_voltage, fp, method, type_circuit, vp, length, secctionmm2, wires, current_by_method, breakers, elect_differencial, total_center, total_current_ct, total_power_ct, created_at, updated_at, tg_id, td_id) VALUES \
+                (%(name)s, %(ref)s, %(single_voltage)s, %(fp)s, %(method)s, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NULL, NULL, NULL, NULL, NULL, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
 
@@ -116,3 +131,9 @@ class Circuit:
         query = "UPDATE circuits SET elect_differencial = %(elect_differencial)s WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+    
+    @classmethod
+    def updated_loads(cls, data):
+        query = "UPDATE circuits SET total_center = (SELECT SUM(qty) FROM loads WHERE circuit_id = %(circuit_id)s), total_current_ct = (SELECT SUM(total_current) FROM loads WHERE circuit_id = %(circuit_id)s), total_power_ct = (SELECT SUM(total_power) FROM loads WHERE circuit_id = %(circuit_id)s) WHERE circuits.id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result    
