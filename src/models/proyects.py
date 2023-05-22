@@ -53,7 +53,23 @@ class Proyect:
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
 
+    @classmethod
+    def current_tri(cls, data):
+        query = "SELECT disyuntor, diferencial, wiresthrv.secction_mm2, wiresthrv." + str(data.get('method')) + " FROM \
+            (SELECT * FROM three_breakers WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS three_breaker JOIN \
+            (SELECT * FROM three_elect_diff WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS three_elect_dif JOIN \
+            (SELECT * FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + " OR ABS( " + str(data.get('method')) + " - " + str(data.get('total_current')) + ") < 0.40 ORDER BY secction_mm2 LIMIT 1) AS wiresthrv ON 1=1;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
 
+    @classmethod
+    def updated_current_tri(cls, data):
+        query = "SELECT disyuntor, diferencial, wiresthrv.secction_mm2, wiresthrv." + str(data.get('method')) + " FROM \
+            (SELECT * FROM three_breakers WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS three_breaker JOIN \
+            (SELECT * FROM three_elect_diff WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS three_elect_dif JOIN \
+            (SELECT * FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + " OR ABS( " + str(data.get('method')) + " - " + str(data.get('total_current')) + ") < 0.40 ORDER BY secction_mm2 LIMIT 1) AS wiresthrv ON 1=1;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
 
 
     @classmethod

@@ -86,8 +86,8 @@ class Circuit:
 
     @classmethod
     def add_circuit(cls,data):
-        query = "INSERT INTO circuits (name, ref, single_voltage, fp, method, type_circuit, vp, length, secctionmm2, wires, current_by_method, breakers, elect_differencial, total_center, total_current_ct, total_power_ct, created_at, updated_at, tg_id, td_id) VALUES \
-                (%(name)s, %(ref)s, %(single_voltage)s, %(fp)s, %(method)s, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NULL, NULL, NULL, NULL, NULL, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
+        query = "INSERT INTO circuits (name, ref, method, type_circuit, vp, length, secctionmm2, wires, current_by_method, breakers, elect_differencial, total_center, total_current_ct, total_power_ct, created_at, updated_at, tg_id, td_id) VALUES \
+                (%(name)s, %(ref)s, %(method)s, %(type_circuit)s, NULL, %(length)s, NULL, %(wires)s, NULL, NULL, NULL, NULL, NULL, NULL, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
 

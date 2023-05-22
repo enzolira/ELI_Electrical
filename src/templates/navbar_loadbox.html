@@ -116,7 +116,6 @@
                     <h5 id="tg-h5" style="display: none;">Debes crear un tablero general para este proyecto.</h5>
                     <div id="div-tg" style="display:block;">
                         <p>Selecciona el tablero general.</p>
-                        <!-- <h5 id="tg-h5" style="display: none;">Debes crear un tablero general para este proyecto.</h5> -->
                         <select class="form-select my-3" name="tg_id" id="tg-select2">
                             <option selected>-Seleccione Tablero General-</option> 
                         </select>
@@ -128,20 +127,7 @@
                             <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
                             <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
                         </div>         
-                    </div>
-                    <!-- <p id="tg-h6" style="display: none;">Selecciona el tablero general.</p>
-                    <h5 id="tg-h5" style="display: none;">Debes crear un tablero general para este proyecto.</h5>
-                    <select class="form-select my-3" name="tg_id" id="tg-select2" style="display: none;">
-                        <option selected>-Seleccione Tablero General-</option> 
-                    </select>
-                    <div class="input-group my-3 d-none" id="name_dist">
-                        <span class="input-group-text" id="basic-addon1" style="width: 230px;">Nombre Tablero distribucion</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group d-none" id="name_dist2">
-                        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Referencia o Tag</span>
-                        <input type="text" class="form-control" placeholder="Ingresa algun identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-                    </div>                                                            -->
+                    </div> 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
@@ -165,7 +151,7 @@
 {% endif %}
 {% endwith %}
 
-<div class="modal fade modal-lg modal-sm" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade modal-xl modal-sm" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="/new_circuit" method="post" id="myCircuit" onsubmit="addCircuit(event)">
@@ -174,91 +160,103 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <h6>Primero debes elegir tu proyecto</h6>
-                    <select class="form-select my-3 selectpicker" id="proyect-select" data-live-search="true" onchange="proyect(this)" name="proyect_id">
-                        <option selected>-Seleccione Proyecto-</option>
-                        {% for proyect in proyects %}
-                            <option value="{{ proyect.id }}">{{ proyect.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <h6>A continuacion elige un tablero al que deseas agregar circuitos</h6>
-                    <select class="form-select my-3" name="tg_id" id="tg-select" onchange="tds(this)">
-                        <option selected>-Seleccione Tablero General-</option> 
-                    </select>
-                    <h6 id="td-h6"style="display:none;">Cuentas con tablero de distribución, elige al que deseas agregar circuitos. Si no, deja el espacio en blanco.</h6>
-                    <select class="form-select my-3" name="td_id" id="td-select" style="display:none;">
-                        <option selected>-Seleccione Tablero de Distribución-</option>     
-                    </select>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1">Referencia</span>
-                        <input type="text" class="form-control" placeholder="Ubicacion o Referencia" aria-label="Username" aria-describedby="basic-addon1" name="ref">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h6>Primero debes elegir tu Proyecto.</h6>
+                            <select class="form-select my-3 selectpicker" id="proyect-select" data-live-search="true" onchange="proyect(this)" name="proyect_id">
+                                <option selected>-Seleccione Proyecto-</option>
+                                {% for proyect in proyects %}
+                                    <option value="{{ proyect.id }}">{{ proyect.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <h6>A continuación elige un Tablero al que deseas agregar Circuitos</h6>
+                            <select class="form-select my-3" name="tg_id" id="tg-select" onchange="tds(this)">
+                                <option selected>-Seleccione Tablero General-</option> 
+                            </select>
+                            <h6 id="td-h6"style="display:none;">Cuentas con Tablero de distribución, elige al que deseas agregar circuitos. Si no, deja el espacio en blanco.</h6>
+                            <select class="form-select my-3" name="td_id" id="td-select" style="display:none;">
+                                <option selected>-Seleccione Tablero de Distribución-</option>     
+                            </select>
+                            <div class="input-group mt-3">
+                                <span class="input-group-text" id="basic-addon1">Tipo de circuito</span>
+                                <select class="form-select" aria-label="Default select example" name="type_circuit">
+                                    <option selected>Selecciona un Tipo</option>
+                                    <option value="feeder">Alimentador</option>
+                                    <option value="subfeeder">Subalimentador</option>
+                                </select>
+                            </div>
+                            <div class="input-group mt-3">
+                                <span class="input-group-text" id="basic-addon1">Tipo de Metodo</span>
+                                <select class="form-select" aria-label="Default select example" name="method">
+                                    <option selected>Selecciona un Metodo</option>
+                                    <option value="a1">Metodo A1</option>
+                                    <option value="a2">Metodo A2</option>
+                                    <option value="b1">Metodo B1</option>
+                                    <option value="b2">Metodo B2</option>
+                                    <option value="d1">Metodo D1</option>
+                                    <option value="d2">Metodo D2</option>
+                                    <option value="e">Metodo E</option>
+                                    <option value="f">Metodo F</option>
+                                </select>
+                            </div>
+                            <div class="input-group mt-3">
+                                <span class="input-group-text" id="basic-addon1">Tipo de Aislación</span>
+                                <select class="form-select" aria-label="Default select example" name="type_isolation">
+                                    <option selected>Selecciona una Aislación</option>
+                                    {% for wire in wires %}
+                                        <option value="{{ wire.name }}">{{ wire.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="input-group mt-3">
+                                <span class="input-group-text" id="basic-addon1">Ingresa el Voltaje</span>
+                                <select class="form-select" aria-label="Default select example" name="single_voltage" onchange="factorPower(this)">
+                                <option selected>Selecciona un voltaje</option>
+                                <option value="0.220">220V</option>
+                                <option value="0.380">380V</option>
+                                </select>
+                            </div>
+                            <div id="factorFP" style="display: none;">
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text">Factor de Potencia</span>
+                                    <input type="text" class="form-control" placeholder="Ingresa el Factor de Potencia" name="fp">
+                                </div>
+                                <div class="form-text" id="basic-addon4">Ingresa el Factor de Potencia separado por punto.</div>
+                            </div>     
+                        </div>
+                        <div class="col-md-7">
+                            <div class="input-group my-3">
+                                <span class="input-group-text" id="basic-addon1">Referencia</span>
+                                <input type="text" class="form-control" placeholder="Ubicacion o Referencia" aria-label="Username" aria-describedby="basic-addon1" name="ref">
+                            </div>
+                            <div class="input-group my-3">
+                                <span class="input-group-text" id="basic-addon1">Nombre de la Carga</span>
+                                <input type="text" class="form-control" placeholder="Ingresa nombre del Consumo" aria-label="Username" aria-describedby="basic-addon1" name="nameloads">
+                            </div>
+                            <div class="input-group my-3">
+                                <span class="input-group-text" id="basic-addon1">N° de Circuito</span>
+                                <input type="number" class="form-control" placeholder="Ingresa numero de Circuito" aria-label="Username" aria-describedby="basic-addon1" name="name">
+                            </div>
+                            <div class="input-group mt-3">
+                                <span class="input-group-text" id="basic-addon1">Cantidad de Cargas</span>
+                                <input type="number" class="form-control" placeholder="Ingresa la Cantidad total de Cargas" aria-label="Username" aria-describedby="basic-addon1" name="qty">
+                            </div>
+                            <div class="input-group mt-3">
+                                <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
+                                <input type="text" class="form-control" placeholder="Ingresa la Potencia por Carga" aria-label="Username" aria-describedby="basic-addon1" name="power">
+                            </div>
+                            <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" id="basic-addon3">Largo del Circuito</span>
+                                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
+                            </div>
+                            <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>
+                        </div>
                     </div>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1">Nombre de la Carga</span>
-                        <input type="text" class="form-control" placeholder="Ingresa nombre del Consumo" aria-label="Username" aria-describedby="basic-addon1" name="nameloads">
-                    </div>
-                    <div class="input-group my-3">
-                        <span class="input-group-text" id="basic-addon1">N° de Circuito</span>
-                        <input type="number" class="form-control" placeholder="Ingresa numero de Circuito" aria-label="Username" aria-describedby="basic-addon1" name="name">
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de Metodo</span>
-                        <select class="form-select" aria-label="Default select example" name="method">
-                            <option selected>Selecciona un Metodo</option>
-                            <option value="a1">Metodo A1</option>
-                            <option value="a2">Metodo A2</option>
-                            <option value="b1">Metodo B1</option>
-                            <option value="b2">Metodo B2</option>
-                            <option value="d1">Metodo D1</option>
-                            <option value="d2">Metodo D2</option>
-                            <option value="e">Metodo E</option>
-                            <option value="f">Metodo F</option>
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de Aislación</span>
-                        <select class="form-select" aria-label="Default select example" name="type_isolation">
-                            <option selected>Selecciona tipo Aislación</option>
-                            {% for wire in wires %}
-                                <option value="{{ wire.name }}">{{ wire.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Tipo de Conductor</span>
-                        <select class="form-select" aria-label="Default select example" name="type_circuit">
-                            <option selected>Selecciona un Tipo</option>
-                            <option value="feeder">Alimentador</option>
-                            <option value="subfeeder">Subalimentador</option>
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Cantidad de Cargas</span>
-                        <input type="number" class="form-control" placeholder="Ingresa la cantidad total de cargas" aria-label="Username" aria-describedby="basic-addon1" name="qty">
-                        <input type="hidden" class="form-control" placeholder="Ingresa la cantidad total de cargas" aria-label="Username" aria-describedby="basic-addon1" name="fp" value="1">
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
-                        <input type="text" class="form-control" placeholder="Ingresa la potencia por carga" aria-label="Username" aria-describedby="basic-addon1" name="power">
-                    </div>
-                    <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">Ingresa el Voltaje</span>
-                        <select class="form-select" aria-label="Default select example" name="single_voltage">
-                            <option selected>Selecciona un voltaje</option>
-                            <option value="0.220">220</option>
-                            <option value="0.380" disabled>380</option>
-                        </select>
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon3">Largo del Circuito</span>
-                        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
-                    </div>
-                    <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" onclick="addCircuit(this)">Agregar</button>
+                    <button type="submit" class="btn btn-primary" onclick="addCircuit()">Agregar</button>
                 </div>
             </form>
         </div>

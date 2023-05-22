@@ -99,73 +99,144 @@ def new_circuits():
     if not Proyect.validate_circuit(request.form):
         return redirect('/loadbox/')
 
-    data = {
-        'name': request.form['name'],
-        'nameloads': request.form['nameloads'],
-        'ref': request.form['ref'],
-        'single_voltage': request.form['single_voltage'],
-        'method': request.form['method'],
-        'fp': request.form['fp'],
-        'length': request.form['length'],
-        'tg_id' : request.form['tg_id']
-    }
-    td_id = request.form.get('td_id')
-    if td_id and td_id.isdigit():
-        data['td_id'] = request.form['td_id']
+# --------------CALCULOS MONOFASICOS -------
+
+    if request.form['single_voltage'] == '0.220':
+        data = {
+            'name': request.form['name'],
+            'nameloads': request.form['nameloads'],
+            'ref': request.form['ref'],
+            # 'single_voltage': request.form['single_voltage'],
+            'method': request.form['method'],
+            # 'fp': 1,
+            'length': request.form['length'],
+            'tg_id' : request.form['tg_id']
+        }
+        td_id = request.form.get('td_id')
+        if td_id and td_id.isdigit():
+            data['td_id'] = request.form['td_id']
+        else:
+            data['td_id'] = None
+
+        print(data['td_id'])
+
+        data['wires'] = request.form['type_isolation']
+        data['type_circuit'] = request.form['type_circuit']
+        circuit_id = Circuit.add_circuit(data)
+        data['qty'] = request.form['qty']
+        data['power'] = request.form['power']
+        total_power = round((int(data['qty']) * float(data['power']))/1000,2)
+        total_current = round(total_power/float(request.form['single_voltage']),2)
+        data1 = {'method':data['method'],'total_current':total_current}
+        current_by_method= Proyect.current(data1)
+        print(current_by_method)
+        vp = (2 * 0.018 * float(total_current) * float(data['length']))/float(current_by_method[0]['secction_mm2'])
+        print(vp)
+        data2 = {}                                                                 
+        if vp < 4.5:
+            pass
+        else: 
+            allcurrent_by_method = Circuit.vp_real(data1)
+            for all in allcurrent_by_method:
+                print(all)
+                if float(2 * 0.018 * float(total_current) * float(data['length']))/float((all['secction_mm2'])) < 4.5:
+                    data1['total_current'] = all['method']
+                    break
+
+        print(data1)
+        print(data2)                                                              
+        current_by_method2 = Proyect.updated_current(data1)
+        print(current_by_method2)
+        data2 = {}
+        data2['circuit_id'] = circuit_id
+        data2['secctionmm2'] = float(current_by_method2[0]['secction_mm2'])
+        data2['current_by_method'] = current_by_method2[0][data['method']]
+        data2['breakers'] = current_by_method2[0]['disyuntor']
+        data2['elect_differencial'] = current_by_method2[0]['diferencial']
+        print(data2)
+        Circuit.update_method(data2)
+        Circuit.update_secctionmm2(data2)
+        Circuit.update_breakers(data2)
+        Circuit.update_elect_differencial(data2)
+        data3 = { 'vp':round((2*0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
+        print(data3)
+        Circuit.update_vp(data3)
+        if circuit_id:
+            data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'single_voltage':request.form['single_voltage'], 'fp':float(1.00),'total_current': total_current,'circuit_id': circuit_id}
+            Load.save(data4)
+            Circuit.updated_loads({'circuit_id':circuit_id})
+            print('funciona por fin 220')
+            return redirect('/loadbox')
+        else:
+            print("Error en el ingreso de loads")
+
+
+# ------------------ CALCULOS TRIFASICOS --------------------
     else:
-        data['td_id'] = None
+        data = {
+            'name': request.form['name'],
+            'nameloads': request.form['nameloads'],
+            'ref': request.form['ref'],
+            # 'single_voltage': request.form['single_voltage'],
+            'method': request.form['method'],
+            # 'fp': request.form['fp'],
+            'length': request.form['length'],
+            'tg_id' : request.form['tg_id']
+        }
+        td_id = request.form.get('td_id')
+        if td_id and td_id.isdigit():
+            data['td_id'] = request.form['td_id']
+        else:
+            data['td_id'] = None
 
-    print(data['td_id'])
-
-    data['wires'] = request.form['type_isolation']
-    data['type_circuit'] = request.form['type_circuit']
-    circuit_id = Circuit.add_circuit(data)
-    data['qty'] = request.form['qty']
-    data['power'] = request.form['power']
-    total_power = round((int(data['qty']) * float(data['power']))/1000,2)
-    total_current = round(total_power/float(data['single_voltage']),2)
-    data1 = {'method':data['method'],'total_current':total_current}
-    current_by_method= Proyect.current(data1)
-    print(current_by_method)
-    vp = (2 * 0.018 * float(total_current) * float(data['length']))/float(current_by_method[0]['secction_mm2'])
-    print(vp)
-    data2 = {}                                                                 
-    if vp < 4.5:
-        pass
-    else: 
-        allcurrent_by_method = Circuit.vp_real(data1)
-        for all in allcurrent_by_method:
-            print(all)
-            if float(2 * 0.018 * float(total_current) * float(data['length']))/float((all['secction_mm2'])) < 4.5:
-                data1['total_current'] = all['method']
-                # data2['secctionmm2'] = all['secction_mm2']
-                break
-
-    print(data1)
-    print(data2)                                                              
-    current_by_method2 = Proyect.updated_current(data1)
-    print(current_by_method2)
-    data2 = {}
-    data2['circuit_id'] = circuit_id
-    data2['secctionmm2'] = float(current_by_method2[0]['secction_mm2'])
-    data2['current_by_method'] = current_by_method2[0][data['method']]
-    data2['breakers'] = current_by_method2[0]['disyuntor']
-    data2['elect_differencial'] = current_by_method2[0]['diferencial']
-    print(data2)
-    Circuit.update_method(data2)
-    Circuit.update_secctionmm2(data2)
-    Circuit.update_breakers(data2)
-    Circuit.update_elect_differencial(data2)
-    data3 = { 'vp':round((2*0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
-    print(data3)
-    Circuit.update_vp(data3)
-    if circuit_id:
-        data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'total_current': total_current,'circuit_id': circuit_id}
-        Load.save(data4)
-        Circuit.updated_loads({'circuit_id':circuit_id})
-    else:
-        pass
-    return redirect('/loadbox')
+        data['wires'] = request.form['type_isolation']
+        data['type_circuit'] = request.form['type_circuit']
+        circuit_id = Circuit.add_circuit(data)
+        data['qty'] = request.form['qty']
+        data['power'] = request.form['power']
+        total_power = round((int(data['qty']) * float(data['power']))/1000,2)
+        print(total_power)
+        total_current = round(total_power/(float(request.form['single_voltage']) * float(1.7320508076) * float(request.form['fp'])),2)
+        print(total_current)
+        data1 = {'method':data['method'],'total_current':total_current}
+        current_by_method= Proyect.current_tri(data1)
+        print(current_by_method[0]['secction_mm2'])
+        vp = (0.018 * float(total_current) * float(data['length']))/float(current_by_method[0]['secction_mm2'])
+        print(round(vp,2))                                                    
+        if vp < 4.5:
+            pass
+        else: 
+            allcurrent_by_method = Circuit.vp_real(data1)
+            for all in allcurrent_by_method:
+                print(all)
+                if float(float(total_current) * float(data['length']))/float((all['secction_mm2'])) < 4.5:
+                    data1['total_current'] = all['method']
+                    break
+                                                          
+        current_by_method2 = Proyect.updated_current_tri(data1)
+        print(current_by_method2)
+        data2 = {}
+        data2['circuit_id'] = circuit_id
+        data2['secctionmm2'] = float(current_by_method2[0]['secction_mm2'])
+        data2['current_by_method'] = current_by_method2[0][data['method']]
+        data2['breakers'] = current_by_method2[0]['disyuntor']
+        data2['elect_differencial'] = current_by_method2[0]['diferencial']
+        print(data2)
+        Circuit.update_method(data2)
+        Circuit.update_secctionmm2(data2)
+        Circuit.update_breakers(data2)
+        Circuit.update_elect_differencial(data2)
+        data3 = { 'vp':round((0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
+        print(data3)
+        Circuit.update_vp(data3)
+        if circuit_id:
+            data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'single_voltage':request.form['single_voltage'], 'fp':request.form['fp'],'total_current': total_current,'circuit_id': circuit_id}
+            Load.save(data4)
+            Circuit.updated_loads({'circuit_id':circuit_id})
+            print('funciona por fin 380')
+        else:
+            print("Error en el ingreso de loads")
+        return redirect('/loadbox')
 
 
 # ----------------------------------------------- SUMMARY -----------------------------------------------------------
@@ -238,16 +309,34 @@ def detai_circuit_tds():
 @app.route('/add_load', methods=['POST'])
 def add_loads():
     circuit = Circuit.detail_circuit_and_loads_by_id({'circuit_id': request.form['circuit_id']})
-    load = {
+    if request.form['single_voltage'] == '0.220':
+        load = {
+            'nameloads': request.form['nameloads'],
+            'qty': request.form['qty'],
+            'circuit_id': request.form['circuit_id'],
+            'power': request.form['power'],
+            'single_voltage': request.form['single_voltage'],
+            'fp': 1
+        }
+        total_power = round(float((load['qty'])) * float(load['power'])/1000,2)
+        total_current = round(total_power/float(circuit[0]['single_voltage']),2)
+        load['total_current'] = total_current
+        load['total_power'] = total_power
+        Load.save(load)
+        Circuit.updated_loads({'circuit_id': request.form['circuit_id']})
+    else:
+        load = {
         'nameloads': request.form['nameloads'],
         'qty': request.form['qty'],
         'circuit_id': request.form['circuit_id'],
-        'power': request.form['power']
-    }
-    total_power = round(float((load['qty'])) * float(load['power'])/1000,2)
-    total_current = round(total_power/float(circuit[0]['single_voltage']),2)
-    load['total_current'] = total_current
-    load['total_power'] = total_power
-    Load.save(load)
-    Circuit.updated_loads({'circuit_id': request.form['circuit_id']})
+        'power': request.form['power'],
+        'single_voltage': request.form['single_voltage'],
+        'fp': request.form['fp']
+        }
+        total_power = round(float((load['qty'])) * float(load['power'])/1000,2)
+        total_current = round(total_power/(float(load['single_voltage']) * float(1.7320508076) * float(load['fp'])),2)
+        load['total_current'] = total_current
+        load['total_power'] = total_power
+        Load.save(load)
+        Circuit.updated_loads({'circuit_id': request.form['circuit_id']})
     return redirect('/loadbox/')
