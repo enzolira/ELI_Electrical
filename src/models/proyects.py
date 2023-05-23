@@ -98,7 +98,7 @@ class Proyect:
         if not data['power']:
             flash("Ingresa la potencia de cada carga del circuito !!!","circuito")
             is_valid = False
-        if not data['length']:
+        if not data['total_length_ct']:
             flash("Ingresa el largo del circuito !!!","circuito")
             is_valid = False
         return is_valid

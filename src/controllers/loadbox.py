@@ -101,14 +101,14 @@ def new_circuits():
 
 # --------------CALCULOS MONOFASICOS -------
 
-    if float(request.form['single_voltage']) == '0.220':
+    if float(request.form['single_voltage']) == 0.220:
         data = {
             'name': request.form['name'],
             'nameloads': request.form['nameloads'],
             'ref': request.form['ref'],
             'method': request.form['method'],
             'single_voltage': request.form['single_voltage'],
-            'length': request.form['length'],
+            'total_length_ct': request.form['total_length_ct'],
             'tg_id' : request.form['tg_id']
         }
         td_id = request.form.get('td_id')
@@ -116,8 +116,6 @@ def new_circuits():
             data['td_id'] = request.form['td_id']
         else:
             data['td_id'] = None
-
-        print(data['td_id'])
 
         data['wires'] = request.form['type_isolation']
         data['type_circuit'] = request.form['type_circuit']
@@ -129,7 +127,7 @@ def new_circuits():
         data1 = {'method':data['method'],'total_current':total_current}
         current_by_method= Proyect.current(data1)
         print(current_by_method)
-        vp = (2 * 0.018 * float(total_current) * float(data['length']))/float(current_by_method[0]['secction_mm2'])
+        vp = (2 * 0.018 * float(total_current) * float(data['total_length_ct']))/float(current_by_method[0]['secction_mm2'])
         print(vp)
         data2 = {}                                                                 
         if vp < 4.5:
@@ -138,12 +136,11 @@ def new_circuits():
             allcurrent_by_method = Circuit.vp_real(data1)
             for all in allcurrent_by_method:
                 print(all)
-                if float(2 * 0.018 * float(total_current) * float(data['length']))/float((all['secction_mm2'])) < 4.5:
+                if float(2 * 0.018 * float(total_current) * float(data['total_length_ct']))/float((all['secction_mm2'])) < 4.5:
                     data1['total_current'] = all['method']
                     break
 
-        print(data1)
-        print(data2)                                                              
+        print(data1)                                                             
         current_by_method2 = Proyect.updated_current(data1)
         print(current_by_method2)
         data2 = {}
@@ -157,11 +154,11 @@ def new_circuits():
         Circuit.update_secctionmm2(data2)
         Circuit.update_breakers(data2)
         Circuit.update_elect_differencial(data2)
-        data3 = { 'vp':round((2*0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
+        data3 = { 'vp':round((2*0.018*float(data['total_length_ct'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
         print(data3)
         Circuit.update_vp(data3)
         if circuit_id:
-            data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'fp':float(1.00),'total_current': total_current,'circuit_id': circuit_id}
+            data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'fp':float(1.00),'length': request.form['total_length_ct'], 'total_current': total_current,'circuit_id': circuit_id}
             Load.save(data4)
             Circuit.updated_loads({'circuit_id':circuit_id})
             print('funciona por fin 220')
@@ -178,7 +175,7 @@ def new_circuits():
             'ref': request.form['ref'],
             'method': request.form['method'],
             'single_voltage': request.form['single_voltage'],
-            'length': request.form['length'],
+            'total_length_ct': request.form['total_length_ct'],
             'tg_id' : request.form['tg_id']
         }
         td_id = request.form.get('td_id')
@@ -199,7 +196,7 @@ def new_circuits():
         data1 = {'method':data['method'],'total_current':total_current}
         current_by_method= Proyect.current_tri(data1)
         print(current_by_method[0]['secction_mm2'])
-        vp = (0.018 * float(total_current) * float(data['length']))/float(current_by_method[0]['secction_mm2'])
+        vp = (0.018 * float(total_current) * float(data['total_length_ct']))/float(current_by_method[0]['secction_mm2'])
         print(round(vp,2))                                                    
         if vp < 4.5:
             pass
@@ -207,7 +204,7 @@ def new_circuits():
             allcurrent_by_method = Circuit.vp_real(data1)
             for all in allcurrent_by_method:
                 print(all)
-                if float(float(total_current) * float(data['length']))/float((all['secction_mm2'])) < 4.5:
+                if float(float(total_current) * float(data['total_length_ct']))/float((all['secction_mm2'])) < 4.5:
                     data1['total_current'] = all['method']
                     break
                                                           
@@ -224,11 +221,11 @@ def new_circuits():
         Circuit.update_secctionmm2(data2)
         Circuit.update_breakers(data2)
         Circuit.update_elect_differencial(data2)
-        data3 = { 'vp':round((0.018*float(data['length'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
+        data3 = { 'vp':round((0.018*float(data['total_length_ct'])*float(total_current))/data2['secctionmm2'],2), 'circuit_id':circuit_id}
         print(data3)
         Circuit.update_vp(data3)
         if circuit_id:
-            data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'fp':request.form['fp'],'total_current': total_current,'circuit_id': circuit_id}
+            data4 = {'nameloads':data['nameloads'],'qty': data['qty'], 'power':data['power'], 'total_power':total_power, 'fp':request.form['fp'],'length': request.form['total_length_ct'] ,'total_current': total_current,'circuit_id': circuit_id}
             Load.save(data4)
             Circuit.updated_loads({'circuit_id':circuit_id})
             print('funciona por fin 380')
@@ -317,7 +314,8 @@ def add_loads():
             'qty': request.form['qty'],
             'circuit_id': request.form['circuit_id'],
             'power': request.form['power'],
-            'fp': request.form['fp']
+            'fp': request.form['fp'],
+            'length': request.form['total_length_ct']
         }
         total_power = round(float((load['qty'])) * float(load['power'])/1000,2)
         total_current = round(total_power/float(circuit[0]['single_voltage']),2)
@@ -333,7 +331,7 @@ def add_loads():
             'method':circuit[0]['method'],
             'total_current': Newtotal_current_ct[0]['total_current_ct']
         }
-        vp = round((2 * 0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['length']))/float(Newtotal_current_ct[0]['secctionmm2']),2)
+        vp = round((2 * 0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['total_length_ct']))/float(Newtotal_current_ct[0]['secctionmm2']),2)
         print(vp)                                                              
         if vp < 4.5:
             pass
@@ -341,7 +339,7 @@ def add_loads():
             allcurrent_by_method = Circuit.vp_real(data)
             for all in allcurrent_by_method:
                 print(all)
-                if float(2 * 0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['length']))/float((all['secction_mm2'])) < 4.5:
+                if float(2 * 0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['total_length_ct']))/float((all['secction_mm2'])) < 4.5:
                     data['total_current'] = all['method']
                     break
                                                              
@@ -353,14 +351,12 @@ def add_loads():
         data2['current_by_method'] = current_by_method2[0][data['method']]
         data2['breakers'] = current_by_method2[0]['disyuntor']
         data2['elect_differencial'] = current_by_method2[0]['diferencial']
-        data2['length'] = request.form['length']
         print(data2)
         Circuit.update_method(data2)
         Circuit.update_secctionmm2(data2)
         Circuit.update_breakers(data2)
         Circuit.update_elect_differencial(data2)
-        Circuit.update_length(data2)
-        data3 = { 'vp':round((2*0.018*float(request.form['length'])*float(Newtotal_current_ct[0]['total_current_ct']))/data2['secctionmm2'],2), 'circuit_id':request.form['circuit_id']}
+        data3 = { 'vp':round((2*0.018*float(request.form['total_length_ct'])*float(Newtotal_current_ct[0]['total_current_ct']))/data2['secctionmm2'],2), 'circuit_id':request.form['circuit_id']}
         print(data3)
         Circuit.update_vp(data3)
         if request.form['circuit_id']:
@@ -377,7 +373,8 @@ def add_loads():
         'qty': request.form['qty'],
         'circuit_id': request.form['circuit_id'],
         'power': request.form['power'],
-        'fp': request.form['fp']
+        'fp': request.form['fp'],
+        'length': request.form['total_length_ct']
         }
         print(load)
         total_power = round(float((load['qty'])) * float(load['power'])/1000,2)
@@ -394,7 +391,7 @@ def add_loads():
             'method':circuit[0]['method'],
             'total_current': Newtotal_current_ct[0]['total_current_ct']
         }
-        vp = round((0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['length']))/float(Newtotal_current_ct[0]['secctionmm2']),2)
+        vp = round((0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['total_length_ct']))/float(Newtotal_current_ct[0]['secctionmm2']),2)
         print(vp)                                                              
         if vp < 4.5:
             pass
@@ -402,7 +399,7 @@ def add_loads():
             allcurrent_by_method = Circuit.vp_real(data)
             for all in allcurrent_by_method:
                 print(all)
-                if float(0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['length']))/float((all['secction_mm2'])) < 4.5:
+                if float(0.018 * float(Newtotal_current_ct[0]['total_current_ct']) * float(request.form['total_length_ct']))/float((all['secction_mm2'])) < 4.5:
                     data['total_current'] = all['method']
                     break
                                                              
@@ -414,14 +411,12 @@ def add_loads():
         data2['current_by_method'] = current_by_method2[0][data['method']]
         data2['breakers'] = current_by_method2[0]['disyuntor']
         data2['elect_differencial'] = current_by_method2[0]['diferencial']
-        data2['length'] = request.form['length']
         print(data2)
         Circuit.update_method(data2)
         Circuit.update_secctionmm2(data2)
         Circuit.update_breakers(data2)
         Circuit.update_elect_differencial(data2)
-        Circuit.update_length(data2)
-        data3 = { 'vp':round((0.018*float(request.form['length'])*float(Newtotal_current_ct[0]['total_current_ct']))/data2['secctionmm2'],2), 'circuit_id':request.form['circuit_id']}
+        data3 = { 'vp':round((0.018*float(request.form['total_length_ct'])*float(Newtotal_current_ct[0]['total_current_ct']))/data2['secctionmm2'],2), 'circuit_id':request.form['circuit_id']}
         print(data3)
         Circuit.update_vp(data3)
         if request.form['circuit_id']:

@@ -407,7 +407,7 @@ function detail_circuit(element) {
           html += 
             `<tr class="border border-dark-subtle text-center" style="font-size: 15px; height: 40px;">
               <td>${xl.total_center}</td>
-              <td>${xl.total_power_ct}</td>
+              <td>${xl.total_length_ct}</td>
               <td>${xl.total_current_ct}</td>`;
       
               if (xl.fp === '1.00') {
@@ -429,7 +429,7 @@ function detail_circuit(element) {
               // }
         
           html += `
-              <td>${xl.largo}</td>
+              <td>${xl.total_power_ct}</td>
               <td>${xl.vp}</td>
               <td>${xl.wires}</td>
               <td>${xl.secctionmm2}</td>
@@ -446,8 +446,9 @@ function detail_circuit(element) {
                 <td class="border border-dark-subtle">${xl.nameloads}</td>
                 <td class="border border-dark-subtle">${xl.qty}</td>
                 <td class="border border-dark-subtle">${xl.power}</td>
-                <td class="border border-dark-subtle">${xl.total_power}</td>
+                <td class="border border-dark-subtle">${xl.largo}</td>
                 <td class="border border-dark-subtle">${xl.total_current}</td>
+                <td class="border border-dark-subtle">${xl.total_power}</td>
                 <td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-secondary my-1">Borrar</button></td>
               </tr>`;
             });
@@ -473,7 +474,7 @@ function detail_circuit(element) {
         <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
         <div class="input-group mt-2">
           <span class="input-group-text" id="basic-addon3">Distancia de la Carga</span>
-          <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
+          <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="total_length_ct">
         </div>
         <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>`;
 
@@ -508,7 +509,7 @@ function detail_circuit(element) {
         <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
         <div class="input-group mt-2">
           <span class="input-group-text" id="basic-addon3">Distancia de la Carga</span>
-          <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
+          <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="total_length_ct">
         </div>
         <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>`;
       }
