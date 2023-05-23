@@ -126,17 +126,17 @@ function factorPower(element) {
   }
 }
 
-function factorPower2(element) {
-  const FpFactor = element.value;
-  const factorID = document.getElementById('factorFP2');
-  if (FpFactor === "0.380") {
-    factorID.style.display = 'block';
-    console.log(FpFactor);
-  }else{
-    factorID.style.display = 'none';
-  console.log(FpFactor);
-  }
-}
+// function factorPower2(element) {
+//   const FpFactor = element.value;
+//   const factorID = document.getElementById('factorFP2');
+//   if (FpFactor === "0.380") {
+//     factorID.style.display = 'block';
+//     console.log(FpFactor);
+//   }else{
+//     factorID.style.display = 'none';
+//   console.log(FpFactor);
+//   }
+// }
 
 // -------------------------------------------- VIEW LOADBOX PAGE -----------------------------------------------------
 
@@ -345,8 +345,13 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
                 <td class="border-end border-dark-subtle">${xl.ref}</td>
                 <td class="border-end border-dark-subtle">${xl.name}</td>
                 <td class="border-end border-dark-subtle">${xl.total_power}</td>
-                <td class="border-end border-dark-subtle">${xl.total_current}</td>
-                <td class="border-end border-dark-subtle">${xl.single_voltage}</td>
+                <td class="border-end border-dark-subtle">${xl.total_current}</td>`;
+                if (xl.single_voltage === '0.220') {
+                  content += `<td class="border-end border-dark-subtle">220</td>`;
+                } else {
+                  content += `<td class="border-end border-dark-subtle">380</td>`;
+                }
+                content += `
                 <td>
                   <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
                   <button class="btn btn-sm btn-outline-secondary my-1">Borrar</button>
@@ -404,12 +409,18 @@ function detail_circuit(element) {
               <td>${xl.total_center}</td>
               <td>${xl.total_power_ct}</td>
               <td>${xl.total_current_ct}</td>`;
+      
+              if (xl.fp === '1.00') {
+                html += `<td>1</td>`;
+              } else {
+                html += `<td>${xl.fp}</td>`;
+              }
         
-              // if (xl.single_voltage === '0.220') {
-              //   html += `<td>220</td>`;
-              // } else {
-              //   html += `<td>380</td>`;
-              // }
+              if (xl.single_voltage === '0.220') {
+                html += `<td>220</td>`;
+              } else {
+                html += `<td>380</td>`;
+              }
   
               // if (xl.type_circuit === 'feeder') {
               //   html += `<td>Alimentador</td>`;
@@ -435,14 +446,7 @@ function detail_circuit(element) {
                 <td class="border border-dark-subtle">${xl.nameloads}</td>
                 <td class="border border-dark-subtle">${xl.qty}</td>
                 <td class="border border-dark-subtle">${xl.power}</td>
-                <td ç">${xl.total_power}</td>`;
-                if (xl.single_voltage === '0.220') {
-                  content += `<td class="border border-dark-subtle">220</td>`;
-                } else {
-                  content += `<td class="border border-dark-subtle">380</td>`;
-                }
-                content += `
-                <td class="border border-dark-subtle table-header2">${xl.fp}</td>
+                <td class="border border-dark-subtle">${xl.total_power}</td>
                 <td class="border border-dark-subtle">${xl.total_current}</td>
                 <td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-secondary my-1">Borrar</button></td>
               </tr>`;
@@ -450,6 +454,30 @@ function detail_circuit(element) {
         detailLoad.innerHTML = content;
         nameCircuit.innerHTML = "<strong>Cuadro de Resumén Circuito N° " + data[0]['name'] + "</strong>";
         const addLoad = document.getElementById("add");
+        if (data[0]['single_voltage'] === '0.220'){
+        addLoad.innerHTML = 
+        `<div class="input-group my-3">
+          <span class="input-group-text" id="basic-addon1">Referencia</span>
+          <input type="text" class="form-control" placeholder="Ubicación o referencia de la carga" aria-label="Username" aria-describedby="basic-addon1" name="nameloads">
+        </div>
+        <div class="input-group mt-3">
+              <span class="input-group-text" id="basic-addon1">Cantidad de Cargas</span>
+              <input type="number" class="form-control" placeholder="Ingresa la cantidad" aria-label="Username" aria-describedby="basic-addon1" name="qty">
+              <input type="hidden" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="circuit_id" value=${data[0]['circuit_id']}>
+              <input type="hidden" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="fp" value=${data[0]['fp']}>
+        </div>
+        <div class="input-group mt-3">
+              <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
+              <input type="text" class="form-control" placeholder="Ingresa la Potencia" aria-label="Username" aria-describedby="basic-addon1" name="power">
+        </div>
+        <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
+        <div class="input-group mt-2">
+          <span class="input-group-text" id="basic-addon3">Distancia de la Carga</span>
+          <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
+        </div>
+        <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>`;
+
+      } else {
         addLoad.innerHTML = 
         `<div class="input-group my-3">
           <span class="input-group-text" id="basic-addon1">Referencia</span>
@@ -461,14 +489,12 @@ function detail_circuit(element) {
               <input type="hidden" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="circuit_id" value=${data[0]['circuit_id']}>
         </div>
         <div class="input-group mt-3">
-          <span class="input-group-text" id="basic-addon1">Ingresa el Voltaje</span>
-          <select class="form-select" aria-label="Default select example" name="single_voltage" onchange="factorPower2(this)">
-            <option selected>Selecciona un voltaje</option>
-            <option value="0.220">220V</option>
-            <option value="0.380">380V</option>
+          <span class="input-group-text" id="basic-addon1">Voltaje Definido</span>
+          <select class="form-select" aria-label="Default select example" name="single_voltage">
+            <option value="0.380" readonly>380V</option>
           </select>
         </div>
-        <div id="factorFP2" style="display: none;">
+        <div id="factorFP2">
           <div class="input-group mt-3">
               <span class="input-group-text">Factor de Potencia</span>
               <input type="text" class="form-control" placeholder="Ingresa el Factor de Potencia" name="fp">
@@ -479,8 +505,14 @@ function detail_circuit(element) {
               <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
               <input type="text" class="form-control" placeholder="Ingresa la Potencia" aria-label="Username" aria-describedby="basic-addon1" name="power">
         </div>
-        <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>`;
+        <div class="form-text" id="basic-addon4">La Potencia debe ser en Watt.</div>
+        <div class="input-group mt-2">
+          <span class="input-group-text" id="basic-addon3">Distancia de la Carga</span>
+          <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="Ejemplo: 12.5" name="length">
+        </div>
+        <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>`;
       }
+    }
     }
   });
 }
