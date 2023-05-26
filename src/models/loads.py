@@ -18,6 +18,18 @@ class Load:
 
     @classmethod
     def save(cls, data):
-        query = "INSERT INTO loads (nameloads, qty, power, total_power, length, total_current, fp ,created_at, updated_at, circuit_id) VALUES (%(nameloads)s, %(qty)s, %(power)s, %(length)s, %(total_power)s, %(total_current)s, %(fp)s, NOW(), NOW(), %(circuit_id)s);"
+        query = "INSERT INTO loads (nameloads, qty, power, total_power, length, total_current, fp ,created_at, updated_at, circuit_id) VALUES (%(nameloads)s, %(qty)s, %(power)s, %(total_power)s, %(length)s, %(total_current)s, %(fp)s, NOW(), NOW(), %(circuit_id)s);"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+    
+    @classmethod
+    def delete(cls, data):
+        query = "DELETE FROM loads WHERE loads.id = %(load_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def delete_load_by_circuit_id(cls, data):
+        query = "DELETE FROM loads WHERE circuit_id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result

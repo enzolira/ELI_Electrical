@@ -1,6 +1,6 @@
 {% extends "base_loadbox.html" %} 
 
-{% block title %} Proyectos {% endblock%}
+{% block title %} Cuadro de Cargas {% endblock%}
 
 {% block content %}
 
@@ -86,6 +86,7 @@
                         <th class="border border-dark-subtle px-1">Total de Centros</th>
                         <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
                         <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                        <th class="border border-dark-subtle px-1">Voltaje [V]</th>
                         <th class="border border-end-0 border-dark-subtle ps-1">Opciones</th>
                     </tr>
                 </thead>
@@ -160,13 +161,13 @@
                   <thead id="detail-circuit-loads-head">
                     <tr class="text-center" style="font-size: 14px;">
                       <th class="border border-dark-subtle px-1">Nombre</th>
+                      <th class="border border-dark-subtle px-1">Largo [MT]</th>
                       <th class="border border-dark-subtle px-1">Cantidad de Cargas</th>
                       <th class="border border-dark-subtle px-1">Potencia por Carga [W]</th>
                       <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
                       <!-- <th class="border border-dark-subtle px-1">Voltaje [V]</th>
                       <th class="border border-dark-subtle px-1">FP</th> -->
                       <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
-                      <th class="border border-dark-subtle px-1">Largo [MT]</th>
                       <th class="border border-dark-subtle px-1">Opciones</th>
                     </tr>
                   </thead>
@@ -203,8 +204,5 @@
         </div>
     </div>
 </div>
-
-
-
 
 {% endblock %}

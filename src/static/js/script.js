@@ -7,12 +7,6 @@ function confirmar(event) {
   }
 }
 
-//  ------------------------ SUCCESS AL AGREGAR CIRCUITOS --------------------------------
-
-function addCircuit(event){
-
-}
-
 // ------------------------- CREATE CIRCUITS BY PROYECTS, TGS AND TDS --------------------
 
 // ------------------------------------------------- SELECT PROYECTS --------------------------------------------------
@@ -125,18 +119,6 @@ function factorPower(element) {
   console.log(FpFactor);
   }
 }
-
-// function factorPower2(element) {
-//   const FpFactor = element.value;
-//   const factorID = document.getElementById('factorFP2');
-//   if (FpFactor === "0.380") {
-//     factorID.style.display = 'block';
-//     console.log(FpFactor);
-//   }else{
-//     factorID.style.display = 'none';
-//   console.log(FpFactor);
-//   }
-// }
 
 // -------------------------------------------- VIEW LOADBOX PAGE -----------------------------------------------------
 
@@ -257,8 +239,14 @@ function select_tds(element) {
               <td class="border-end border-dark-subtle">${xl.name}</td>
               <td class="border-end border-dark-subtle">${xl.total_center}</td>
               <td class="border-end border-dark-subtle">${xl.total_power_ct}</td>
-              <td class="border-end border-dark-subtle">${xl.total_current_ct}</td>
-              <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary btn-sm my-1">Borrar</button></td>
+              <td class="border-end border-dark-subtle">${xl.total_current_ct}</td>`;
+                if (xl.single_voltage === '0.220') {
+                  content += `<td class="border-end border-dark-subtle">220</td>`;
+                } else {
+                  content += `<td class="border-end border-dark-subtle">380</td>`;
+                }
+                content += `
+              <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary btn-sm my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button></td>
             </tr>`;
             count.push(xl.circuit_id)
             }
@@ -344,8 +332,8 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
               `<tr class="border-top border-dark-subtle text-center">
                 <td class="border-end border-dark-subtle">${xl.ref}</td>
                 <td class="border-end border-dark-subtle">${xl.name}</td>
-                <td class="border-end border-dark-subtle">${xl.total_power}</td>
-                <td class="border-end border-dark-subtle">${xl.total_current}</td>`;
+                <td class="border-end border-dark-subtle">${xl.total_power_ct}</td>
+                <td class="border-end border-dark-subtle">${xl.total_current_ct}</td>`;
                 if (xl.single_voltage === '0.220') {
                   content += `<td class="border-end border-dark-subtle">220</td>`;
                 } else {
@@ -354,7 +342,7 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
                 content += `
                 <td>
                   <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
-                  <button class="btn btn-sm btn-outline-secondary my-1">Borrar</button>
+                  <button class="btn btn-sm btn-outline-secondary my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
                 </td>
               </tr>`;
             addedNames.push(xl.circuit_id);
@@ -407,7 +395,7 @@ function detail_circuit(element) {
           html += 
             `<tr class="border border-dark-subtle text-center" style="font-size: 15px; height: 40px;">
               <td>${xl.total_center}</td>
-              <td>${xl.total_length_ct}</td>
+              <td>${xl.total_power_ct}</td>
               <td>${xl.total_current_ct}</td>`;
       
               if (xl.fp === '1.00') {
@@ -421,15 +409,8 @@ function detail_circuit(element) {
               } else {
                 html += `<td>380</td>`;
               }
-  
-              // if (xl.type_circuit === 'feeder') {
-              //   html += `<td>Alimentador</td>`;
-              // } else {
-              //   html += `<td>Subalimentador</td>`;
-              // }
-        
           html += `
-              <td>${xl.total_power_ct}</td>
+              <td>${xl.total_length_ct}</td>
               <td>${xl.vp}</td>
               <td>${xl.wires}</td>
               <td>${xl.secctionmm2}</td>
@@ -444,12 +425,12 @@ function detail_circuit(element) {
               content += 
               `<tr class="border border-dark-subtle text-center">
                 <td class="border border-dark-subtle">${xl.nameloads}</td>
+                <td class="border border-dark-subtle">${xl.largo}</td>
                 <td class="border border-dark-subtle">${xl.qty}</td>
                 <td class="border border-dark-subtle">${xl.power}</td>
-                <td class="border border-dark-subtle">${xl.largo}</td>
-                <td class="border border-dark-subtle">${xl.total_current}</td>
                 <td class="border border-dark-subtle">${xl.total_power}</td>
-                <td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-secondary my-1">Borrar</button></td>
+                <td class="border border-dark-subtle">${xl.total_current}</td>
+                <td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-secondary my-1" data_circuit=${xl.circuit_id} data_circuit_delete=${xl.id} onclick="deleteLoad(this)">Borrar</button></td>
               </tr>`;
             });
         detailLoad.innerHTML = content;
@@ -514,6 +495,101 @@ function detail_circuit(element) {
         <div class="form-text" id="basic-addon4">Ingresa el largo total del circuito en metros separado por punto.</div>`;
       }
     }
+    }
+  });
+}
+
+
+// # --------------------- EDIT AND DELETE CIRCUITS BY TDS AND TGS -----------------------------------------------------------
+// # --------------------- DELETE LOADS -----------------------------------------------------------
+
+  
+function deleteLoad(element) {
+  const load_id = element.getAttribute("data_circuit_delete");
+  const circuit_id1 = element.getAttribute("data_circuit");
+  console.log(load_id)
+  console.log(circuit_id1)
+  Swal.fire({
+    title: '¿Seguro que quieres Borrar esta Carga?',
+    icon: 'warning',
+    width: '50%',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    cancelButtonText: 'Cancelar',
+    confirmButtonText: 'Sí, Borrar',
+    allowOutsideClick: false,
+    allowEnterKey: true,
+    stopKeydownPropagation: false,
+    position: 'top'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Carga Borrada Correctamente',
+        icon: 'success',
+        allowOutsideClick: false,
+        allowEnterKey: true,
+        stopKeydownPropagation: false,
+        timer: 3000,
+        position: 'top'
+      });
+      
+      $.ajax({
+        url:'/api/delete/load',
+        method:'POST',
+        data:{load: load_id , circuit:circuit_id1},
+        success: (data, textStatus, xhr) => {
+          var modal = document.getElementById("staticBackdrop2");
+          var modalInstance = bootstrap.Modal.getInstance(modal);
+          modalInstance.hide();
+          var circuitId2 = element.getAttribute("data-circuit-id");        // Replace with the ID or reference to your circuit element
+          detail_circuit(circuitId2);
+        }
+      })
+    }
+  });
+}
+
+// # --------------------- DELETE CIRCUIT -----------------------------------------------------------
+
+function deleteCircuit(element) {
+  const circuit_id2 = element.getAttribute("data_circuit_delete2");
+  console.log(circuit_id2)
+  Swal.fire({
+    title: '¿Estás seguro de que deseas borrar el circuito?',
+    text: 'Si hay cargas asociadas, ¡también se eliminarán!',
+    icon: 'warning',
+    width: '60%' ,
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    cancelButtonText: 'Cancelar',
+    confirmButtonText: 'Borrar',
+    allowOutsideClick: false,
+    allowEnterKey: true,
+    stopKeydownPropagation: false,
+    position: 'top'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Circuito Borrado Correctamente',
+        icon: 'success',
+        allowOutsideClick: false,
+        allowEnterKey: true,
+        stopKeydownPropagation: false,
+        timer: 5000,
+        position: 'top'
+      });
+      
+      $.ajax({
+        url:'/api/delete/circuit',
+        method:'POST',
+        data:{ circuitv2: circuit_id2},
+        success: (data, textStatus, xhr) => {
+
+          console.log('jajaj')
+        }
+      })
     }
   });
 }

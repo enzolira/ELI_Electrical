@@ -72,6 +72,7 @@ class Circuit:
             circuits.append(ct)
         return circuits
 
+
     @classmethod
     def detail_circuit_by_id(cls, data):
         query = "SELECT * FROM circuits WHERE id = %(circuit_id)s;"
@@ -87,7 +88,7 @@ class Circuit:
     @classmethod
     def add_circuit(cls,data):
         query = "INSERT INTO circuits (name, ref, method, type_circuit, single_voltage, vp, secctionmm2, wires, current_by_method, breakers, elect_differencial, total_center, total_current_ct, total_power_ct, total_length_ct, created_at, updated_at, tg_id, td_id) VALUES \
-                (%(name)s, %(ref)s, %(method)s, %(type_circuit)s, %(single_voltage)s,NULL,  NULL, %(wires)s, NULL, NULL, NULL, NULL, NULL, NULL, %(total_length_ct)s, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
+                (%(name)s, %(ref)s, %(method)s, %(type_circuit)s, %(single_voltage)s, NULL,  NULL, %(wires)s, NULL, NULL, NULL, NULL, NULL, NULL, %(total_length_ct)s, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
 
@@ -137,4 +138,9 @@ class Circuit:
         query = "UPDATE circuits SET total_center = (SELECT SUM(qty) FROM loads WHERE circuit_id = %(circuit_id)s), total_current_ct = (SELECT SUM(total_current) FROM loads WHERE circuit_id = %(circuit_id)s), total_power_ct = (SELECT SUM(total_power) FROM loads WHERE circuit_id = %(circuit_id)s), total_length_ct = (SELECT SUM(length) FROM loads WHERE circuit_id = %(circuit_id)s) WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result 
-
+    
+    @classmethod
+    def delete_load_by_circuit_id(cls, data):
+        query = "DELETE FROM circuits WHERE id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
