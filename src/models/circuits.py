@@ -28,8 +28,8 @@ class Circuit:
 
     
     @classmethod
-    def get_all_circuits_by_user_user_id(cls, data):
-        query = "SELECT * FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id LEFT JOIN tgs ON tgs.id = circuits.tg_id \
+    def get_all_circuits_by_user_id(cls, data):
+        query = "SELECT *, proyects.name AS proyecto, tgs.name AS tg FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id LEFT JOIN tgs ON tgs.id = circuits.tg_id \
                 LEFT JOIN proyects ON proyects.id = tgs.proyect_id LEFT JOIN users ON users.id = proyects.user_id WHERE users.id = %(id)s;"
         results = connectToMySQL(cls.db).query_db(query, data)
         if (not results):

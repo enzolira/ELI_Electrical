@@ -31,6 +31,9 @@
         crossorigin="anonymous"
     ></script>
 
+    <!-- SweetAlert Javascript (remote)----->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Bootstrap JS CDN (remote) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
             integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" 
@@ -41,11 +44,6 @@
             crossorigin="anonymous">
     </script>
 
-    <!-- SweetAlert Javascript (remote)----->
-    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script defer src="sweetalert2.all.min.js"></script>
-    <link rel="stylesheet" href="sweetalert2.min.css">
-
     <!-- Bootstrap JQUERY CDN (remote) -->
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     {% endblock %}
@@ -55,11 +53,13 @@
 
 <body>
     <!-- I) Navigation Bar (Header Panel) -->
-    {% include 'navbar.html' %}
+    {% include 'navbar_detail.html' %}
 
     <!-- II) Main Panel -->
     <main>
-        <div class="container" style="width: 100%;">{% block content %} {% endblock %}</div>
+        <div class="container-fluid px-2" style="margin-top: 4rem;">
+            {% block content %} {% endblock %}
+        </div>
     </main>
 
     <!-- III) Footer panel -->

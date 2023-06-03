@@ -1,13 +1,52 @@
-// ---------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------CREATED OF PROYECT, TGS , TDS AND CIRCUITS-----------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+
 // -------------------------CONFIRMACION CIERRE DE SESION---------------------------------
 
 function confirmar(event) {
-  if (!confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-    event.preventDefault();
-  }
+  event.preventDefault();
+  Swal.fire({
+    icon:'question',
+    title:'¿Estás seguro de que quieres cerrar sesión?',
+    showConfirmButton:true,
+    showCancelButton:true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    cancelButtonText: 'Cancelar',
+    confirmButtonText: 'Salir',
+    width: '50%',
+    position:'top'
+  }).then((result) => {
+    if (result.isConfirmed){
+      window.location.href = event.target.href;
+    }
+  })
 }
 
 // ------------------------- CREATE CIRCUITS BY PROYECTS, TGS AND TDS --------------------
+
+
+function addCircuit(){
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+
+Toast.fire({
+  icon: 'success',
+  title: '¡Circuito agregado correctamente!'
+})
+}
 
 // ------------------------------------------------- SELECT PROYECTS --------------------------------------------------
 
@@ -246,7 +285,7 @@ function select_tds(element) {
                   content += `<td class="border-end border-dark-subtle">380</td>`;
                 }
                 content += `
-              <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-outline-secondary btn-sm my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button></td>
+              <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button></td>
             </tr>`;
             count.push(xl.circuit_id)
             }
@@ -279,8 +318,13 @@ function select_tds(element) {
 var tgsSelect = document.getElementById("tgs-id");
 var tdsSelect = document.getElementById("tds-id");
 
-tgsSelect.addEventListener("change", obtenerValoresSeleccionados);
-tdsSelect.addEventListener("change", obtenerValoresSeleccionados);
+if (tgsSelect && tdsSelect) {
+  tgsSelect.addEventListener("change", obtenerValoresSeleccionados);
+  tdsSelect.addEventListener("change", obtenerValoresSeleccionados);
+}
+
+// tgsSelect.addEventListener("change", obtenerValoresSeleccionados);
+// tdsSelect.addEventListener("change", obtenerValoresSeleccionados);
 
 function obtenerValoresSeleccionados() {
   var tgsSelectedValues = getSelectedValues(tgsSelect);
@@ -342,7 +386,7 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
                 content += `
                 <td>
                   <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
-                  <button class="btn btn-sm btn-outline-secondary my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
+                  <button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
                 </td>
               </tr>`;
             addedNames.push(xl.circuit_id);
@@ -430,7 +474,7 @@ function detail_circuit(element) {
                 <td class="border border-dark-subtle">${xl.power}</td>
                 <td class="border border-dark-subtle">${xl.total_power}</td>
                 <td class="border border-dark-subtle">${xl.total_current}</td>
-                <td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-secondary my-1" data_circuit=${xl.circuit_id} data_circuit_delete=${xl.id} onclick="deleteLoad(this)">Borrar</button></td>
+                <td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-danger my-1" data_circuit=${xl.circuit_id} data_circuit_delete=${xl.id} onclick="deleteLoad(this)">Borrar</button></td>
               </tr>`;
             });
         detailLoad.innerHTML = content;
@@ -514,8 +558,8 @@ function deleteLoad(element) {
     icon: 'warning',
     width: '50%',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: '#0d6efd',
+    cancelButtonColor: '#6c757d',
     cancelButtonText: 'Cancelar',
     confirmButtonText: 'Sí, Borrar',
     allowOutsideClick: false,
@@ -528,8 +572,6 @@ function deleteLoad(element) {
         title: 'Carga Borrada Correctamente',
         icon: 'success',
         allowOutsideClick: false,
-        allowEnterKey: true,
-        stopKeydownPropagation: false,
         timer: 3000,
         position: 'top'
       });
@@ -542,7 +584,7 @@ function deleteLoad(element) {
           var modal = document.getElementById("staticBackdrop2");
           var modalInstance = bootstrap.Modal.getInstance(modal);
           modalInstance.hide();
-          var circuitId2 = element.getAttribute("data-circuit-id");        // Replace with the ID or reference to your circuit element
+          var circuitId2 = element.getAttribute("data-circuit-id");
           detail_circuit(circuitId2);
         }
       })
@@ -561,8 +603,8 @@ function deleteCircuit(element) {
     icon: 'warning',
     width: '60%' ,
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: '#0d6efd',
+    cancelButtonColor: '#6c757d',
     cancelButtonText: 'Cancelar',
     confirmButtonText: 'Borrar',
     allowOutsideClick: false,
@@ -575,9 +617,6 @@ function deleteCircuit(element) {
         title: 'Circuito Borrado Correctamente',
         icon: 'success',
         allowOutsideClick: false,
-        allowEnterKey: true,
-        stopKeydownPropagation: false,
-        timer: 5000,
         position: 'top'
       });
       
@@ -586,10 +625,152 @@ function deleteCircuit(element) {
         method:'POST',
         data:{ circuitv2: circuit_id2},
         success: (data, textStatus, xhr) => {
-
-          console.log('jajaj')
+          location.reload();
         }
       })
     }
   });
 }
+
+
+// -----------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------   SUMMARY PROYECT ------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------
+
+// function infoProyect(userId) {
+//   $.ajax({
+//     url: '/projects/details/',
+//     method: 'GET',
+//     data: { user_id: userId },
+//     success: (data, textStatus, xhr) => {
+//       const project = document.getElementById('id-projects');
+//       let content = '';
+//       let count = [];
+//       let counter = 1;
+//       data.forEach(pr => {
+//         if (!count.includes(pr.name) && data.length !== 0) {
+//           const targetId = counter;
+//           content +=
+//             `<button class="btn" data-bs-toggle="collapse" data-bs-target="#project${targetId}" style="width: 100%;" data-pro-id="${pr.id}" onclick="tg_circuit(this)">${pr.name}</button>
+//             <div class="collapse" style="width: 100%;" id="project${targetId}">
+//                 <div class="card card-body">
+//                 </div>
+//             </div>`;
+//           count.push(pr.name);
+//           counter++;
+//         }
+//       });
+      
+//       project.innerHTML = content;
+//     },
+//     error: (xhr, textStatus, error) => {
+//       console.log(xhr, textStatus, error);
+//     }
+//   });
+// }
+
+
+//   document.addEventListener("DOMContentLoaded", function() {
+//     const mainElement = document.getElementById("main");
+//     if (mainElement && window.location.pathname === "/summary") {
+//       const userId = mainElement.getAttribute("data-user-id");
+//       infoProyect(userId);
+//     }
+//   });
+
+
+  // function tg_circuit(element) {
+  //   const proId = element.getAttribute('data-pro-id');
+  //   const targetId = element.getAttribute('data-bs-target').substring(1);
+    
+  //   console.log(proId);
+    
+  //   $.ajax({
+  //     url: '/api/pro_id/',
+  //     method: 'GET',
+  //     data: { proyect_id: proId },
+  //     success: (data, textStatus, xhr) => {
+  //       const targetTg = document.getElementById(targetId);
+  //       let content = '';
+        
+  //       if (data.length !== 0) {
+  //         data.forEach(tt => {
+  //           content += `<h5>${tt.name}</h5>`;
+  //           console.log(data)
+  //         });
+  //       }else {
+  //         content += `<h5>Proyecto Vacio</h5>`;
+  //         console.log(data)
+  //       }
+        
+  //       targetTg.innerHTML = content;        
+  //     },
+  //     error: (xhr, textStatus, error) => {
+  //       console.log(xhr, textStatus, error);
+  //     }
+  //   });
+  // }
+
+
+  function tg_circuit(element) {
+    const dataBsTarget = element.dataset.bsTarget.substring(1);
+    const tgId = document.getElementById(dataBsTarget);
+    const dataProId = element.dataset.proId;
+  
+    console.log("data-bs-target:", dataBsTarget);
+    console.log("data-pro-id:", dataProId);
+  
+    $.ajax({
+      url: '/api/pro_id/',
+      method: 'GET',
+      data: { proyect_id: dataProId },
+      success: (data, textStatus, xhr) => {
+        let content = '';
+        let count = 0;
+        if (data.length !== 0) {
+          data.forEach((tt) => {
+            content += `
+              <div class="card card-body">
+                <h6>${tt.name}</h6>
+                <div id="td${tt.id}" data-tg-circuit="${tt.id}" onclick='funcionJavaPrueba()></div>
+              </div>`;
+          
+            td_circuit(tt.id, "td" + tt.id);
+          });
+          
+        } else {
+          content += 
+          `<div class="card card-body">
+            <h6>Proyecto Vacio</h6>
+          </div>`;
+        }        
+        tgId.innerHTML = content;
+      },
+      error: (xhr, textStatus, error) => {
+        console.log(xhr, textStatus, error);
+      }
+    });
+  }
+  
+
+  function td_circuit(dataTgCircuit, id) {
+    $.ajax({
+      url:'/api/tg_id',
+      method:'GET',
+      data: { tg_id: dataTgCircuit },
+      success: (data, textStatus, xhr) => {
+        console.log(data)
+        const divTd = document.getElementById(id);
+        divTd.innerText = 'Probando'
+      },
+      error: ( xhr, textStatus, error) => {
+        console.log(xhr, textStatus, error);
+      }
+    })
+    
+  }
+  
+  
+  

@@ -1,4 +1,4 @@
-from flask import render_template,redirect,session,request, flash, jsonify
+from flask import render_template,redirect,session,request, flash, jsonify, url_for
 from src import app
 from src.models.user import User
 from src.models.proyects import Proyect
@@ -262,21 +262,6 @@ def new_circuits():
             Circuit.updated_loads({'circuit_id':circuit_id})
             print('funciona por fin 380')
             return redirect('/loadbox')
-
-
-# ----------------------------------------------- SUMMARY -----------------------------------------------------------
-
-
-
-@app.route('/pro')
-def pro():
-    if 'user_id' not in session:
-        return redirect('/logout')
-
-    data ={'id': session['user_id']}
-
-    user = User.get_by_id(data)
-    return render_template('summary.html', user=user)
 
 
 
@@ -546,3 +531,35 @@ def delete_circuit():
     Load.delete_load_by_circuit_id({'circuit_id': request.form['circuitv2']})
     Circuit.delete_load_by_circuit_id({'circuit_id': request.form['circuitv2']})
     return redirect('/loadbox/')
+
+
+# -------------------------------------------------------------------------------------------------------------------
+# ------------------------------------SUMMARY PROYECTS --------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------
+
+@app.route('/summary')
+def summary():
+    if 'user_id' not in session:
+        return redirect('/logout')
+
+    data ={'id': session['user_id']}
+
+    user = User.get_by_id(data)
+    projects = Proyect.get_all_proyect_by_user_id(data)
+    tgs = Proyect.get_all_tgs_by_user_id(data)
+    return render_template('summary.html', user=user, projects=projects, tgs = tgs)
+
+
+
+@app.route('/api/pro_id/')
+def user_id():
+    print(request.args.get('proyect_id'))
+    tg = Tgs.get_tgs_by_project({'proyect_id': request.args.get('proyect_id')})
+    return jsonify(tg)
+
+@app.route('/api/tg_id')
+def tg_id():
+    td = Tds.get_all_tds_by_tg_id({'tg_id': request.args.get('tg_id')})
+    print(td)
+    return jsonify(td)
+

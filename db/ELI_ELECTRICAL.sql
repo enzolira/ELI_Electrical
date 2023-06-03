@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `ref` TEXT NULL,
   `total_center` INT NULL,
   `total_current_ct` DECIMAL(6,2) NULL,
-  `total_length_ct` DECIMAL(6,2) NULL,
+  `total_length_ct` VARCHAR(25) NULL,
   `elect_differencial` VARCHAR(45) NULL,
   `secctionmm2` DECIMAL(6,2) NULL,
   `method` VARCHAR(255) NULL,
@@ -190,7 +190,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `qty` INT NULL,
-  `power` DECIMAL(6,2) NULL,
+  `power` VARCHAR(25) NULL,
   `total_power` DECIMAL(6,2) NULL,
   `total_current` DECIMAL(6,2) NULL,
   `length` VARCHAR(45) NULL,

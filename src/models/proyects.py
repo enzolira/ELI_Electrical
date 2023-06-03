@@ -25,8 +25,18 @@ class Proyect:
         return proyects
 
     @classmethod
+    def get_all_tgs_by_user_id(cls,data):
+        query = "SELECT	* FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE user_id = %(id)s;"
+        results = connectToMySQL(cls.db).query_db(query,data)
+        tgs = []
+        for pro in results:
+            tgs.append(pro)
+        return tgs
+
+
+    @classmethod
     def get_all_tgs_by_proyect_id_and_user_id(cls,data):
-        query = "SELECT * FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE user_id = %(id)s"
+        query = "SELECT *, proyects.id AS projecto, proyects.name AS projects FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE user_id = %(id)s"
         results = connectToMySQL(cls.db).query_db(query,data)
         tds = []
         for pro in results:
@@ -44,14 +54,6 @@ class Proyect:
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
 
-    # @classmethod
-    # def updated_current(cls, data):
-    #     query = "SELECT singles_break.name AS disyuntor, singles_diff.name AS diferencial, wiresthrv.secction_mm2, wiresthrv." + str(data.get('method')) + " FROM \
-    #         (SELECT * FROM singles_breakers WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS singles_break JOIN \
-    #         (SELECT * FROM singles_elect_diff WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS singles_diff JOIN \
-    #         (SELECT * FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + " OR ABS( " + str(data.get('method')) + " - " + str(data.get('total_current')) + ") < 0.40 ORDER BY secction_mm2 LIMIT 1) AS wiresthrv ON 1=1;"
-    #     result = connectToMySQL(cls.db).query_db(query, data)
-    #     return result
 
     @classmethod
     def current_tri(cls, data):
@@ -62,14 +64,6 @@ class Proyect:
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
 
-    # @classmethod
-    # def updated_current_tri(cls, data):
-    #     query = "SELECT disyuntor, diferencial, wiresthrv.secction_mm2, wiresthrv." + str(data.get('method')) + " FROM \
-    #         (SELECT * FROM three_breakers WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS three_breaker JOIN \
-    #         (SELECT * FROM three_elect_diff WHERE capacity > " + str(data.get('total_current')) + " OR ABS(capacity - " + str(data.get('total_current')) + ") < 0.40 ORDER BY capacity LIMIT 1) AS three_elect_dif JOIN \
-    #         (SELECT * FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + " OR ABS( " + str(data.get('method')) + " - " + str(data.get('total_current')) + ") < 0.40 ORDER BY secction_mm2 LIMIT 1) AS wiresthrv ON 1=1;"
-    #     result = connectToMySQL(cls.db).query_db(query, data)
-    #     return result
 
 
     @classmethod
