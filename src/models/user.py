@@ -18,7 +18,7 @@ class User:
 
     @classmethod
     def save(cls,data):
-        query = "INSERT INTO users (first_name,last_name,company,email,password,created_at, updated_at) VALUES(%(first_name)s,%(last_name)s,%(company)s,%(email)s,%(password)s,NOW(),NOW())"
+        query = "INSERT INTO users (first_name,last_name,company,email, password,created_at, updated_at) VALUES(%(first_name)s,%(last_name)s,%(company)s,%(email)s, %(password)s,NOW(),NOW())"
         return connectToMySQL(cls.db).query_db(query,data)
 
     @classmethod
@@ -47,7 +47,7 @@ class User:
             flash("Email invalido!!!","new_register")
             is_valid=False
         if len(user['first_name']) < 2:
-            flash("FNombre debe contener 2 caracteres minimo","new_register")
+            flash("Nombre debe contener 2 caracteres minimo","new_register")
             is_valid= False
         if len(user['last_name']) < 3:
             flash("Apellido debe contener 3 caracteres minimo","new_register")

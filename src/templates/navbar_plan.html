@@ -1,0 +1,105 @@
+<nav class="navbar navbar-expand-lg fixed-top" style="background-color: #e3f2fd;">
+    <div class="container-fluid align-item-middle px-3">
+        <a class="navbar-brand" style=" color: rgba(65, 68, 65, 0.981);">Bienvenido</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse text-start" style="background-color: #e3f2fd;"id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="/dashboard">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="modal" data-bs-target="#staticProyect" href="new_proyect">Crear Proyecto</a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link text-decoration-underline" data-bs-toggle="modal" data-bs-target="#staticWork" href="#">Agregar Trabajos</a>
+                </li> -->
+            </ul>
+            <ul class="navbar-nav ms-auto px-3">
+                <li class="nav-item">
+                    <span class="nav-link">@{{ user.first_name }} {{ user.last_name }}</span>
+                </li>
+                <li class="nav-item px-2 pb-1">
+                    <a href="/logout" onclick="confirmar(event)" class="btn btn-secondary">Salir</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Modal nuevo proyecto -->
+<div class="modal fade" id="staticProyect" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Proyecto</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="/new_proyect" method="post" id="myProyect">
+                <div class="modal-body">
+                    <div class="input-group my-3">
+                        <span class="input-group-text" id="basic-addon1" style="width: 180px;">Nombre del Proyecto</span>
+                        <input type="text" class="form-control" placeholder="Ingresa nombre del proyecto" aria-label="Username" aria-describedby="basic-addon1" name="name">
+                    </div>                                                          
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--- Modal new works --->
+
+<div class="modal fade modal-xl" id="staticWork" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Nueva Tarea</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="/addjob/" method="post" id="myWork">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="FormControlInput1" class="form-label">Nombre del Trabajo</label>
+                        <input type="text" class="form-control" id="FormControlInput1" placeholder="Ubicación o TAG del trabajo" name="title">
+                      </div>
+                    <div class="mb-3">
+                        <label for="FormControlTextarea1" class="form-label">Descripción del Trabajo</label>
+                        <textarea class="form-control" id="FormControlTextarea1" rows="3" name="description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start-job">Fecha de Inicio:</label>
+                        <input type="datetime-local" id="start-time" name="start-time-work">                                                              
+                        <label for="end-time">Fecha de Termino</label>
+                        <input type="datetime-local" id="end-time" name="end-time-work">
+                    </div>
+                    <input type="hidden" id="proyectIdInput" value="{{ proyectID }}" name="proyect_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- modal Description job -->
+
+<div class="modal fade modal-lg" id="staticDescription" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fs-5" id="staticBackdropLabel">Descripción</>
+            </div>
+            <div id="info-view" class="modal-body fs-5"></div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>

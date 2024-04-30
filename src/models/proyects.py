@@ -42,8 +42,21 @@ class Proyect:
         for pro in results:
             tds.append(pro)
         return tds
-    
 
+    @classmethod
+    def get_all_tgs_by_proyect_id(cls,data):
+        query = "SELECT * FROM proyects INNER JOIN tgs ON proyects.id = tgs.proyect_id WHERE proyects.id = %(id)s;"
+        results = connectToMySQL(cls.db).query_db(query,data)
+        tgs = []
+        for pro in results:
+            tgs.append(pro)
+        return tgs
+
+    @classmethod
+    def delete_proyect_by_proyec_id(cls,data):
+        query = "DELETE FROM proyects WHERE id = %(id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
     
     @classmethod
     def current(cls, data):
@@ -72,14 +85,25 @@ class Proyect:
         results = connectToMySQL(cls.db).query_db(query)
         return results
 
+
+    @classmethod
+    def get_all_details_by_proyects(cls, data):
+        query = "SELECT \
+                (SELECT COUNT(tgs.id) FROM tgs LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE proyects.id = %(proyect_id)s) AS TG, \
+                (SELECT COUNT(tds.id) FROM tds LEFT JOIN tgs ON tgs.id = tds.tg_id JOIN proyects ON proyects.id = tgs.proyect_id WHERE proyects.id = %(proyect_id)s) AS TD, \
+                (SELECT COUNT(circuits.id) FROM circuits LEFT JOIN tgs ON tgs.id = circuits.tg_id LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE proyects.id = %(proyect_id)s) AS CTSTG, \
+                (SELECT COUNT(circuits.id) FROM circuits LEFT JOIN tds ON tds.id = circuits.td_id LEFT JOIN tgs ON tgs.id = tds.tg_id LEFT JOIN proyects ON proyects.id = tgs.proyect_id WHERE proyects.id = %(proyect_id)s) AS CTSTD \
+                FROM dual;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
     
 
     @staticmethod
     def validate_circuit(data):
         is_valid = True
-        if not data['name']:
-            flash("Ingresa el numero de circuito !!!","circuito")
-            is_valid = False
+        # if not data['name']:
+        #     flash("Ingresa el numero de circuito !!!","circuito")
+        #     is_valid = False
         if not data['single_voltage']:
             flash("Ingresa el voltage del circuito !!!","circuito")
             is_valid = False

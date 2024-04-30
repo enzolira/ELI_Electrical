@@ -41,13 +41,16 @@
             crossorigin="anonymous">
     </script>
 
-    <!-- SweetAlert Javascript (remote)----->
+    <!-- SweetAlert (remote)----->
     <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script defer src="sweetalert2.all.min.js"></script>
-    <link rel="stylesheet" href="sweetalert2.min.css">
 
     <!-- Bootstrap JQUERY CDN (remote) -->
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- JQUERY -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
     {% endblock %}
 
     <title>{% block title %}{% endblock %}</title>
@@ -59,7 +62,7 @@
 
     <!-- II) Main Panel -->
     <main>
-        <div class="container" style="width: 100%;">{% block content %} {% endblock %}</div>
+        <div class="container vh-100" style="margin-top: 50px;">{% block content %} {% endblock %}</div>
     </main>
 
     <!-- III) Footer panel -->

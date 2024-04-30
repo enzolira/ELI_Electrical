@@ -1,0 +1,314 @@
+{% extends "base_loadbox.html" %} 
+
+{% block title %} Cuadro de Cargas {% endblock%}
+
+{% block content %}
+
+<!------------------------------------------------- VIEW PROYECTS------------------------------------------------------->
+
+<!------------------------------------ VIEW DETAIL FROM PROYECTS, TABLES AND CIRCUITS --------------------------------->
+
+<!--------------------------------------------------- PROYECTS --------------------------------------------------------->
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-xl-4 mt-1 border border-1">
+            <h4 class="mt-1">Proyecto</h4>
+            <h6 id="h6-pro" style="display: none;">Aqui se verán los proyectos.</h6>
+            <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="proyect-id" onchange="select_proyect(this)" style="display: block;">
+                {% for proyect in proyects %}
+                    <option value="{{ proyect.id }}">{{ proyect.name }}</option>
+                {% endfor %}
+            </select>
+            <div id="buttons_pro" class="container text-start" style="display: block;">
+                <button class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;">Editar</button>
+                <button id="delete_pro" class="btn btn-outline-danger mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" onclick="deleteProyect()">Borrar</button>
+            </div>
+        </div>
+        <script>
+            let proyects = {{ proyects|tojson }};
+            
+            if (proyects.length === 0) {
+              let h6Pro = document.getElementById("h6-pro");
+              let proyect = document.getElementById("proyect-id");
+              let button_delete = document.getElementById("buttons_pro");
+              h6Pro.style.display = "block";
+              proyect.style.display = "none";
+              button_delete.style.display = "none";
+            } 
+            else {
+                let button_delete = document.getElementById("buttons_pro");
+                button_delete.style.display = "block";
+            }
+        </script>
+<!--------------------------------------------------- GENERAL TABLES ----------------------------------------------->
+
+
+        <div class="col-xs-12  col-sm-12 col-xl-4 mt-1 border border-1">
+            <h4 class="mt-1">Tablero General</h4>
+            <h6 id="h6-tgs" style="display: block;">Selecciona un proyecto para continuar o agrega un tablero general.</h6>
+            <div id="for-tgs" style="display: none;">
+                <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tgs-id" onchange="select_tds(this)"></select>
+            </div>
+            <div id="buttons" class="container text-start" style="display: none;">
+                <button class="btn btn-outline-success mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" id="download-excel-tg">Descargar</button>
+                <button id ="edit_name_tg" class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" data-bs-toggle="modal" data-bs-target="#staticEditNametg" onclick="editNametg()">Editar</button>
+                <button id="delete_tgs" class="btn btn-outline-danger mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" onclick="deleteTgs()">Borrar</button>
+            </div>
+        </div>
+
+<!--------------------------------------------------- DISTRIBUTIONS TABLES ----------------------------------------------->
+
+        <div class="col-xs-12 col-sm-12 col-xl-4 mt-1 border border-1">
+            <h4 class="mt-1">Tablero Distribución</h4>
+            <h6 id="h6-tds" style="display: block;">No hay tableros de distribución asociados.</h6>
+            <div id="for-tds" style="display: none;">
+                <select class="form-select mb-2" size="7" multiple aria-label="multiple select example" id="tds-id" onchange="select_circuitTD(this)"></select>
+            </div>
+            <div id="buttons_tds" class="container text-start" style="display: none;">
+                <button class="btn btn-outline-success mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" id="download-excel-td">Descargar</button>
+                <button class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" data-bs-toggle="modal" data-bs-target="#staticEditNametd" onclick="editNametd()">Editar</button>
+                <button id="delete_tds" class="btn btn-outline-danger mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" onclick="deleteTds()">Borrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!----------------------------------------------------- CIRCUITS --------------------------------------------------------->
+
+
+<div class="container-fluid mt-1" id="h6-circuit" style="display: block;">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 mt-1 border border-1">
+            <div class="text-center my-1">
+                <h4>Circuito</h4>
+                <h6 id="h6-circuit2" style="display: block;">Aquí se verán los circuitos asociados al tablero correspondiente.</h6>
+                <h5 id="h5-circuit" style="display: none;">No tienes circuitos.</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-------------------------------------------------- CIRCUITS BY TGS----------------------------------------------------->
+
+
+<div class="container-fluid" style="display: none;" id="tg-circuit">
+    <div class="row">
+        <div class="mt-1 border border-1">
+            <div class="text-center mt-1">
+                <h4>Circuito</h4>
+            </div>
+            <table class="w-100">
+                <thead>
+                    <tr class="text-center">
+                        <th class="border border-start-0 border-dark-subtle">Referencia</th>
+                        <th class="border border-dark-subtle px-1">N° Circuito</th>
+                        <th class="border border-dark-subtle px-1">Total de Cargas</th>
+                        <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                        <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                        <th class="border border-dark-subtle px-1">Tensión [V]</th>
+                        <th class="border border-end-0 border-dark-subtle ps-1">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tg-tbody-td"></tbody>
+            </table>            
+        </div>
+    </div>
+</div>
+
+<!--------------------------------------------------- CIRCUITS BY TDS -------------------------------------------------->
+
+
+<div class="container-fluid" style="display: none;" id="td-circuit">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 mt-1 border border-1">
+            <div class="text-center mt-1">
+                <h4>Circuito</h4>
+            </div>
+            <table class="w-100">
+                <thead>
+                    <tr class="text-center">
+                        <th class="border border-start-0 border-dark-subtle">Referencia</th>
+                        <th class="border border-dark-subtle px-1">N° Circuito</th>
+                        <th class="border border-dark-subtle px-1">Total de Cargas</th>
+                        <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                        <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                        <th class="border border-dark-subtle px-1">Tensión [V]</th>
+                        <th class="border border-end-0 border-dark-subtle ps-1">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="td-tbody-td"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- ---------------------------------------------- MODAL DETAIL --------------------------------------------------------->
+
+<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="nameCircuit"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+              <div class="col-sm col-lg mx-2">
+                <table id="table-detail" class="w-100">
+                  <thead id="detail-circuit-head">
+                    <tr class="text-center" style="font-size: 14px;">
+                      <th class="border border-dark-subtle px-1 table-header">Total de Cargas</th>
+                      <th class="border border-dark-subtle px-1 table-header">Potencia Total [KW]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Intensidad Total [A]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Tensión [V]</th>
+                      <th class="border border-dark-subtle px-1 table-header2">FP</th>
+                      <th class="border border-dark-subtle px-1 table-header2">Tipo de Carga</th>
+                      <th class="border border-dark-subtle px-1 table-header">Largo [MT]</th>
+                      <th class="border border-dark-subtle px-1 table-header2">VP [V]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Metodo de Instalación</th>
+                      <th class="border border-dark-subtle px-1 table-header">Tipo de Aislacion</th>
+                      <th class="border border-dark-subtle px-1 table-header">Conductor [mm2]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Canalizacion [mm]</th>
+                      <th class="border border-dark-subtle px-1 table-header3">Disyuntor</th>
+                      <th class="border border-dark-subtle px-1 table-header3">Diferencial</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detail-circuit-body"></tbody>
+                </table>
+              </div>
+              <div class="col-sm col-lg mx-2 mt-3 d-flex justify-content-center">
+                <table id="table-detail-loads" class="w-100">
+                  <thead id="detail-circuit-loads-head">
+                    <tr class="text-center" style="font-size: 14px;">
+                      <th class="border border-dark-subtle px-1">Nombre</th>
+                      <th class="border border-dark-subtle px-1">Largo [MT]</th>
+                      <th class="border border-dark-subtle px-1">Cantidad de Cargas</th>
+                      <th class="border border-dark-subtle px-1">Potencia por Carga [W]</th>
+                      <th class="border border-dark-subtle px-1">Potencia Total [KW]</th>
+                      <th class="border border-dark-subtle px-1">Intensidad Total [A]</th>
+                      <th class="border border-dark-subtle px-1">Tensión [V]</th>
+                      <th class="border border-dark-subtle px-1">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detail-circuit-loads-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop3">Agregar Cargas</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- ---------------------------------------------------- MODAL ADD LOADS -------------------------------------------------->
+
+<div class="modal fade modal-fullscreen-lg-down" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/add_load" method="post">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Agregar Cargas</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="add"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ------------- MODAL DETAIL CIRCUITS TDS ------->
+
+<div class="modal fade" id="staticBackdrop4" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="nameCircuitTd"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+              <div class="col-sm col-lg mx-2">
+                <table id="table-detail" class="w-100">
+                  <thead id="detail-tds-circuits-head">
+                    <tr class="text-center" style="font-size: 14px;">
+                      <th class="border border-dark-subtle px-1 table-header">Total de Cargas</th>
+                      <th class="border border-dark-subtle px-1 table-header">Potencia Total [KW]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Intensidad Total [A]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Tensión [V]</th>
+                      <th class="border border-dark-subtle px-1 table-header2">FP</th>
+                      <th class="border border-dark-subtle px-1 table-header2">Tipo de Carga</th>
+                      <th class="border border-dark-subtle px-1 table-header">Largo [MT]</th>
+                      <th class="border border-dark-subtle px-1 table-header2">VP [V]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Metodo de Instalación</th>
+                      <th class="border border-dark-subtle px-1 table-header">Tipo de Aislacion</th>
+                      <th class="border border-dark-subtle px-1 table-header">Conductor [mm2]</th>
+                      <th class="border border-dark-subtle px-1 table-header">Canalizacion [mm]</th>
+                      <th class="border border-dark-subtle px-1 table-header3">Disyuntor</th>
+                      <th class="border border-dark-subtle px-1 table-header3">Diferencial</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detail-tds-circuits-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!------------ EDIT NAME TG ---------------->
+
+<div class="modal fade" id="staticEditNametg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Editar nombre de Tablero general</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+          <form action="/api/edit_tgs_name/" method="post">
+            <div class="modal-body" id="edit_tg"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                <button type="submit" class="btn btn-primary">Editar</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!------------ EDIT NAME TD ---------------->
+
+<div class="modal fade" id="staticEditNametd" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Editar nombre de Tablero de distribución</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+          <form action="/api/edit_tds_name/" method="post">
+            <div class="modal-body" id="edit_td"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                <button type="submit" class="btn btn-primary">Editar</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,4 +1,6 @@
-
+.main {
+  background-color: #f4f2f2;
+}
 
 .margin {
     margin-top: 80px;
@@ -25,21 +27,21 @@
 
 
 .col {
-  width: 100%; /* Ocupa todo el ancho del contenedor */
-  margin: 0.5em 0; /* Márgenes superiores e inferiores */
+  width: 100%;
+  margin: 0.5em 0;
 }
 
 .h4 {
-  font-size: 1.5rem; /* Tamaño de fuente relativo */
+  font-size: 1.5rem;
 }
 
 .h6 {
-  font-size: 1rem; /* Tamaño de fuente relativo */
+  font-size: 1rem;
 }
 
 @media (min-width: 768px) {
   .col {
-    width: 50%; /* Ocupa el 50% del ancho del contenedor en pantallas grandes */
+    width: 50%;
   }
 }
 
@@ -55,4 +57,26 @@
   width: 9%;
 }
 
+#fc-dom-1 {
+  text-transform: capitalize;
+}
 
+.fc-col-header-cell-cushion {
+  text-transform: capitalize;
+}
+
+.selected {
+  background-color: #d0dbef;
+}
+
+.descrip-info {
+  max-height: 500px; 
+  overflow-y: auto; 
+  border: 1px solid #ccc;
+}
+
+@media (min-width: 1200px) {
+  .modal-xl {
+    --bs-modal-width: 1300px !important;
+  }
+}

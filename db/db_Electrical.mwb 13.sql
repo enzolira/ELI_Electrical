@@ -97,23 +97,26 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`circuits` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `ref` TEXT NOT NULL,
-  `total_load` DECIMAL(6,2) NOT NULL,
-  `single_voltage` DECIMAL(4,3) NOT NULL,
-  `fp` INT NULL DEFAULT '1',
-  `total_current` DECIMAL(6,2) NOT NULL,
-  `lenght` DECIMAL(6,2) NOT NULL,
-  `secctionmm2` DECIMAL(6,2) NOT NULL,
-  `method` VARCHAR(255) NOT NULL,
-  `wires` VARCHAR(255) NOT NULL,
-  `current_by_method` DECIMAL(5,2) NOT NULL,
+  `name` VARCHAR(255) NULL,
+  `ref` TEXT NULL,
+  `total_center` INT NULL,
+  `total_current_ct` DECIMAL(6,2) NULL,
+  `total_length_ct` VARCHAR(25) NULL,
+  `elect_differencial` VARCHAR(45) NULL,
+  `secctionmm2` DECIMAL(6,2) NULL,
+  `method` VARCHAR(255) NULL,
+  `wires` VARCHAR(255) NULL,
+  `current_by_method` DECIMAL(5,2) NULL,
   `type_circuit` VARCHAR(255) NULL,
-  `created_at` DATETIME NULL DEFAULT NOW(),
-  `updated_at` DATETIME NULL DEFAULT NOW(),
+  `vp` DECIMAL(6,2) NULL,
+  `single_voltage` DECIMAL(4,3) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT NOW(),
+  `total_power_ct` DECIMAL(6,2) NULL,
+  `breakers` VARCHAR(255) NULL,
+  `conduit` VARCHAR(45) NULL,
+  `updated_at` DATETIME NOT NULL DEFAULT NOW(),
   `tg_id` INT NOT NULL,
   `td_id` INT NULL,
-  `total_qty` INT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_loads_tgs1_idx` (`tg_id` ASC) VISIBLE,
   INDEX `fk_loads_tds1_idx` (`td_id` ASC) VISIBLE,
@@ -187,10 +190,15 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `qty` INT NOT NULL,
-  `load` DECIMAL(6,2) NOT NULL,
-  `created_at` VARCHAR(45) NOT NULL DEFAULT 'NOW()',
-  `updated_at` VARCHAR(45) NOT NULL DEFAULT 'NOW()',
+  `qty` INT NULL,
+  `power` VARCHAR(25) NULL,
+  `total_power` DECIMAL(6,2) NULL,
+  `total_current` DECIMAL(6,2) NULL,
+  `length` VARCHAR(45) NULL,
+  `nameloads` VARCHAR(255) NULL,
+  `fp` DECIMAL(3,2) NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
   `circuit_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_loads_circuits1_idx` (`circuit_id` ASC) VISIBLE,
@@ -199,6 +207,92 @@ CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`loads` (
     REFERENCES `ELI_ELECTRICAL`.`circuits` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`singles_breakers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`singles_breakers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`three_breakers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`three_breakers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `disyuntor` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`singles_elect_diff`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`singles_elect_diff` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`three_elect_diff`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`three_elect_diff` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `diferencial` VARCHAR(255) NULL,
+  `capacity` INT NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`conduits`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`conduits` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nameconduit` VARCHAR(255) NULL,
+  `c1` INT NULL,
+  `c2` INT NULL,
+  `c3` INT NULL,
+  `c4` INT NULL,
+  `c5` INT NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ELI_ELECTRICAL`.`conduitsubte`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ELI_ELECTRICAL`.`conduitsubte` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `namesubte` VARCHAR(255) NULL,
+  `c1` INT NULL,
+  `c2` INT NULL,
+  `c3` INT NULL,
+  `c4` INT NULL,
+  `c5` INT NULL,
+  `created_at` DATETIME NULL DEFAULT NOW(),
+  `updated_at` DATETIME NULL DEFAULT NOW(),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
