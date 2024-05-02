@@ -1,8 +1,5 @@
 from flask import Flask
-from src import app as application
-from src.controllers import users
-from src.controllers import loadbox
-from src.controllers import planning
+from src import server as application
 
 if __name__ == '__main__':
     application.run()
