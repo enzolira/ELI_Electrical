@@ -500,7 +500,7 @@ def get_tds():
                         datos6 = {'conduit': conduit[0]['c5'], 'td_id':ss['td_id']}
                         Total_tds.update_conduit_total_td(datos6)
                 else:
-                    allcurrent_by_method = Total_tds.vp_real(data1)
+                    allcurrent_by_method = Circuit.vp_real(data1)
                     for all_current in allcurrent_by_method:
                         print(all_current)
                         if float(0.018 * float(ss['total_current_ct']) * float(ss['length_from_tg']))/float(all_current['secction_mm2']) < 4.5:

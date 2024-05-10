@@ -96,8 +96,8 @@ class Tds:
                             CASE WHEN name_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', \
                             total_fp AS 'Fp', \
                             50 AS 'Frecuencia [Hz]', \
-                            total_current_ct AS 'Intensidad total [A]', \
                             CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', \
+                            total_current_ct AS 'Intensidad total [A]', \
                             total_length_ct AS 'Largo [m]', \
                             vp AS 'Vp [V]' , \
                             UPPER(method) AS 'Tipo de instalación', \
