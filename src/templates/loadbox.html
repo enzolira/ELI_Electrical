@@ -52,7 +52,7 @@
             </div>
             <div id="buttons" class="container text-start" style="display: none;">
                 <button class="btn btn-outline-success mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" id="download-excel-tg">Descargar</button>
-                <button id ="edit_name_tg" class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" data-bs-toggle="modal" data-bs-target="#staticEditNametg" onclick="editNametg()">Editar</button>
+                <button id ="edit_name_tg" class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;">Editar</button>
                 <button id="delete_tgs" class="btn btn-outline-danger mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" onclick="deleteTgs()">Borrar</button>
             </div>
         </div>
@@ -67,7 +67,7 @@
             </div>
             <div id="buttons_tds" class="container text-start" style="display: none;">
                 <button class="btn btn-outline-success mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" id="download-excel-td">Descargar</button>
-                <button class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" data-bs-toggle="modal" data-bs-target="#staticEditNametd" onclick="editNametd()">Editar</button>
+                <button id="edit_name_td" class="btn btn-outline-secondary mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;">Editar</button>
                 <button id="delete_tds" class="btn btn-outline-danger mb-1" style="--bs-btn-padding-y: .20rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .65rem;" onclick="deleteTds()">Borrar</button>
             </div>
         </div>
@@ -93,7 +93,7 @@
 <!-------------------------------------------------- CIRCUITS BY TGS----------------------------------------------------->
 
 
-<div class="container-fluid" style="display: none;" id="tg-circuit">
+<div class="container-fluid" style="display: none; margin-bottom: 2.5rem;" id="tg-circuit">
     <div class="row">
         <div class="mt-1 border border-1">
             <div class="text-center mt-1">
@@ -273,6 +273,42 @@
 
 <!------------ EDIT NAME TG ---------------->
 
+ <!-- error -->
+ <script>
+  {% with messages = get_flashed_messages(category_filter=['error_edit_tg']) %}
+      {% if messages %}
+          {% for message in messages %}
+              Swal.fire({
+                  position: 'top',
+                  icon: 'warning',
+                  title: 'Error',
+                  text: '{{ message }}',
+                  timer: 3000,
+                  width: '35em'
+              });
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+</script>
+
+<!-- success -->
+
+<script>
+  {% with messages = get_flashed_messages(category_filter=['success_edit_tg']) %}
+      {% if messages %}
+          {% for message in messages %}
+              Swal.fire({
+                  position: 'top',
+                  icon: 'success',
+                  text: '{{ message }}',
+                  timer: 3000,
+                  width: '35em'
+              });
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+</script>
+
 <div class="modal fade" id="staticEditNametg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -292,6 +328,42 @@
 </div>
 
 <!------------ EDIT NAME TD ---------------->
+
+ <!-- error -->
+ <script>
+  {% with messages = get_flashed_messages(category_filter=['error_edit_td']) %}
+      {% if messages %}
+          {% for message in messages %}
+              Swal.fire({
+                  position: 'top',
+                  icon: 'warning',
+                  title: 'Error',
+                  text: '{{ message }}',
+                  timer: 3000,
+                  width: '35em'
+              });
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+</script>
+
+<!-- success -->
+
+<script>
+  {% with messages = get_flashed_messages(category_filter=['success_edit_td']) %}
+      {% if messages %}
+          {% for message in messages %}
+              Swal.fire({
+                  position: 'top',
+                  icon: 'success',
+                  text: '{{ message }}',
+                  timer: 2000,
+                  width: '35em'
+              });
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+</script>
 
 <div class="modal fade" id="staticEditNametd" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">

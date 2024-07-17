@@ -20,6 +20,9 @@ class Circuit:
         self.breakers = data['breakers']
         self.total_center = data['total_center']
         self.total_current_ct = data['total_current_ct']
+        self.current_r = data['current_r']
+        self.current_s = data['current_s']
+        self.current_t = data['current_t']
         self.total_active_power_ct = data['total_active_power_ct']
         self.total_reactive_power_ct = data['total_reactive_power_ct']
         self.total_apparent_power_ct = data['total_apparent_power_ct']
@@ -31,7 +34,7 @@ class Circuit:
         self.tg_id = data['tg_id']
         self.td_id = data['td_id']
 
-    
+
     @classmethod
     def get_all_circuits_by_user_id(cls, data):
         query = "SELECT *, proyects.name AS proyecto, tgs.name AS tg FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id LEFT JOIN tgs ON tgs.id = circuits.tg_id \
@@ -55,7 +58,7 @@ class Circuit:
         for ct_tg in results:
             circuit_tg_id.append(ct_tg)
         return circuit_tg_id
-    
+
     @classmethod
     def get_all_circuit_and_tds_by_tg(cls, data):
         query = "SELECT *, circuits.id FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.tg_id = %(tg_id)s AND circuits.td_id = %(td_id)s;"
@@ -113,11 +116,32 @@ class Circuit:
             circuits.append(ct)
         return circuits
 
+    @classmethod
+    def all_r_s_t_single_voltage_tg(cls, data):
+        query = "SELECT \
+                    COUNT(CASE WHEN single_voltage = 0.220 THEN current_r END) AS R, \
+                    COUNT(CASE WHEN single_voltage = 0.220 THEN current_s END) AS S, \
+                    COUNT(CASE WHEN single_voltage = 0.220 THEN current_t END) AS T \
+                FROM circuits WHERE circuits.tg_id = %(tg_id)s AND circuits.td_id is NULL;"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        return results
+
+    @classmethod
+    def all_r_s_t_single_voltage_tg_and_td(cls, data):
+        query = "SELECT \
+                    COUNT(CASE WHEN single_voltage = 0.220 THEN current_r END) AS R, \
+                    COUNT(CASE WHEN single_voltage = 0.220 THEN current_s END) AS S, \
+                    COUNT(CASE WHEN single_voltage = 0.220 THEN current_t END) AS T \
+                FROM circuits WHERE circuits.tg_id = %(tg_id)s AND circuits.td_id = %(td_id)s;"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        return results
+
 
     @classmethod
     def add_circuit(cls,data):
-        query = "INSERT INTO circuits (name, ref, method, type_circuit, single_voltage, vp, secctionmm2, conduit, wires, current_by_method, breakers, elect_differencial, total_center, total_current_ct, total_active_power_ct, total_length_ct, total_fp, name_impedance, created_at, updated_at, tg_id, td_id) VALUES \
-                (%(name)s, %(ref)s, %(method)s, %(type_circuit)s, %(single_voltage)s, NULL,  NULL, NULL,%(wires)s, NULL, NULL, NULL, NULL, NULL, NULL, %(total_length_ct)s, %(total_fp)s, %(name_impedance)s, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
+        query = "INSERT INTO circuits (name, ref, method, type_circuit, single_voltage, vp, secctionmm2, conduit, wires, \
+                current_by_method, breakers, elect_differencial, total_center, total_current_ct, current_r, current_s, current_t, total_active_power_ct, total_length_ct, total_fp, name_impedance, created_at, updated_at, tg_id, td_id) VALUES \
+                (%(name)s, %(ref)s, %(method)s, %(type_circuit)s, %(single_voltage)s, NULL, NULL, NULL, %(wires)s, NULL, NULL, NULL, NULL, NULL, NULL,  NULL,  NULL,  NULL, %(total_length_ct)s, %(total_fp)s, %(name_impedance)s, NOW(), NOW(), %(tg_id)s, %(td_id)s);"
         result = connectToMySQL(cls.db).query_db(query,data)
         return result
 
@@ -126,7 +150,7 @@ class Circuit:
         query = "UPDATE circuits SET current_by_method = %(current_by_method)s WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def vp_real(cls, data):
         query = "SELECT secction_mm2 , " + str(data.get('method')) + " AS method  FROM wiresthrv WHERE " + str(data.get('method')) + " > " + str(data.get('total_current')) + ";"
@@ -137,7 +161,7 @@ class Circuit:
         for cu in results:
             currents.append(cu)
         return currents
-    
+
     @classmethod
     def update_vp(cls, data):
         query = "UPDATE circuits SET vp = %(vp)s WHERE circuits.id = %(circuit_id)s;"
@@ -161,7 +185,26 @@ class Circuit:
         query = "UPDATE circuits SET elect_differencial = %(elect_differencial)s WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
+    @classmethod
+    def update_current_r(cls, data):
+        query = "UPDATE circuits SET current_r = %(current_r)s WHERE circuits.id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def update_current_s(cls, data):
+        query = "UPDATE circuits SET current_s = %(current_s)s WHERE circuits.id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def update_current_t(cls, data):
+        query = "UPDATE circuits SET current_t = %(current_t)s WHERE circuits.id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+
     @classmethod
     def updated_loads(cls, data):
         query = "UPDATE circuits SET \
@@ -172,8 +215,8 @@ class Circuit:
         total_reactive_power_ct = (SELECT SUM(total_reactive_power) FROM loads WHERE circuit_id = %(circuit_id)s),\
         total_length_ct = ROUND((SELECT SUM(length) FROM loads WHERE circuit_id = %(circuit_id)s), 2) WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
-        return result 
-    
+        return result
+
     @classmethod
     def new_total_fp(cls, data):
         query = "SELECT ROUND(SUM(circuits.total_active_power_ct) / SUM(circuits.total_apparent_power_ct),2) AS power_factor FROM circuits WHERE id = %(id)s"
@@ -185,51 +228,104 @@ class Circuit:
         query = "UPDATE circuits SET total_fp = %(new_total_fp)s WHERE id = %(id)s"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def update_name_impedance(cls, data):
         query = "UPDATE circuits SET name_impedance = %(name_impedance)s WHERE id = %(id)s"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def all_name_impedance(cls, data):
         query = "SELECT name_impedance FROM circuits WHERE td_id = %(td_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
-        return result  
+        return result
 
     @classmethod
     def delete_circuit_by_id(cls, data):
         query = "DELETE FROM circuits WHERE id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def conduit_mono_normal(cls, data):
         query = "SELECT c3 FROM conduits WHERE nameconduit >= %(secctionmm2)s LIMIT 1;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def conduit_tri_normal(cls, data):
         query = "SELECT c5 FROM conduits WHERE nameconduit >= %(secctionmm2)s LIMIT 1;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def conduit_mono_subte(cls, data):
         query = "SELECT c3 FROM conduitsubte WHERE namesubte >= %(secctionmm2)s LIMIT 1;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def conduit_tri_subte(cls, data):
         query = "SELECT c5 FROM conduitsubte WHERE namesubte >= %(secctionmm2)s LIMIT 1;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
+
     @classmethod
     def update_conduit(cls, data):
         query = "UPDATE circuits SET conduit = %(conduit)s WHERE circuits.id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+
+    @staticmethod
+    def validate_circuit(cir):
+        is_valid = True
+        try:
+            fp = float(cir.get("fp", 0))
+            power = float(cir.get("power"))
+        except ValueError:
+            fp = -1
+            power = -1
+
+        if cir.get("proyect_id") == '-Seleccione proyecto-':
+            flash("Selecciona un Proyecto", "new_circuit")
+            is_valid = False
+        elif cir.get("tg_id") == '-Seleccione tablero general-' or cir["tg_id"] == "-No hay tableros generales-":
+            flash("Selecciona un Tablero General o Crea uno", "new_circuit")
+            is_valid = False
+        elif cir.get("type_circuit") == 'Selecciona un tipo':
+            flash("Selecciona un Tipo de circuito", "new_circuit")
+            is_valid = False
+        elif cir.get("type_isolation") == 'Selecciona una aislación':
+            flash("Selecciona un tipo de Aislación", "new_circuit")
+            is_valid = False
+        elif cir.get("method") == '-Selecciona un metodo':
+            flash("Selecciona un Metodo de Instalación", "new_circuit")
+            is_valid = False
+        elif cir.get("single_voltage") == 'Selecciona un voltaje':
+            flash("Selecciona el voltaje del circuito", "new_circuit")
+            is_valid = False
+        elif cir.get("nameloads") == "":
+            flash("Ingresa el nombre de la Carga", "new_circuit")
+            is_valid = False
+        elif cir.get("ref") == "":
+            flash("Ingresa alguna Referencia o Ubicación del circuito", "new_circuit")
+            is_valid = False
+        elif cir.get("qty") == "":
+            flash("Ingresa la cantidad de Cargas", "new_circuit")
+            is_valid = False
+        elif not cir.get("power") or power <= 0:
+            flash("Ingresa el consumo de la Carga y debe ser en Numeros", "new_circuit")
+            is_valid = False
+        elif cir.get("impedance") == 'Selecciona un tipo':
+            flash("Selecciona la Impredancia del circuito", "new_circuit")
+            is_valid = False
+        elif cir.get("total_length_ct") == "":
+            flash("Ingresa el Largo total del circuito", "new_circuit")
+            is_valid = False
+        elif cir.get("single_voltage") == '0.380':
+            if fp <= 0 or fp > 1:
+                flash("Factor de Potencia debe ser mayor a cero y menor a uno", "new_circuit")
+                is_valid = False
+        return is_valid
+

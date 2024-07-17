@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, flash
 from src.config.mysqlconnection import connectToMySQL
 
 class Tgs:
@@ -115,15 +115,17 @@ class Tgs:
     @classmethod
     def detail_to_excel(cls,data):
         query = "SELECT \
-                    CAST(name AS SIGNED) AS Nombre, ref AS Carga, total_center AS 'Cantidad', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por carga [W]', \
-                    CASE WHEN name_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', total_fp AS 'Fp', 50 AS 'Frecuencia [Hz]', total_active_power_ct AS 'Potencia total [Kw]', total_current_ct AS 'Intensidad total [A]', \
-                    CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', CAST(total_length_ct AS DECIMAL(6, 2)) AS 'Largo [m]', vp AS 'Vp [V]', UPPER(method) AS 'Tipo de instalación', wires AS 'Tipo de Aislación', secctionmm2 AS 'Conductor [mm2]', CAST(conduit AS SIGNED) AS 'Canalización [mm]', \
+                    CAST(name AS SIGNED) AS Circuito, ref AS Carga, total_center AS 'Cantidad', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
+                    CASE WHEN name_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', REPLACE(total_fp, '.', ',') AS 'Fp', 50 AS 'Frecuencia [Hz]', REPLACE(total_active_power_ct, '.', ',') AS 'Potencia Total [Kw]', \
+                    REPLACE(current_r, '.', ',') AS 'R [A]', REPLACE(current_s, '.', ',') AS 'S [A]', REPLACE(current_t, '.', ',') AS 'T [A]', \
+                    CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', CAST(total_length_ct AS SIGNED) AS 'Largo [m]', REPLACE(vp, '.', ',') AS 'Vp [V]', UPPER(method) AS 'Tipo de Instalación', wires AS 'Tipo de Aislación', REPLACE(secctionmm2, '.', ',') AS 'Conductor [mm2]', CAST(conduit AS SIGNED) AS 'Canalización [mm]', \
                     breakers AS 'Disyuntor', elect_differencial AS 'Protección Diferencial' FROM circuits WHERE tg_id = %(tg_id)s AND td_id IS NULL \
                     UNION ALL \
                 SELECT \
-                    CAST(name AS SIGNED) AS Nombre, ref AS Carga, total_center AS 'Cantidad', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por carga [W]', \
-                    CASE WHEN td_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', td_fp AS 'Fp', 50 AS 'Frecuencia [Hz]', total_active_power_ct AS 'Potencia total [Kw]', total_current_ct AS 'Intensidad total [A]', \
-                    CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', CAST(length_from_tg AS DECIMAL) AS 'Largo [m]', vp AS 'Vp [V]', UPPER(method) AS 'Tipo de instalación', wires AS 'Tipo de Aislación', secctionmm2 AS 'Conductor [mm2]', CAST(conduit AS SIGNED) AS 'Canalización [mm]', \
+                    CAST(name AS SIGNED) AS Nombre, ref AS Carga, total_center AS 'Cantidad', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
+                    CASE WHEN td_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', REPLACE(td_fp, '.', ',') AS 'Fp', 50 AS 'Frecuencia [Hz]', REPLACE(total_active_power_ct, '.', ',') AS 'Potencia Total [Kw]', \
+                    REPLACE(current_r, '.', ',') AS 'R [A]', REPLACE(current_s, '.', ',') AS 'S [A]', REPLACE(current_t, '.', ',') AS 'T [A]', \
+                    CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', CAST(length_from_tg AS SIGNED) AS 'Largo [m]', REPLACE(vp, '.', ',') AS 'Vp [V]', UPPER(method) AS 'Tipo de Instalación', wires AS 'Tipo de Aislación', REPLACE(secctionmm2, '.', ',') AS 'Conductor [mm2]', CAST(conduit AS SIGNED) AS 'Canalización [mm]', \
                     breakers AS 'Disyuntor', elect_differencial AS 'Protección Diferencial'\
                     FROM total_tds WHERE tab_secondary = %(tg_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
@@ -133,4 +135,35 @@ class Tgs:
     def edit_name(cls,data):
         query = "UPDATE tgs SET name = %(name)s , tag = %(tag)s WHERE id = %(id)s"
         result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+    
+    @staticmethod
+    def validate_new_tg(tg):
+        is_valid = True
+        if not tg.get("name"):
+            flash("Ingresa nombre del Tablero General", "new_tg")
+            is_valid = False
+        elif tg.get("proyect_id") == "-Seleccione proyecto-":
+            flash("Selecciona un Proyecto", "new_tg")
+            is_valid = False
+        elif not tg.get("tag"):
+            flash("Ingresa identificación del Tablero", "new_tg")
+            is_valid = False
+        return is_valid
+    
+    @staticmethod
+    def validate_edit(tg):
+        is_valid = True
+        if not tg.get("name"):
+            flash("Ingresa el nuevo nombre del Tablero General", "error_edit_tg")
+            is_valid = False
+        elif not tg.get("tag"):
+            flash("Ingresa la nueva identificación del Tablero", "error_edit_tg")
+            is_valid = False
+        return is_valid
+
+    @classmethod
+    def sum_all_current(cls, tg_id):
+        query = "SELECT SUM(current_r) AS R, SUM(current_s) AS S, SUM(current_t) AS T FROM circuits WHERE tg_id  = %(tg_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, tg_id)
         return result

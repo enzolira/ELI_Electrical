@@ -42,3 +42,20 @@ class Load:
         query = "SELECT impedance FROM loads WHERE circuit_id = %(circuit_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+    
+    @staticmethod
+    def validate_add_load(load):
+        is_valid = True
+        if not load.get("nameloads"):
+            is_valid = False
+            flash("Ingresa el nombre de la Carga", "load_new")
+        elif not load.get("qty"):
+            is_valid = False
+            flash("Ingresa el consumo de la Carga", "load_new")
+        elif load.get("impedance2") == "Selecciona un tipo":
+            is_valid = False
+            flash("Selecciona el tipo de Impredancia")
+        elif not load.get("total_length_ct"):
+            is_valid = False
+            flash("Ingresa el Largo de la Carga")
+        return is_valid

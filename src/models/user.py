@@ -38,25 +38,31 @@ class User:
     @staticmethod
     def validate_new_register(user):
         is_valid = True
-        query = "SELECT * FROM users WHERE email = %(email)s;"
-        results = connectToMySQL(User.db).query_db(query,user)
-        if len(results) >= 1:
-            flash("Email ya registrado","new_register")
-            is_valid=False
-        if not EMAIL_REGEX.match(user['email']):
-            flash("Email invalido!!!","new_register")
-            is_valid=False
-        if len(user['first_name']) < 2:
-            flash("Nombre debe contener 2 caracteres minimo","new_register")
-            is_valid= False
-        if len(user['last_name']) < 3:
-            flash("Apellido debe contener 3 caracteres minimo","new_register")
-            is_valid= False
-        if len(user['company']) < 5:
-            flash("Empresa debe contener 5 caracteres minimo","new_register")
-        if len(user['password']) < 6:
-            flash("Password must be at least 6 characters","new_register")
-            is_valid= False
-        if user['password'] != user['confpw']:
-            flash("Passwords don't match","new_register")
-        return is_valid
+        for key, value in user.items():
+            if value:
+                query = "SELECT * FROM users WHERE email = %(email)s;"
+                results = connectToMySQL(User.db).query_db(query,user)
+                if len(results) >= 1:
+                    flash("Email ya registrado","new_register")
+                    is_valid=False
+                if not EMAIL_REGEX.match(user['email']):
+                    flash("Email invalido!!!","new_register")
+                    is_valid=False
+                if len(user['first_name']) < 2:
+                    flash("Nombre debe contener 2 caracteres minimo","new_register")
+                    is_valid= False
+                if len(user['last_name']) < 3:
+                    flash("Apellido debe contener 3 caracteres minimo","new_register")
+                    is_valid= False
+                if len(user['company']) < 5:
+                    flash("Empresa debe contener 5 caracteres minimo","new_register")
+                if len(user['password']) < 6:
+                    flash("Contraseña debe tener 6 caracteres minimo","new_register")
+                    is_valid= False
+                if user['password'] != user['confpw']:
+                    flash("Contraseña incorrecta","new_register")
+                return is_valid
+            else:
+                flash("Campos vacios, debes ingresar datos para registrarte","new_register")
+                is_valid = False
+                return is_valid

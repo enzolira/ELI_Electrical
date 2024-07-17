@@ -2,6 +2,8 @@
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------CREATED OF PROYECT, TGS , TDS, CIRCUITS & LOADS-------------
 // ------------------------------------------------------------------------------------------------
+
+
 // ------------------------------------------------------------------------------------------------
 
 // -------------------------CONFIRMACION CIERRE DE SESION---------------------------------
@@ -62,6 +64,7 @@ function addCircuit() {
     width: '35em'
   })
 }
+
 
 // ------------------------------------------------- SELECT PROYECTS --------------------------------------------------
 
@@ -334,13 +337,17 @@ function select_tds(element) {
         if ((Array.isArray(data[2]) && data[2].length > 0) || (Array.isArray(data[1]) && data[1].length > 0)) {
           data[2].forEach(xl1 => {
               if (count.includes(xl1.circuit_id)){
+                let totalActivePowerCt = parseFloat(xl1.total_active_power_ct);
+                let formattedTotalActivePowerCt = Number.isInteger(totalActivePowerCt) ? parseInt(totalActivePowerCt) : totalActivePowerCt.toFixed(2);
+                let totalCurrentCt = parseFloat(xl1.total_current_ct);
+                let formattedTotalCurrentCt = Number.isInteger(totalCurrentCt) ? parseInt(totalCurrentCt) : totalCurrentCt.toFixed(2);
                   content += `
                       <tr class="border-top border-dark-subtle text-center">
                           <td class="border-end border-dark-subtle">${xl1.ref}</td>
                           <td class="border-end border-dark-subtle">${xl1.name}</td>
                           <td class="border-end border-dark-subtle">${xl1.total_center}</td>
-                          <td class="border-end border-dark-subtle">${xl1.total_active_power_ct}</td>
-                          <td class="border-end border-dark-subtle">${xl1.total_current_ct}</td>`;
+                          <td class="border-end border-dark-subtle">${formattedTotalActivePowerCt}</td>
+                          <td class="border-end border-dark-subtle">${formattedTotalCurrentCt}</td>`;
                   if (xl1.single_voltage === '0.220') {
                       content += `<td class="border-end border-dark-subtle">220</td>`;
                   } else {
@@ -354,24 +361,28 @@ function select_tds(element) {
           });
       
           data[1].forEach(xl1 => {
-              if (!count.includes(xl1.circuit_id)){
-                  content += `
-                      <tr class="border-top border-dark-subtle text-center">
-                          <td class="border-end border-dark-subtle">${xl1.ref}</td>
-                          <td class="border-end border-dark-subtle">${xl1.name}</td>
-                          <td class="border-end border-dark-subtle">${xl1.total_center}</td>
-                          <td class="border-end border-dark-subtle">${xl1.total_active_power_ct}</td>
-                          <td class="border-end border-dark-subtle">${xl1.total_current_ct}</td>`;
-                  if (xl1.single_voltage === '0.220') {
-                      content += `<td class="border-end border-dark-subtle">220</td>`;
-                  } else {
-                      content += `<td class="border-end border-dark-subtle">380</td>`;
-                  }
-                  content += `
-                          <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl1.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl1.circuit_id}" onclick="deleteCircuit(this)">Borrar</button></td>
-                      </tr>`;
-                  count.push(xl1.circuit_id)
+            if (!count.includes(xl1.circuit_id)){
+              let totalActivePowerCt = parseFloat(xl1.total_active_power_ct);
+              let formattedTotalActivePowerCt = Number.isInteger(totalActivePowerCt) ? parseInt(totalActivePowerCt) : totalActivePowerCt.toFixed(2);
+              let totalCurrentCt = parseFloat(xl1.total_current_ct);
+              let formattedTotalCurrentCt = Number.isInteger(totalCurrentCt) ? parseInt(totalCurrentCt) : totalCurrentCt.toFixed(2);    
+              content += `
+                  <tr class="border-top border-dark-subtle text-center">
+                      <td class="border-end border-dark-subtle">${xl1.ref}</td>
+                      <td class="border-end border-dark-subtle">${xl1.name}</td>
+                      <td class="border-end border-dark-subtle">${xl1.total_center}</td>
+                      <td class="border-end border-dark-subtle">${formattedTotalActivePowerCt}</td>
+                      <td class="border-end border-dark-subtle">${formattedTotalCurrentCt}</td>`;
+              if (xl1.single_voltage === '0.220') {
+                  content += `<td class="border-end border-dark-subtle">220</td>`;
+              } else {
+                  content += `<td class="border-end border-dark-subtle">380</td>`;
               }
+              content += `
+                      <td><button type="button" class="btn btn-outline-secondary me-2 my-1 btn-sm" onclick="detail_circuit(this)" data-circuit-id="${xl1.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button><button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl1.circuit_id}" onclick="deleteCircuit(this)">Borrar</button></td>
+                  </tr>`;
+              count.push(xl1.circuit_id);
+          }
           });
       }
       
@@ -391,8 +402,6 @@ function select_tds(element) {
         
         // Concatenar los dos arreglos en el orden deseado
         let sortedItems = sortedItemsNotEmpty.concat(sortedItemsEmpty);
-      
-
         //aca agregar el contenido ordenado segun si hay circuitos o no en el td
         sortedItems.forEach(item => {
             if (item.total_center === null) {
@@ -504,27 +513,32 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
         let content = '';
         
         data.forEach((xl) => {
-            if (!addedNames.includes(xl.circuit_id)) {
-              content += 
+          if (!addedNames.includes(xl.circuit_id)) {
+            let totalActivePowerCt = parseFloat(xl.total_active_power_ct);
+            let formattedTotalActivePowerCt = Number.isInteger(totalActivePowerCt) ? parseInt(totalActivePowerCt) : totalActivePowerCt.toFixed(2);
+            let totalCurrentCt = parseFloat(xl.total_current_ct);
+            let formattedTotalCurrentCt = Number.isInteger(totalCurrentCt) ? parseInt(totalCurrentCt) : totalCurrentCt.toFixed(2);
+        
+            content += 
                 `<tr class="border-top border-dark-subtle text-center">
-                  <td class="border-end border-dark-subtle">${xl.nameloads}</td>
-                  <td class="border-end border-dark-subtle">${xl.name}</td>
-                  <td class="border-end border-dark-subtle">${xl.total_center}</td>
-                  <td class="border-end border-dark-subtle">${xl.total_active_power_ct}</td>
-                  <td class="border-end border-dark-subtle">${xl.total_current_ct}</td>`;
-                  if (xl.single_voltage === '0.220') {
-                    content += `<td class="border-end border-dark-subtle">220</td>`;
-                  } else {
-                    content += `<td class="border-end border-dark-subtle">380</td>`;
-                  }
-                  content += `
-                  <td class="">
-                    <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
-                    <button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
-                  </td>
-                </tr>`;
-              addedNames.push(xl.circuit_id);
+                    <td class="border-end border-dark-subtle">${xl.nameloads}</td>
+                    <td class="border-end border-dark-subtle">${xl.name}</td>
+                    <td class="border-end border-dark-subtle">${xl.total_center}</td>
+                    <td class="border-end border-dark-subtle">${formattedTotalActivePowerCt}</td>
+                    <td class="border-end border-dark-subtle">${formattedTotalCurrentCt}</td>`;
+            if (xl.single_voltage === '0.220') {
+                content += `<td class="border-end border-dark-subtle">220</td>`;
+            } else {
+                content += `<td class="border-end border-dark-subtle">380</td>`;
             }
+            content += `
+                    <td>
+                        <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
+                        <button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
+                    </td>
+                </tr>`;
+            addedNames.push(xl.circuit_id);
+          }        
         });
         
         tableCircuit.innerHTML = content;
@@ -562,57 +576,74 @@ function detail_circuit(element) {
         const detailLoad = document.getElementById("detail-circuit-loads-body");
         let html = '';
         
+      // Con esta function acerco los decimales de .00 a nada y .87 los muestra //
+      
+            function formatNumber(value) {
+              let floatValue = parseFloat(value);
+              if (Number.isInteger(floatValue)) {
+                  return parseInt(floatValue);
+              } else {
+                  return floatValue.toFixed(2);
+              }
+          }
+
         if (data.length > 0) {
           const xl = data[0];
           html += 
-            `<tr class="border border-dark-subtle text-center" style="font-size: 15px; height: 40px;">
-              <td>${xl.total_center}</td>
-              <td>${xl.total_active_power_ct}</td>
-              <td>${xl.total_current_ct}</td>`;
-
-              if (xl.single_voltage === '0.220') {
-                html += `<td>220</td>`;
-              } else {
-                html += `<td>380</td>`;
-              }
-              html += `<td>${xl.total_fp}</td>`;
-              
-              if (xl.name_impedance == "capacitance"){
-                html += `<td>Capacitiva</td>`;
-              } else {
-                html += `<td>Inductiva</td>`;
-              }
-
+              `<tr class="border border-dark-subtle text-center" style="font-size: 15px; height: 40px;">
+                  <td>${xl.total_center}</td>
+                  <td>${formatNumber(xl.total_active_power_ct)}</td>
+                  <td>${formatNumber(xl.total_current_ct)}</td>`;
+      
+          if (xl.single_voltage === '0.220') {
+              html += `<td>220</td>`;
+          } else {
+              html += `<td>380</td>`;
+          }
+          html += `<td>${xl.total_fp}</td>`;
+      
+          if (xl.name_impedance == "capacitance") {
+              html += `<td>Capacitiva</td>`;
+          } else {
+              html += `<td>Inductiva</td>`;
+          }
+      
           html +=`    
-              <td>${xl.total_length_ct}</td>
-              <td>${xl.vp}</td>
-              <td>${xl.method.toUpperCase()}</td>
-              <td>${xl.wires}</td>
-              <td>${xl.secctionmm2}</td>
-              <td>${xl.conduit}</td>
-              <td>${xl.breakers}</td>
-              <td>${xl.elect_differencial}</td>
-            </tr>`;
-        }
-        
-        detailTable.innerHTML = html;     
-            content = '';
-            data.map(xl => {
-              content += 
+                  <td>${xl.total_length_ct}</td>
+                  <td>${xl.vp}</td>
+                  <td>${xl.method.toUpperCase()}</td>
+                  <td>${xl.wires}</td>
+                  <td>${formatNumber(xl.secctionmm2)}</td>
+                  <td>${xl.conduit}</td>
+                  <td>${xl.breakers}</td>
+                  <td>${xl.elect_differencial}</td>
+              </tr>`;
+      }
+      
+      detailTable.innerHTML = html;    
+      content = '';
+      data.map(xl => {
+          content += 
               `<tr class="border border-dark-subtle text-center">
-                <td class="border border-dark-subtle">${xl.nameloads}</td>
-                <td class="border border-dark-subtle">${xl.largo}</td>
-                <td class="border border-dark-subtle">${xl.qty}</td>
-                <td class="border border-dark-subtle">${parseInt(xl.active_power)}</td>
-                <td class="border border-dark-subtle">${xl.total_active_power}</td>
-                <td class="border border-dark-subtle">${xl.total_current}</td>`;
-                if (xl.voltage === '0.220') {
-                  content += `<td class="border border-dark-subtle">220</td>`;
-                } else {
-                  content += `<td class="border border-dark-subtle">380</td>`;
-                  }
-                  content += `<td class="border border-dark-subtle"><button class="btn btn-sm btn-outline-danger my-1" data_circuit=${xl.circuit_id} data_circuit_delete=${xl.id} onclick="deleteLoad(this)">Borrar</button></td></tr>`;
-            });
+                  <td class="border border-dark-subtle">${xl.nameloads}</td>
+                  <td class="border border-dark-subtle">${xl.largo}</td>
+                  <td class="border border-dark-subtle">${xl.qty}</td>
+                  <td class="border border-dark-subtle">${parseInt(xl.active_power)}</td>
+                  <td class="border border-dark-subtle">${formatNumber(xl.total_active_power)}</td>
+                  <td class="border border-dark-subtle">${formatNumber(xl.total_current)}</td>`;
+      
+          if (xl.voltage === '0.220') {
+              content += `<td class="border border-dark-subtle">220</td>`;
+          } else {
+              content += `<td class="border border-dark-subtle">380</td>`;
+          }
+          
+          content += `<td class="border border-dark-subtle">
+                          <button class="btn btn-sm btn-outline-danger my-1" data_circuit=${xl.circuit_id} data_circuit_delete=${xl.id} onclick="deleteLoad(this)">Borrar</button>
+                      </td>
+                  </tr>`;
+        });
+      
         detailLoad.innerHTML = content;
         nameCircuit.innerHTML = "<strong>Cuadro de Resumén Circuito N° " + data[0]['name'] + "</strong>";
         const addLoad = document.getElementById("add");
@@ -744,12 +775,14 @@ function deleteLoad(element) {
         method:'POST',
         data:{load: load_id , circuit:circuit_id1},
         success: (data, textStatus, xhr) => {
-          var modal = document.getElementById("staticBackdrop2");
-          var modalInstance = bootstrap.Modal.getInstance(modal);
-          modalInstance.hide();
-          var circuitId2 = element.getAttribute("data-circuit-id");
-          detail_circuit(circuitId2);
-          setTimeout(() => {location.reload()}, 1000);
+          if (textStatus == "success") {
+            // var modal = document.getElementById("staticBackdrop2");
+            // var modalInstance = bootstrap.Modal.getInstance(modal);
+            // modalInstance.hide();
+            // var circuitId2 = element.getAttribute("data-circuit-id");
+            // detail_circuit(circuitId2);
+            setTimeout(() => {location.reload()}, 1500);
+          }
         }
       })
     }
@@ -791,7 +824,7 @@ function deleteCircuit(element) {
         method:'POST',
         data:{ circuitv2: circuit_id2},
         success: (data, textStatus, xhr) => {
-          setTimeout(() => {location.reload()}, 1000);
+          setTimeout(() => {location.reload()}, 1500);
         }
       })
     }
@@ -842,7 +875,7 @@ function deleteTgs() {
         method:'POST',
         data:{ tgs_delete: deleteTgs},
         success: (data, textStatus, xhr) => {
-          setTimeout(() => {location.reload()}, 1000);
+          setTimeout(() => {location.reload()}, 1500);
         }
       })
     }
@@ -895,7 +928,7 @@ function deleteTds() {
         method:'POST',
         data:{ tds_delete: deleteTds},
         success: (data, textStatus, xhr) => {
-          setTimeout(() => {location.reload()}, 1000);
+          setTimeout(() => {location.reload()}, 1500);
         }
       })
     }
@@ -934,7 +967,7 @@ function deleteProyect() {
               allowOutsideClick: false,
               position: 'top'
             });
-            setTimeout(() => {location.reload()}, 5000);
+            setTimeout(() => {location.reload()}, 4000);
             console.log('no');      
           } 
           else {
@@ -946,7 +979,7 @@ function deleteProyect() {
               timer: 1500,
               showConfirmButton: false
             });            
-            setTimeout(() => {location.reload()}, 1000);
+            setTimeout(() => {location.reload()}, 1500);
           }
         }
       })
@@ -966,7 +999,7 @@ document.getElementById("download-excel-td").addEventListener("click", function(
   if (!td) {
     Swal.fire({
       title: 'Selecciona un tablero de distribución',
-      text: 'Selecciona un tablero de distribución para descargar el resumén.',
+      text: 'Selecciona un tablero de distribución para descargar Cuadro de Cargas.',
       icon: 'question',
       position: 'top'
     });
@@ -1008,6 +1041,14 @@ function detail_tds(element){
     method: "POST",
     data: {id: detailTd},
     success: (data, textStatus, xhr)=> {
+      function formatNumber(value) {
+        let floatValue = parseFloat(value);
+        if (Number.isInteger(floatValue)) {
+            return parseInt(floatValue);
+        } else {
+            return floatValue.toFixed(2);
+        }
+    }
       const datailTds1 = document.getElementById("nameCircuitTd");
       const datailTds2 = document.getElementById("detail-tds-circuits-body");
       let modal = '';
@@ -1016,7 +1057,7 @@ function detail_tds(element){
           modal += `
           <tr class="border border-dark-subtle text-center" style="font-size: 15px; height: 40px;">
             <td>${ll.total_center}</td>
-            <td>${ll.total_active_power_ct}</td>
+            <td>${formatNumber(ll.total_active_power_ct)}</td>
             <td>${ll.total_current_ct}</td>`;
 
             if (ll.single_voltage === '0.220') {
@@ -1026,7 +1067,7 @@ function detail_tds(element){
             }
             modal += `<td>${ll.total_fp}</td>`;
             
-            if (ll.td_impedance == "capacitance"){
+            if (ll.name_impedance == "capacitance"){
               modal += `<td>Capacitiva</td>`;
             } else {
               modal += `<td>Inductiva</td>`;
@@ -1065,7 +1106,7 @@ document.getElementById("download-excel-tg").addEventListener("click", function(
   if (!tg) {
     Swal.fire({
       title: 'Selecciona un tablero general',
-      text: 'Selecciona un tablero general para descargar el resumén.',
+      text: 'Selecciona un tablero general para descargar Cuadro de Carga.',
       icon: 'question',
       position: 'top'
     });
@@ -1100,25 +1141,70 @@ document.getElementById("download-excel-tg").addEventListener("click", function(
 
 //  --------------------- EDIT NAME TGS --------------------------------------------
 
-  function editNametg(){
+document.getElementById("edit_name_tg").addEventListener("click", function(event){
+  event.preventDefault();
+  var selectElemen12 = document.getElementById("tgs-id");
+  var tg_edit = selectElemen12.value;
+  console.log(tg_edit)
+
+  if (!tg_edit){
+    Swal.fire({
+      title: 'Selecciona un Tablero General',
+      text: 'Selecciona un tablero para editarlo.',
+      icon: 'question',
+      position: 'top'
+    });
+  } 
+  else {
+    editNametg();
+    var myModal = new bootstrap.Modal(document.getElementById('staticEditNametg'));
+    myModal.show();
+  }
+});
+
+function editNametg(){
+    
   let tgName = document.getElementById("tgs-id").value;
   let modalname = document.getElementById('edit_tg');
-    modalname.innerHTML = `
-      <div class="input-group my-3">
-        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nuevo Nombre</span>
-        <input type="text" class="form-control" placeholder="Nuevo nombre del tablero" aria-label="Username" aria-describedby="basic-addon1" name="name">
-      </div>
-      <div class="input-group my-3">
-        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nueva Referencia o Tag</span>
-        <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-        <input type="hidden" name="id" value="${tgName}"></input>
-      </div> `; 
+  modalname.innerHTML = `
+    <div class="input-group my-3">
+      <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nuevo Nombre</span>
+      <input type="text" class="form-control" placeholder="Nuevo nombre del tablero" aria-label="Username" aria-describedby="basic-addon1" name="name">
+    </div>
+    <div class="input-group my-3">
+      <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nueva Referencia o Tag</span>
+      <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
+      <input type="hidden" name="id" value="${tgName}"></input>
+    </div>`; 
 }
 
-//  --------------------- EDIT NAME TGS --------------------------------------------
+
+//  --------------------- EDIT NAME TDS --------------------------------------------
+
+document.getElementById("edit_name_td").addEventListener("click", function(event){
+  event.preventDefault();
+  var selectElemen21 = document.getElementById("tds-id");
+  var td_edit = selectElemen21.value;
+  console.log(td_edit)
+
+  if (!td_edit){
+    Swal.fire({
+      title: 'Selecciona un Tablero de Distribución',
+      text: 'Selecciona un tablero para editarlo.',
+      icon: 'question',
+      position: 'top'
+    });
+  } 
+  else {
+    editNametd();
+    var myModal = new bootstrap.Modal(document.getElementById('staticEditNametd'));
+    myModal.show();
+  }
+});
 
 function editNametd(){
   let tdName = document.getElementById("tds-id").value;
+  console.log(tdName)
   let modalname2 = document.getElementById('edit_td');
     modalname2.innerHTML = `
       <div class="input-group my-3">
@@ -1129,8 +1215,7 @@ function editNametd(){
         <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nueva Referencia o Tag</span>
         <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
         <input type="hidden" name="id" value="${tdName}"></input>
-      </div> `; 
-}
+      </div> `;}
 
   // ------------------- Dinamycs fullcalendar selection -------------------------*/
   

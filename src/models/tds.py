@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, flash
 from src.config.mysqlconnection import connectToMySQL
 
 class Tds:
@@ -89,20 +89,23 @@ class Tds:
     @classmethod
     def detail_to_excel(cls,data):
         query = query = "SELECT \
-                            ref AS Nombre, \
-                            total_center AS 'Cantidad de cargas', \
-                            CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por carga [W]', \
-                            total_active_power_ct AS 'Potencia total [Kw]', \
+                        	CAST(circuits.name AS SIGNED) AS Circuito,\
+	                        ref AS Carga, \
+                            total_center AS 'Cantidad', \
+                            CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
+                            REPLACE(total_active_power_ct, '.', ',') AS 'Potencia Total [Kw]', \
                             CASE WHEN name_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', \
-                            total_fp AS 'Fp', \
+                            REPLACE(total_fp, '.', ',') AS 'Fp', \
                             50 AS 'Frecuencia [Hz]', \
                             CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', \
-                            total_current_ct AS 'Intensidad total [A]', \
-                            total_length_ct AS 'Largo [m]', \
-                            vp AS 'Vp [V]' , \
-                            UPPER(method) AS 'Tipo de instalación', \
+                            REPLACE(current_r, '.', ',') AS 'R [A]', \
+                            REPLACE(current_s, '.', ',') AS 'S [A]', \
+                            REPLACE(current_t, '.', ',') AS 'T [A]', \
+                            REPLACE(total_length_ct, '.',',') AS 'Largo [m]', \
+                            REPLACE(vp, '.', ',') AS 'Vp [V]' , \
+                            UPPER(method) AS 'Tipo de Instalación', \
                             wires AS 'Tipo de Aislación', \
-                            secctionmm2 AS 'Conductor [mm2]', \
+                            REPLACE(secctionmm2, '.', ',') AS 'Conductor [mm2]', \
                             CAST(conduit AS SIGNED) AS 'Canalización [mm]', \
                             breakers AS 'Disyuntor', \
                             elect_differencial AS 'Protección Diferencial'\
@@ -116,3 +119,34 @@ class Tds:
         query = "UPDATE tds SET name = %(name)s , tag = %(tag)s WHERE id = %(id)s"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+    
+    @staticmethod
+    def validate_new_td(td):
+        is_valid = True
+        if td.get("proyect_id") == "-Seleccione proyecto-":
+            flash("Selecciona un Proyecto", "new_td")
+            is_valid = False
+        elif td.get("tg_id") == "-Seleccione tablero general-":
+            flash("Selecciona un Tablero General", "new_td")
+            is_valid = False
+        elif td.get("type_isolation") == "Selecciona una aislación":
+            flash("Selecciona un tipo de Aislación","new_td")
+            is_valid = False
+        elif td.get("method") == "Selecciona un metodo":
+            flash("Selecciona un Metodo de Instalación", "new_td")
+            is_valid = False
+        elif not td.get("length_from_tg") and not td.get("tag"):
+            flash("Campos vacíos, ingresa Largo o Tag", "new_td")
+            is_valid = False 
+        return is_valid
+
+    @staticmethod
+    def validate_edit(td):
+        is_valid = True
+        if not td.get("name"):
+            flash("Ingresa el nuevo nombre del Tablero de Distribución", "error_edit_td")
+            is_valid = False
+        elif not td.get("tag"):
+            flash("Ingresa la nueva identificación del Tablero", "error_edit_td")
+            is_valid = False
+        return is_valid

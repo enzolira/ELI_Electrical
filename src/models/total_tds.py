@@ -11,6 +11,9 @@ class Total_tds:
         self.td_id = data['td_id']
         self.total_center = data['total_center']
         self.total_current_ct = data['total_current_ct']
+        self.current_r = data['current_r']
+        self.current_s = data['current_s']
+        self.current_t = data['current_t']
         self.total_active_power_ct = data['total_active_power_ct']
         self.total_apparent_power_ct = data['total_apparent_power_ct']
         self.total_reactive_power_ct = data['total_reactive_power_ct']
@@ -31,9 +34,9 @@ class Total_tds:
 
     @classmethod
     def summary_tds(cls, data):
-        query = "INSERT INTO total_tds (name, ref, tab_secondary, total_center, total_current_ct, total_active_power_ct, total_apparent_power_ct, total_reactive_power_ct, td_fp, td_impedance, single_voltage, td_id, created_at, updated_at,\
+        query = "INSERT INTO total_tds (name, ref, tab_secondary, total_center, total_current_ct, current_r, current_s, current_t, total_active_power_ct, total_apparent_power_ct, total_reactive_power_ct, td_fp, td_impedance, single_voltage, td_id, created_at, updated_at,\
                 elect_differencial, secctionmm2, method, wires, current_by_method, type_circuit, vp, breakers, conduit, length_from_tg) \
-                VALUES (%(name)s, %(ref)s, %(tab_secondary)s, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, %(td_id)s, NOW(), NOW(), NULL, NULL, %(method)s, %(wires)s, NULL, 'feeder', NULL, NULL, NULL, %(length_from_tg)s);"
+                VALUES (%(name)s, %(ref)s, %(tab_secondary)s, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, %(td_id)s, NOW(), NOW(), NULL, NULL, %(method)s, %(wires)s, NULL, 'feeder', NULL, NULL, NULL, %(length_from_tg)s);"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
     
@@ -108,5 +111,23 @@ class Total_tds:
     @classmethod
     def edit_name_total(cls,data):
         query = "UPDATE total_tds SET ref = %(ref)s WHERE td_id = %(td_id)s"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def update_current_r_td(cls, data):
+        query = "UPDATE total_tds SET current_r = %(current_r)s WHERE td_id = %(td_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def update_current_s_td(cls, data):
+        query = "UPDATE total_tds SET current_s = %(current_s)s WHERE td_id = %(td_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def update_current_t_td(cls, data):
+        query = "UPDATE total_tds SET current_t = %(current_t)s WHERE td_id = %(td_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result

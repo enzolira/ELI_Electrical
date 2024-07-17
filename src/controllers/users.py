@@ -14,7 +14,7 @@ def index():
 def login():
     user = User.get_by_email(request.form)
     if not user:
-        flash("Email invalido","login")
+        flash("Email Invalido","login")
         return redirect('/')
     if not bcrypt.check_password_hash(user.password, request.form['password']):
         flash("Password invalida","login")
@@ -28,8 +28,11 @@ def register():
 
 @app.route('/new_register',methods=['POST'])
 def new_register():
+
     if not User.validate_new_register(request.form):
-        return redirect('/')
+        return redirect('/register')
+    print(request.form["password"])
+    
     data = {
         "first_name": request.form['first_name'],
         "last_name": request.form['last_name'],

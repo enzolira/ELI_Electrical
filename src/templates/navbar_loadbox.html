@@ -60,6 +60,42 @@
 </div>
 
 <!-- Modal nuevo tablero general-->
+
+<!-- error -->
+<script>
+    {% with messages = get_flashed_messages(category_filter=['new_tg']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'warning',
+                    title: 'Error',
+                    text: '{{ message }}',
+                    timer: 3000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
+<!-- success -->
+<script>
+    {% with messages = get_flashed_messages(category_filter=['tg_success']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'success',
+                    text: '{{ message }}',
+                    timer: 2000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
 <div class="modal fade" id="staticTableroGeneral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -95,6 +131,41 @@
 </div>
 
 <!-- Modal nuevo tablero distribucion-->
+ <!-- error -->
+<script>
+    {% with messages = get_flashed_messages(category_filter=['new_td']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'warning',
+                    title: 'Error',
+                    text: '{{ message }}',
+                    timer: 3000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
+<!-- success -->
+<script>
+    {% with messages = get_flashed_messages(category_filter=['td_success']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'success',
+                    text: '{{ message }}',
+                    timer: 2000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
 <div class="modal fade" id="staticTableroDistribucion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -168,17 +239,78 @@
 </div>
 
 <!-- Modal agregar circuitos-->
-{% with messages = get_flashed_messages(category_filter=['circuito']) %}
-{% if messages %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Error:</strong>
-    {% for message in messages %}
-        <p>{{message}}</p>
-    {% endfor %}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endif %}
-{% endwith %}
+
+ <!-- error -->
+<script>
+    {% with messages = get_flashed_messages(category_filter=['new_circuit']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'warning',
+                    title: 'Error',
+                    text: '{{ message }}',
+                    timer: 3000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
+<!-- success -->
+<script>
+    {% with messages = get_flashed_messages(category_filter=['circuit_success']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'success',
+                    text: '{{ message }}',
+                    timer: 2000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
+<!-- error add load -->
+
+<script>
+    {% with messages = get_flashed_messages(category_filter=['load_new']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'warning',
+                    title: 'Error',
+                    text: '{{ message }}',
+                    timer: 3000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+
+<!-- success add load -->
+
+<script>
+    {% with messages = get_flashed_messages(category_filter=['load_success']) %}
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    position: 'top',
+                    icon: 'success',
+                    text: '{{ message }}',
+                    timer: 2000,
+                    width: '35em'
+                });
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
 
 <div class="modal fade modal-xl modal-sm" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -266,7 +398,7 @@
                             </div>
                             <div class="input-group mt-3">
                                 <span class="input-group-text" id="basic-addon1">Potencia por Carga</span>
-                                <input type="text" class="form-control" placeholder="Ingresa la potencia por carga." aria-label="Username" aria-describedby="basic-addon1" name="power">
+                                <input type="number" class="form-control" placeholder="Ingresa la potencia por carga." aria-label="Username" aria-describedby="basic-addon1" name="power" step="0.01" required>
                             </div>
                             <div class="form-text ps-2" id="basic-addon4">La potencia debe ser en watt.</div>
                             <div class="input-group mt-2">
@@ -294,7 +426,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" onclick="addCircuit()">Agregar</button>
+                    <button type="submit" class="btn btn-primary" onclick="validateForm()">Agregar</button>
                 </div>
             </form>
         </div>
@@ -324,3 +456,4 @@
         </div>
     </div>
 </div>
+

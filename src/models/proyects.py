@@ -96,27 +96,3 @@ class Proyect:
                 FROM dual;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
-    
-
-    @staticmethod
-    def validate_circuit(data):
-        is_valid = True
-        # if not data['name']:
-        #     flash("Ingresa el numero de circuito !!!","circuito")
-        #     is_valid = False
-        if not data['single_voltage']:
-            flash("Ingresa el voltage del circuito !!!","circuito")
-            is_valid = False
-        if not data['method']:
-            flash("Ingresa el tipo de metodo del circuito !!!","circuito")
-            is_valid = False
-        if not data['qty']:
-            flash("Ingresa la cantidad de cargas del circuito !!!","circuito")
-            is_valid = False
-        if not data['power']:
-            flash("Ingresa la potencia de cada carga del circuito !!!","circuito")
-            is_valid = False
-        if not data['total_length_ct']:
-            flash("Ingresa el largo del circuito !!!","circuito")
-            is_valid = False
-        return is_valid
