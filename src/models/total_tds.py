@@ -131,3 +131,15 @@ class Total_tds:
         query = "UPDATE total_tds SET current_t = %(current_t)s WHERE td_id = %(td_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+
+    @classmethod
+    def name_total_tds(cls, data):
+        query = "SELECT name, id FROM total_tds WHERE tab_secondary = %(tab_secondary)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def update_name_total_td(cls, data):
+        query = "UPDATE total_tds SET name = %(name)s WHERE id = %(id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result

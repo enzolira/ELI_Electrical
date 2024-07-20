@@ -1228,9 +1228,48 @@ def delete_load():
 
 @app.route('/api/delete/circuit', methods=['POST'])
 def delete_circuit():
-    Load.delete_load_by_circuit_id({'circuit_id': request.form['circuitv2']})
-    Circuit.delete_circuit_by_id({'circuit_id': request.form['circuitv2']})
-    return redirect('/loadbox/')
+    print(request.form)
+    tg = Tgs.tg_id_by_circuit({'circuit_id': request.form['circuitv2']})
+    td = Tds.td_id_by_circuits({'circuit_id': request.form['circuitv2']})
+    if not td[0]['td_id']:
+        print(tg)
+        print(td)
+        Load.delete_load_by_circuit_id({'circuit_id': request.form['circuitv2']})
+        Circuit.delete_circuit_by_id({'circuit_id': request.form['circuitv2']})
+        index = Tgs.total_name_tg({'tg_id': tg[0]['tg_id']})
+        index2 = Total_tds.name_total_tds({'tab_secondary': tg[0]['tg_id']})
+        ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+        
+        new_names = list(range(1, len(ordered_circuits) + 1))
+        updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+        
+        for circuit_id, new_name in updates.items():
+            Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+        last_number = new_names[-1] if new_names else 0
+        new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+        updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+        for circuit_id, new_name in updates_index2.items():
+            Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
+        
+        return redirect('/loadbox/')
+    else:
+        print(tg)
+        print(td)
+        Load.delete_load_by_circuit_id({'circuit_id': request.form['circuitv2']})
+        Circuit.delete_circuit_by_id({'circuit_id': request.form['circuitv2']})
+        index = Tds.total_name_td({'td_id': td[0]['td_id']})
+        ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+        
+        new_names = list(range(1, len(ordered_circuits) + 1))
+        updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+        
+        for circuit_id, new_name in updates.items():
+            Tgs.update_name({'id': circuit_id, 'name': new_name})
+        
+        return redirect('/loadbox/')
+
+
 
 @app.route('/api/delete/tgs', methods=['POST'])
 def delete_tgs():
@@ -1243,10 +1282,29 @@ def delete_tgs():
 
 @app.route('/api/delete/tds', methods=['POST'])
 def delete_tds():
+    td = Tds.tg_id_by_td_id({'id':request.form['tds_delete']})
+    print(td)
     Tds.delete_load_by_tdId({'td_id':request.form['tds_delete']})
     Tds.delete_circuits_by_tdId({'td_id':request.form['tds_delete']})
     Tds.delete_total_tds_by_tdId({'td_id':request.form['tds_delete']})
     Tds.delete_tds_by_tdId({'id':request.form['tds_delete']})
+    index = Tgs.total_name_tg({'tg_id': td[0]['tg_id']})
+    index2 = Total_tds.name_total_tds({'tab_secondary': td[0]['tg_id']})
+    ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+    
+    new_names = list(range(1, len(ordered_circuits) + 1))
+    updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+    
+    for circuit_id, new_name in updates.items():
+        Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+    last_number = new_names[-1] if new_names else 0
+    new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+    updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+
+    for circuit_id, new_name in updates_index2.items():
+        Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
+
     return redirect('/loadbox/')
 
 @app.route('/api/delete/proyect', methods=['POST'])
@@ -1270,39 +1328,53 @@ def tds_to_excel(td_id):
     data_list = Tds.detail_to_excel({'td_id': td_id})
     name_td = Tds.get_td_by_id({'id':td_id})
     if data_list:
-        for td in data_list:
-            if td['Cantidad'] is not None:
-                td['Cantidad'] = int(td['Cantidad'])
-                
-                numeric_fields = [
-                    'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]', 
-                    'R [A]', 'S [A]', 'T [A]', 'Tensión [V]', 'Largo [m]', 'Vp [V]', 
-                    'Conductor [mm2]', 'Canalización [mm]'
-                ]
+        numeric_fields = [
+            'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]', 
+            'R [A]', 'S [A]', 'T [A]', 'Tensión [V]', 'Largo [m]', 'Vp [V]', 
+            'Conductor [mm2]', 'Canalización [mm]'
+        ]
         data = []
-        for td in data_list:
-            if td['Cantidad'] is not None:
-                td['Cantidad'] = int(td['Cantidad'])
+        for tg in data_list:
+            if tg['Cantidad'] is not None:
+                tg['Cantidad'] = int(tg['Cantidad'])
                 for field in numeric_fields:
-                    if field in td:
-                        value = td[field]
+                    if field in tg:
+                        value = tg[field]
                         if isinstance(value, float):
-                            td[field] = float(value)
+                            tg[field] = float(value)
                         elif isinstance(value, str):
                             try:
-                                td[field] = float(value.replace(',', '.'))
+                                tg[field] = float(value.replace(',', '.'))
                             except ValueError:
-                                td[field] = value
-                data.append(td)
+                                tg[field] = value
+                data.append(tg)
+
         df = pd.DataFrame(data)
-        sum_values = {
-            'Circuito': 'Total',
-            'Cantidad': df['Cantidad'].sum(),
-            'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
-            'R [A]': df['R [A]'].sum(),
-            'S [A]': df['S [A]'].sum(),
-            'T [A]': df['T [A]'].sum()
-        }
+
+        # Verificar si existe voltaje 380
+        if 380 not in df['Tensión [V]'].values:
+            df['Intensidad [A]'] = df[['R [A]', 'S [A]', 'T [A]']].sum(axis=1)
+            df = df.drop(columns=['R [A]', 'S [A]', 'T [A]'])
+            cols = df.columns.tolist()
+            pos = cols.index('Tensión [V]')
+            cols.insert(pos, cols.pop(cols.index('Intensidad [A]')))
+            df = df[cols]
+            sum_values = {
+                'Circuito': 'Total',
+                'Cantidad': df['Cantidad'].sum(),
+                'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
+                'Intensidad [A]': df['Intensidad [A]'].sum()
+            }
+        else:
+            sum_values = {
+                'Circuito': 'Total',
+                'Cantidad': df['Cantidad'].sum(),
+                'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
+                'R [A]': df['R [A]'].sum(),
+                'S [A]': df['S [A]'].sum(),
+                'T [A]': df['T [A]'].sum()
+            }
+
         sum_df = pd.DataFrame(sum_values, index=[0])
         df = pd.concat([df, sum_df], ignore_index=True)
 
@@ -1319,24 +1391,24 @@ def tds_to_excel(td_id):
                         max_length = max(max_length, len(str(cell.value)))
                 adjusted_width = max_length
                 worksheet.column_dimensions[column].width = adjusted_width
-            
+
             specific_columns = ['R [A]', 'S [A]', 'T [A]', 'Fp']
             for col_name in specific_columns:
-                col_idx = df.columns.get_loc(col_name) + 2
-                col_letter = worksheet.cell(row=4, column=col_idx).column_letter
-                if col_name == 'Fp':
-                    worksheet.column_dimensions[col_letter].width = 5
-                else:
-                    worksheet.column_dimensions[col_letter].width = 7
+                if col_name in df.columns:
+                    col_idx = df.columns.get_loc(col_name) + 2 
+                    col_letter = worksheet.cell(row=4, column=col_idx).column_letter
+                    if col_name == 'Fp':
+                        worksheet.column_dimensions[col_letter].width = 5
+                    else:
+                        worksheet.column_dimensions[col_letter].width = 7
 
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row):
                 for cell in row:
                     cell.alignment = Alignment(horizontal='center', vertical='center')
-
             last_row = worksheet.max_row
             for cell in worksheet[last_row]:
                 cell.font = Font(bold=True)
-
+        
         response = make_response(buffer.getvalue())
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         response.headers['Content-Disposition'] = f'attachment; filename=Cuadro_de_Cargas_{name_td[0]["name"]}.xlsx'
@@ -1350,6 +1422,7 @@ def tds_to_excel(td_id):
 def tgs_to_excel(tg_id):
     data_list = Tgs.detail_to_excel({'tg_id': tg_id})
     name_tg = Tgs.name_tg({'tg_id': tg_id})
+
     if data_list:
         numeric_fields = [
             'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]', 
@@ -1371,15 +1444,33 @@ def tgs_to_excel(tg_id):
                             except ValueError:
                                 tg[field] = value
                 data.append(tg)
+
         df = pd.DataFrame(data)
-        sum_values = {
-            'Circuito': 'Total',
-            'Cantidad': df['Cantidad'].sum(),
-            'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
-            'R [A]': df['R [A]'].sum(),
-            'S [A]': df['S [A]'].sum(),
-            'T [A]': df['T [A]'].sum()
-        }
+
+        # Verificar si existe voltaje 380
+        if 380 not in df['Tensión [V]'].values:
+            df['Intensidad [A]'] = df[['R [A]', 'S [A]', 'T [A]']].sum(axis=1)
+            df = df.drop(columns=['R [A]', 'S [A]', 'T [A]'])
+            cols = df.columns.tolist()
+            pos = cols.index('Tensión [V]')
+            cols.insert(pos, cols.pop(cols.index('Intensidad [A]')))
+            df = df[cols]
+            sum_values = {
+                'Circuito': 'Total',
+                'Cantidad': df['Cantidad'].sum(),
+                'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
+                'Intensidad [A]': df['Intensidad [A]'].sum()
+            }
+        else:
+            sum_values = {
+                'Circuito': 'Total',
+                'Cantidad': df['Cantidad'].sum(),
+                'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
+                'R [A]': df['R [A]'].sum(),
+                'S [A]': df['S [A]'].sum(),
+                'T [A]': df['T [A]'].sum()
+            }
+
         sum_df = pd.DataFrame(sum_values, index=[0])
         df = pd.concat([df, sum_df], ignore_index=True)
 
@@ -1399,12 +1490,13 @@ def tgs_to_excel(tg_id):
 
             specific_columns = ['R [A]', 'S [A]', 'T [A]', 'Fp']
             for col_name in specific_columns:
-                col_idx = df.columns.get_loc(col_name) + 2 
-                col_letter = worksheet.cell(row=4, column=col_idx).column_letter
-                if col_name == 'Fp':
-                    worksheet.column_dimensions[col_letter].width = 5
-                else:
-                    worksheet.column_dimensions[col_letter].width = 7
+                if col_name in df.columns:
+                    col_idx = df.columns.get_loc(col_name) + 2 
+                    col_letter = worksheet.cell(row=4, column=col_idx).column_letter
+                    if col_name == 'Fp':
+                        worksheet.column_dimensions[col_letter].width = 5
+                    else:
+                        worksheet.column_dimensions[col_letter].width = 7
 
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row):
                 for cell in row:
@@ -1419,6 +1511,8 @@ def tgs_to_excel(tg_id):
         return response
     else:
         return "No hay circuitos, tablero general vacío."
+
+
 
 
 # ------------------------------------------------

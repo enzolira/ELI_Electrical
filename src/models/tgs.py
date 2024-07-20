@@ -110,6 +110,24 @@ class Tgs:
         query = "SELECT name FROM tgs WHERE id = %(tg_id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+    
+    @classmethod
+    def total_name_tg(cls,data):
+        query = "SELECT name, id FROM circuits WHERE tg_id = %(tg_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+    
+    @classmethod
+    def update_name(cls,data):
+        query = "UPDATE circuits SET name = %(name)s WHERE id = %(id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def tg_id_by_circuit(cls,data):
+        query = "SELECT tg_id FROM circuits WHERE id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result 
 
 # -------------- excel total_tgs ----------------------
     @classmethod

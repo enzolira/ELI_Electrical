@@ -85,6 +85,25 @@ class Tds:
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
 
+    
+    @classmethod
+    def td_id_by_circuits(cls,data):
+        query = "SELECT td_id FROM circuits WHERE id = %(circuit_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def total_name_td(cls,data):
+        query = "SELECT name, id FROM circuits WHERE td_id = %(td_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+
+    @classmethod
+    def tg_id_by_td_id(cls,data):
+        query = "SELECT tg_id FROM tds WHERE id = %(id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+    
 #  ------ excel total_tds ---------
     @classmethod
     def detail_to_excel(cls,data):
