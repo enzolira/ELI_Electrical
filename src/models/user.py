@@ -35,6 +35,12 @@ class User:
         results = connectToMySQL(cls.db).query_db(query,data)
         return cls(results[0])
 
+    @classmethod
+    def update_password(cls,data):
+        query = "UPDATE users SET password = %(password)s WHERE email = %(email)s;"
+        results = connectToMySQL(cls.db).query_db(query,data)
+        return results
+
     @staticmethod
     def validate_new_register(user):
         is_valid = True
@@ -66,3 +72,29 @@ class User:
                 flash("Campos vacios, debes ingresar datos para registrarte","new_register")
                 is_valid = False
                 return is_valid
+            
+    @staticmethod
+    def validate_user(user):
+        is_valid = True
+        query = "SELECT * FROM users WHERE email = %(email)s;"
+        results = connectToMySQL(User.db).query_db(query,user)
+        print(results)
+        if not results:
+            flash("Correo electrónico no registrado.","reset")
+            is_valid = False
+        return is_valid
+    
+    @staticmethod
+    def validate_new_password(password):
+        is_valid = True
+        if len(password["passwordx"]) < 6:
+            flash("Contraseña debe tener 6 caracteres minimo","change")
+            is_valid= False
+        if password['passwordx'] != password["confpwx"]:
+            flash("Contraseña no coinciden, intenta de nuevo","change")
+            is_valid= False
+        if not password['passwordx'] or not password['confpwx']:
+            flash("Campos no pueden estar vacíos","change")
+            is_valid= False
+        return is_valid
+

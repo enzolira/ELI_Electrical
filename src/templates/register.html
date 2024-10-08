@@ -10,124 +10,73 @@
             integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
             crossorigin="anonymous"
         />
-        <title>Registro</title>
+        <title>Registro - ELI</title>
     </head>
-    <body style="background-color: azure">
+    <body>
         <div class="container d-flex justify-content-center">
-            <div class="card m-5 col-6">
-                <div class="card-header text-white bg-primary">
+            <div class="card m-3 col-12 col-md-8 col-lg-6">
+                <div class="card-header text-center" style="background-color: #e3f2fd; color: rgba(65, 68, 65, 0.981);">
                     <h4>Registro</h4>
                 </div>
                 <div class="card-body">
                     <form action="/new_register" method="POST">
-                        {% with messages = get_flashed_messages(category_filter=['new_register'])%} 
+                        {% with messages = get_flashed_messages(category_filter=['new_register']) %} 
                         {% if messages %}
-                            <div class="alert alert-danger" role="alert">
-                                <strong>Error</strong>
-                                {% for message in messages %}
-                                <p>{{message}}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %} 
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Error</strong>
+                            {% for message in messages %}
+                            <p>{{message}}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                         {% endwith %}
                         <div class="row mb-2">
-                            <label
-                                for="first_name"
-                                class="col-sm-4 col-form-label"
-                                ><strong>Nombre:</strong></label>
-                            <div class="col-sm-8">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="first_name"
-                                />
+                            <label for="first_name" class="col-12 col-sm-4 col-form-label"><strong>Nombre:</strong></label>
+                            <div class="col-12 col-sm-8">
+                                <input type="text" class="form-control" name="first_name" />
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <label
-                                for="last_name"
-                                class="col-sm-4 col-form-label"
-                                ><strong>Apellido:</strong></label
-                            >
-                            <div class="col-sm-8">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="last_name"
-                                />
+                            <label for="last_name" class="col-12 col-sm-4 col-form-label"><strong>Apellido:</strong></label>
+                            <div class="col-12 col-sm-8">
+                                <input type="text" class="form-control" name="last_name" />
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <label for="company" class="col-sm-4 col-form-label"
-                                ><strong>Institucion:</strong></label
-                            >
-                            <div class="col-sm-8">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="company"
-                                />
+                            <label for="company" class="col-12 col-sm-4 col-form-label"><strong>Institución:</strong></label>
+                            <div class="col-12 col-sm-8">
+                                <input type="text" class="form-control" name="company" />
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <label for="email" class="col-sm-4 col-form-label"
-                                ><strong>Email:</strong></label
-                            >
-                            <div class="col-sm-8">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="email"
-                                />
+                            <label for="email" class="col-12 col-sm-4 col-form-label"><strong>Email:</strong></label>
+                            <div class="col-12 col-sm-8">
+                                <input type="text" class="form-control" name="email" />
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <label
-                                for="password"
-                                class="col-sm-4 col-form-label"
-                                ><strong>Contraseña:</strong></label
-                            >
-                            <div class="col-sm-8">
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    name="password"
-                                />
+                            <label for="password" class="col-12 col-sm-4 col-form-label"><strong>Contraseña:</strong></label>
+                            <div class="col-12 col-sm-8">
+                                <input type="password" class="form-control" name="password" />
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <label for="confpw" class="col-sm-4 col-form-label"
-                                ><strong>Confirma Contraseña:</strong></label
-                            >
-                            <div class="col-sm-8">
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    name="confpw"
-                                />
+                            <label for="confpw" class="col-12 col-sm-4 col-form-label"><strong>Confirma Contraseña:</strong></label>
+                            <div class="col-12 col-sm-8">
+                                <input type="password" class="form-control" name="confpw" />
                             </div>
                         </div>
-                        <div
-                            class="d-md-flex justify-content-md-end pb-3 gap-3"
-                        >
-                            <a href="/" class="btn btn-sm btn-secondary"
-                                >Atras</a
-                            >
-                            <input
-                                type="submit"
-                                class="btn btn-sm btn-primary"
-                                value="Registrarse"
-                            />
+                        <div class="d-flex flex-column flex-sm-row justify-content-end gap-3 mt-3">
+                            <a href="/" class="btn btn-secondary">Atrás</a>
+                            <input type="submit" class="btn btn-primary" value="Registrarse" />
                         </div>
                     </form>
                 </div>
             </div>
         </div>
         <!-- III) Footer panel -->
-        <footer
-            class="page-footer text-center text-white p-1 fixed-bottom bg-primary"
-        >
+        <footer class="page-footer text-center p-1 fixed-bottom" style="background-color: #e3f2fd; color: rgba(65, 68, 65, 0.981)">
             <small>© ELI ELECTRICAL</small>
         </footer>
-    </body>
+    </body>    
 </html>

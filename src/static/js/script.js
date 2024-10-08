@@ -28,30 +28,6 @@ function confirmar(event) {
   })
 }
 
-// ------------------------- CIERRE DE SESION DESPUES DE 15 MINUTOS DE INACTIVIDAD ---------------------------------
-
-// let inactivityTimer;cer
-// function iniciarTemporizador() {
-//   clearTimeout(inactivityTimer);
-//   inactivityTimer = setTimeout(function() {
-//     cerrarSesion()
-//   }, 15 * 60 * 1000);
-// }
-
-// function cerrarSesion() {
-//   $.ajax({
-//     url: "/logout",
-//     method: 'GET',
-//     success: () => {
-//       location.reload();
-//     },error: function() {
-//     }
-//   });
-// }
-
-// document.addEventListener("mousemove", iniciarTemporizador);
-// document.addEventListener("keydown", iniciarTemporizador);
-
 // ------------------------- CREATE CIRCUITS BY PROYECTS, TGS AND TDS --------------------
 
 function addCircuit() {
@@ -427,7 +403,7 @@ function select_tds(element) {
                 }
                 content += `
                     <td class="border-dark-subtle" style="height: 40px">
-                      <button type="button" onclick="detail_tds(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" style="width: 30%" data-td-id ="${item.td_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop4">Ver</button>
+                      <button type="button" onclick="detail_tds(this)" class="btn btn-sm btn-outline-secondary mx-2 my-1" style="width: 60%" data-td-id ="${item.td_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop4">Ver</button>
                     </td>
                 </tr>`;
                 count.push(item.circuit_id);

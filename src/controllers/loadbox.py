@@ -15,7 +15,8 @@ import pandas as pd
 import io
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Alignment, Font
+from openpyxl.styles import Alignment, Font, Border, Side
+
 
 #  -------------------------------------------------MAIN PAGE ---------------------------------------------------
 
@@ -1408,6 +1409,15 @@ def tds_to_excel(td_id):
             last_row = worksheet.max_row
             for cell in worksheet[last_row]:
                 cell.font = Font(bold=True)
+            
+            thin = Side(border_style="thin", color="000000")
+            for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row, max_col=worksheet.max_column):
+                for cell in row:
+                    cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+
+            last_row = worksheet.max_row
+            for cell in worksheet[last_row]:
+                cell.font = Font(bold=True)
         
         response = make_response(buffer.getvalue())
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -1501,6 +1511,15 @@ def tgs_to_excel(tg_id):
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row):
                 for cell in row:
                     cell.alignment = Alignment(horizontal='center', vertical='center')
+            last_row = worksheet.max_row
+            for cell in worksheet[last_row]:
+                cell.font = Font(bold=True)
+            # ++++++++++++ bordes++++++++
+            thin = Side(border_style="thin", color="000000")
+            for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row, max_col=worksheet.max_column):
+                for cell in row:
+                    cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+
             last_row = worksheet.max_row
             for cell in worksheet[last_row]:
                 cell.font = Font(bold=True)
