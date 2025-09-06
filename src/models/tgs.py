@@ -113,7 +113,7 @@ class Tgs:
     
     @classmethod
     def total_name_tg(cls,data):
-        query = "SELECT name, id FROM circuits WHERE tg_id = %(tg_id)s;"
+        query = "SELECT name, id FROM circuits WHERE tg_id = %(tg_id)s AND td_id is NULL ORDER BY name ASC;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
     
@@ -122,6 +122,7 @@ class Tgs:
         query = "UPDATE circuits SET name = %(name)s WHERE id = %(id)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+
 
     @classmethod
     def tg_id_by_circuit(cls,data):
@@ -133,14 +134,14 @@ class Tgs:
     @classmethod
     def detail_to_excel(cls,data):
         query = "SELECT \
-                    CAST(name AS SIGNED) AS Circuito, ref AS Carga, total_center AS 'Cantidad', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
+                    CAST(name AS SIGNED) AS Circuito, ref AS Carga, total_center AS 'Cantidad',	total_current_ct AS 'total_td', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
                     CASE WHEN name_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', REPLACE(total_fp, '.', ',') AS 'Fp', 50 AS 'Frecuencia [Hz]', REPLACE(total_active_power_ct, '.', ',') AS 'Potencia Total [Kw]', \
                     REPLACE(current_r, '.', ',') AS 'R [A]', REPLACE(current_s, '.', ',') AS 'S [A]', REPLACE(current_t, '.', ',') AS 'T [A]', \
                     CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', CAST(total_length_ct AS SIGNED) AS 'Largo [m]', REPLACE(vp, '.', ',') AS 'Vp [V]', UPPER(method) AS 'Tipo de Instalación', wires AS 'Tipo de Aislación', REPLACE(secctionmm2, '.', ',') AS 'Conductor [mm2]', CAST(conduit AS SIGNED) AS 'Canalización [mm]', \
                     breakers AS 'Disyuntor', elect_differencial AS 'Protección Diferencial' FROM circuits WHERE tg_id = %(tg_id)s AND td_id IS NULL \
                     UNION ALL \
                 SELECT \
-                    CAST(name AS SIGNED) AS Nombre, ref AS Carga, total_center AS 'Cantidad', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
+                    CAST(name AS SIGNED) AS Nombre, ref AS Carga, total_center AS 'Cantidad', total_current_ct AS 'total_td', CAST((total_active_power_ct / total_center) * 1000 AS SIGNED) AS 'Potencia por Carga [W]', \
                     CASE WHEN td_impedance = 'capacitance' THEN 'Capacitiva' ELSE 'Inductiva' END AS 'Impedancia', REPLACE(td_fp, '.', ',') AS 'Fp', 50 AS 'Frecuencia [Hz]', REPLACE(total_active_power_ct, '.', ',') AS 'Potencia Total [Kw]', \
                     REPLACE(current_r, '.', ',') AS 'R [A]', REPLACE(current_s, '.', ',') AS 'S [A]', REPLACE(current_t, '.', ',') AS 'T [A]', \
                     CASE WHEN single_voltage = 0.220 THEN 220 ELSE 380 END AS 'Tensión [V]', CAST(length_from_tg AS SIGNED) AS 'Largo [m]', REPLACE(vp, '.', ',') AS 'Vp [V]', UPPER(method) AS 'Tipo de Instalación', wires AS 'Tipo de Aislación', REPLACE(secctionmm2, '.', ',') AS 'Conductor [mm2]', CAST(conduit AS SIGNED) AS 'Canalización [mm]', \

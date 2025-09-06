@@ -1,4 +1,4 @@
-from flask import render_template,redirect,session,request, flash, jsonify, url_for , send_file, make_response, url_for
+from flask import render_template,redirect,session,request, flash, jsonify, url_for , send_file, make_response# type: ignore
 from src import app
 from src.models.user import User
 from src.models.proyects import Proyect
@@ -7,15 +7,17 @@ from src.models.circuits import Circuit
 from src.models.loads import Load
 from src.models.tds import Tds
 from src.models.total_tds import Total_tds
-from src.controllers import planning
-from flask_bcrypt import Bcrypt
+from src.controllers import report
+from flask_bcrypt import Bcrypt # type: ignore
 import math
 import time
-import pandas as pd
+import pandas as pd # type: ignore
 import io
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, Font, Border, Side 
+import numpy as np
 
 
 #  -------------------------------------------------MAIN PAGE ---------------------------------------------------
@@ -41,17 +43,18 @@ def loadbox():
 
 
 
-# @app.route('/new_proyect', methods=['POST'])
-# def new_proyect():
-#     if 'user_id' not in session:
-#         return redirect('/logout')
-#     data = {
-#         'name': request.form['name'],
-#         'user_id': session['user_id']
-#     }
+@app.route('/new_proyect', methods=['POST'])
+def new_proyect():
+    if 'user_id' not in session:
+        return redirect('/logout')
+    data = {
+        'name': request.form['name'],
+        'user_id': session['user_id']
+    }
 
-#     Proyect.save(data)
-#     return redirect('/loadbox')
+    Proyect.save(data)
+    flash("Proyecto creado correctamente.","success_pro")
+    return redirect('/loadbox')
 
 
 
@@ -68,7 +71,7 @@ def add_tgs():
         return redirect('/loadbox')
     else:
         data = {
-            'name': "Tablero " + request.form['name'],
+            'name': request.form['name'],
             'tag': request.form['tag'],
             'proyect_id': request.form['proyect_id']
         }
@@ -91,7 +94,7 @@ def add_tds():
     
     else: 
         data = {
-            'name': "Tablero " + request.form['name'],
+            'name': request.form['name'],
             'tag': request.form['tag'],
             'tg_id': request.form['tg_id']
         }
@@ -113,7 +116,7 @@ def add_tds():
             td = Tds.get_td_by_id({'id':Tds.add_tds(data)})
             for qq in td:
                 count = Tgs.get_tds_tgs_circuit({'tg_id':qq['tg_id']})
-                print("Aca el if")
+                print("Aca el if {count}")
                 data2 = {
                     'name': count[0]['circuits_tg'],
                     'ref': qq['name'],
@@ -141,7 +144,7 @@ def add_tds():
                     'length_from_tg': request.form["length_from_tg"],
                 }
                 Total_tds.summary_tds(data2)
-            flash("Tablero de distribución agregado correctamente", "td_success")
+        flash("Tablero de distribución agregado correctamente", "td_success")
         return redirect('/loadbox')
 
 
@@ -159,17 +162,18 @@ def new_circuits():
     
 # --------------CALCULOS MONOFASICOS -------
     else:
-        print(request.form)
         if float(request.form['single_voltage']) == 0.220:
             data_tg = {}
             data = {}
             data_tg['tg_id'] = request.form['tg_id']
-            if 'td_id' in request.form and request.form['td_id']:
+            if 'td_id' in request.form and request.form['td_id'].isdigit():
                 data_tg['td_id'] = request.form['td_id']
                 rst = Circuit.all_r_s_t_single_voltage_tg_and_td(data_tg)
+                rst2 = Total_tds.get_rst_total_tds_by_tg_id({'tab_secondary': data_tg['tg_id']})
             else:
-                data_tg["td_id"] = '-Seleccione tablero de distribución-'
+                data_tg['td_id'] = '-Seleccione tablero de distribución-'
                 rst = Circuit.all_r_s_t_single_voltage_tg({'tg_id':request.form["tg_id"]})
+                rst2 = Total_tds.get_rst_total_tds_by_tg_id({'tab_secondary': data_tg['tg_id']})
             if int(data_tg['tg_id']) > 0 and data_tg['td_id'] == '-Seleccione tablero de distribución-':
                 index_num = Tgs.get_tds_tgs_circuit({'tg_id': request.form['tg_id']})
                 data = {
@@ -182,6 +186,7 @@ def new_circuits():
                     'name': tds_circuit[0]['new_circuit_td'],
                     'td_id': request.form['td_id']
                 }
+            
             data.update({
                 'nameloads': request.form['nameloads'],
                 'ref': request.form['ref'],
@@ -226,9 +231,17 @@ def new_circuits():
                 Circuit.update_secctionmm2(data2)
                 Circuit.update_breakers(data2)
                 Circuit.update_elect_differencial(data2)
-                current_rst = Tgs.sum_all_current({'tg_id':request.form["tg_id"]})
-                print(current_rst)
-                if current_rst is not None and current_rst[0]["R"] is not None and current_rst[0]["S"] is not None and current_rst[0]["T"] is not None:
+                def is_valid_current(current):
+                    return (current is not None and
+                            current[0]["R"] is not None and
+                            current[0]["S"] is not None and
+                            current[0]["T"] is not None)
+
+                current_rst = Tgs.sum_all_current({'tg_id': request.form["tg_id"]})
+                current_rst_td = Tds.sum_all_current_td_tg({'tg_id': data_tg['tg_id'], 'td_id': data_tg['td_id'].isdigit()})
+
+                if is_valid_current(current_rst) or is_valid_current(current_rst_td):# Código si ambos son válidos
+
 
                 # ----- calculating average from rst current ----------
 
@@ -242,26 +255,115 @@ def new_circuits():
                     max_unbalance = max(porcentage_r, porcentage_s, porcentage_t)
                     print(f"{max_unbalance}%")
                     if max_unbalance < 10:       
-                        if rst[0]['R'] == rst[0]['S'] == rst[0]['T']:
-                            Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
-                        if rst[0]['R'] > rst[0]['S']:
-                            Circuit.update_current_s({'current_s': total_current, 'circuit_id': circuit_id})
-                        if rst[0]['S'] > rst[0]['T']:
-                            Circuit.update_current_t({'current_t': total_current, 'circuit_id': circuit_id})
+#                   Diccionario que asocia etiquetas con los valores a comparar
+                        updates = {'R': 'current_r', 'S': 'current_s', 'T': 'current_t'}
+
+                        # Obtener claves y valores de rst y rst2
+                        keys = ['R', 'S', 'T']
+                        rst_values = rst[0]
+                        rst2_values = rst2[0]
+
+                        # Bucle para evaluar las relaciones
+                        for i in range(len(keys)):
+                            current_key = keys[i]
+
+                            # Caso 1: Si todos los valores son iguales en rst y rst2, actualiza 'R'
+                            if all(rst_values[k] == rst_values[keys[0]] for k in keys) and all(rst2_values[k] == rst2_values[keys[0]] for k in keys):
+                                Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                                break  # Termina porque ya se actualizó correctamente
+
+                            # Caso 2: Si el valor actual es mayor que el siguiente en ambas listas, actualiza el valor correspondiente
+                            elif i < len(keys) - 1 and rst_values[current_key] > rst_values[keys[i + 1]] and rst2_values[current_key] > rst2_values[keys[i + 1]]:
+                                Circuit.update_current_r({updates[keys[i + 1]]: total_current, 'circuit_id': circuit_id})
+                                Total_tds.update_current_r_td({updates[keys[i + 1]]: total_current, 'td_id': data['td_id']})
+
                         print("aca desbalance bien, pero hay que revisar denuevo")
 
                     else:
                         print("aca si es mas de 10 agregar logica de mover la carga por entre fases")
-
+                        print(f"ACA ESTOY ADENTRO")
+                        if rst[0]['R'] == rst[0]['S'] == rst[0]['T']:
+                            Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['R'] > rst[0]['S']:
+                            Circuit.update_current_s({'current_s': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_s_td({'current_s': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['S'] > rst[0]['T']:
+                            Circuit.update_current_t({'current_t': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_t_td({'current_t': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['T'] > rst[0]['R']:
+                            Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
                 # ------------------------------------------------------
 
                 else:
-                    if rst[0]['R'] == rst[0]['S'] == rst[0]['T']:
-                        Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
-                    if rst[0]['R'] > rst[0]['S']:
-                        Circuit.update_current_s({'current_s': total_current, 'circuit_id': circuit_id})
-                    if rst[0]['S'] > rst[0]['T']:
-                        Circuit.update_current_t({'current_t': total_current, 'circuit_id': circuit_id})
+                    print(f"aca estoy cuando no hay rst")
+                    # Bucle para evaluar las relaciones
+                    updates = {
+                        'R': 'current_r',
+                        'S': 'current_s', 
+                        'T': 'current_t'
+                    }
+
+                    rst_values = rst[0]  # Ej: {'R': 10, 'S': 8, 'T': 5}
+                    rst2_values = rst2[0]  # Ej: {'R': 9, 'S': 7, 'T': 4}
+
+                    # --- Caso 1: Todos los valores son iguales en ambas lecturas ---
+                    if all(val == rst_values['R'] for val in rst_values.values()) and \
+                    all(val == rst2_values['R'] for val in rst2_values.values()):
+                        
+                        # Actualizar solo 'R' (fase por defecto)
+                        column = 'current_r'
+                        update_data = {column: total_current, 'circuit_id': circuit_id}
+                        Circuit.update_current_r(update_data)
+                        
+                        if data['td_id'] and str(data['td_id']).isdigit():
+                            Total_tds.update_current_r_td({column: total_current, 'td_id': data['td_id']})
+
+                    # --- Caso 2: Encontrar la fase con mayor diferencia desbalanceada ---
+                    else:
+                        # Calcular diferencias entre fases (rst)
+                        diff_rst = {
+                            'R': rst_values['R'] - rst_values['S'],
+                            'S': rst_values['S'] - rst_values['T'],
+                            'T': rst_values['T'] - rst_values['R']  # Cierre del triángulo
+                        }
+                        
+                        # Calcular diferencias entre fases (rst2)
+                        diff_rst2 = {
+                            'R': rst2_values['R'] - rst2_values['S'],
+                            'S': rst2_values['S'] - rst2_values['T'],
+                            'T': rst2_values['T'] - rst2_values['R']
+                        }
+                        
+                        # Fase a actualizar: Mayor diferencia en ambas lecturas
+                        phase_to_update = max(
+                            ['R', 'S', 'T'],
+                            key=lambda phase: diff_rst[phase] + diff_rst2[phase]
+                        )
+                        
+                        # Obtener columna dinámica (current_r, current_s, current_t)
+                        column = updates[phase_to_update]
+                        
+                        # Actualizar en Circuit
+                        Circuit.update_current_r({column: total_current, 'circuit_id': circuit_id})
+                        
+                        # Actualizar en Total_tds (si td_id es válido)
+                        if data['td_id'] and str(data['td_id']).isdigit():
+                            Total_tds.update_current_r_td({column: total_current, 'td_id': data['td_id']})
 
                 data3 = { 'vp':round((2*0.018*float(data['total_length_ct'])*float(total_current))/float(data2['secctionmm2']),2), 'circuit_id':circuit_id}
                 Circuit.update_vp(data3)
@@ -276,6 +378,21 @@ def new_circuits():
                     conduit = Circuit.conduit_mono_normal({'secctionmm2':data2['secctionmm2']})
                     data5 = {'conduit': conduit[0]['c3'], 'circuit_id':circuit_id}
                     Circuit.update_conduit(data5)
+                index = Tgs.total_name_tg({'tg_id': data_tg['tg_id']})
+                index2 = Total_tds.name_total_tds({'tab_secondary': data_tg['tg_id']})
+                ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+                
+                new_names = list(range(1, len(ordered_circuits) + 1))
+                updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+                
+                for circuit_id, new_name in updates.items():
+                    Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+                last_number = new_names[-1] if new_names else 0
+                new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+                updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+                for circuit_id, new_name in updates_index2.items():
+                    Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
                 flash("Circuito agregado correctamente", "circuit_success")
                 time.sleep(1)
                 return redirect('/loadbox')
@@ -295,7 +412,7 @@ def new_circuits():
                 Circuit.update_secctionmm2(data2)
                 Circuit.update_breakers(data2)
                 Circuit.update_elect_differencial(data2)
-                current_rst = Tgs.sum_all_current({'tg_id':request.form["tg_id"]})
+                current_rst = Tgs.sum_all_current({'tg_id':data_tg['td_id']})
                 print(current_rst)
                 if current_rst is not None and current_rst[0]["R"] is not None and current_rst[0]["S"] is not None and current_rst[0]["T"] is not None:
 
@@ -313,24 +430,85 @@ def new_circuits():
                     if max_unbalance < 10:       
                         if rst[0]['R'] == rst[0]['S'] == rst[0]['T']:
                             Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
                         if rst[0]['R'] > rst[0]['S']:
                             Circuit.update_current_s({'current_s': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_s_td({'current_s': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
                         if rst[0]['S'] > rst[0]['T']:
                             Circuit.update_current_t({'current_t': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_t_td({'current_t': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['T'] > rst[0]['R']:
+                            Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
                         print("aca desbalance bien, pero hay que revisar denuevo")
 
                     else:
                         print("aca si es mas de 10 agregar logica de mover la carga por entre fases")
-
+                        print(f"aca estoy cuando hay rst")
+                        if rst[0]['R'] == rst[0]['S'] == rst[0]['T']:
+                            Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['R'] > rst[0]['S']:
+                            Circuit.update_current_s({'current_s': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_s_td({'current_s': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['S'] > rst[0]['T']:
+                            Circuit.update_current_t({'current_t': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_t_td({'current_t': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
+                        if rst[0]['T'] > rst[0]['R']:
+                            Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                            if data['td_id'] is not None and str(data['td_id']).isdigit():
+                                Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                            else:
+                                pass
                 # ------------------------------------------------------
 
                 else:
+                    print(f"aca estoy cuando no hay rst")
                     if rst[0]['R'] == rst[0]['S'] == rst[0]['T']:
                         Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                        if data['td_id'] is not None and str(data['td_id']).isdigit():
+                            Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                        else:
+                            pass
                     if rst[0]['R'] > rst[0]['S']:
                         Circuit.update_current_s({'current_s': total_current, 'circuit_id': circuit_id})
+                        if data['td_id'] is not None and str(data['td_id']).isdigit():
+                            Total_tds.update_current_s_td({'current_s': total_current, 'td_id': data['td_id']})
+                        else:
+                            pass
                     if rst[0]['S'] > rst[0]['T']:
                         Circuit.update_current_t({'current_t': total_current, 'circuit_id': circuit_id})
+                        if data['td_id'] is not None and str(data['td_id']).isdigit():
+                            Total_tds.update_current_t_td({'current_t': total_current, 'td_id': data['td_id']})
+                        else:
+                            pass
+                    if rst[0]['T'] > rst[0]['R']:
+                        Circuit.update_current_r({'current_r': total_current, 'circuit_id': circuit_id})
+                        if data['td_id'] is not None and str(data['td_id']).isdigit():
+                            Total_tds.update_current_r_td({'current_r': total_current, 'td_id': data['td_id']})
+                        else:
+                            pass
 
                 data3 = { 'vp':round((2*0.018*float(data['total_length_ct'])*float(total_current))/float(data2['secctionmm2']),2), 'circuit_id':circuit_id}
                 Circuit.update_vp(data3)
@@ -346,7 +524,22 @@ def new_circuits():
                     conduit = Circuit.conduit_mono_normal({'secctionmm2':data2['secctionmm2']})
                     data5 = {'conduit': conduit[0]['c3'], 'circuit_id':circuit_id}
                     Circuit.update_conduit(data5)
-                print('funciona por fin 220')
+            index = Tgs.total_name_tg({'tg_id': data_tg['tg_id']})
+            index2 = Total_tds.name_total_tds({'tab_secondary': data_tg['tg_id']})
+            ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+            
+            new_names = list(range(1, len(ordered_circuits) + 1))
+            updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+            
+            for circuit_id, new_name in updates.items():
+                Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+            last_number = new_names[-1] if new_names else 0
+            new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+            updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+            for circuit_id, new_name in updates_index2.items():
+                Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
+            print('funciona por fin 220')
             flash("Circuito agregado correctamente", "circuit_success")
             time.sleep(1)
             return redirect('/loadbox')
@@ -368,12 +561,14 @@ def new_circuits():
                     'name': index_num[0]['circuits_tg'] + 1,
                     'td_id': None
                 }
+                print(data['name'])
             else:
                 tds_circuit = Tds.get_all_circuits_by_td_id_and_tg_id(data_tg)
                 data = {
                     'name': tds_circuit[0]['new_circuit_td'],
                     'td_id': request.form['td_id']
                 }
+                print(data['name'])
 
             data.update({
                 'nameloads': request.form['nameloads'],
@@ -434,6 +629,21 @@ def new_circuits():
                     conduit = Circuit.conduit_tri_normal({'secctionmm2':data2['secctionmm2']})
                     data5 = {'conduit': conduit[0]['c5'], 'circuit_id':circuit_id}
                     Circuit.update_conduit(data5)
+                    index = Tgs.total_name_tg({'tg_id': data_tg['tg_id']})
+                index2 = Total_tds.name_total_tds({'tab_secondary': data_tg['tg_id']})
+                ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+                
+                new_names = list(range(1, len(ordered_circuits) + 1))
+                updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+                
+                for circuit_id, new_name in updates.items():
+                    Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+                last_number = new_names[-1] if new_names else 0
+                new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+                updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+                for circuit_id, new_name in updates_index2.items():
+                    Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
                 print('funciona por fin 380')
                 flash("Circuito agregado correctamente", "circuit_success")
                 time.sleep(1)
@@ -470,11 +680,25 @@ def new_circuits():
                     conduit = Circuit.conduit_tri_normal({'secctionmm2':data2['secctionmm2']})
                     data5 = {'conduit': conduit[0]['c5'], 'circuit_id':circuit_id}
                     Circuit.update_conduit(data5)
+            index = Tgs.total_name_tg({'tg_id': data_tg['tg_id']})
+            index2 = Total_tds.name_total_tds({'tab_secondary': data_tg['tg_id']})
+            ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+            
+            new_names = list(range(1, len(ordered_circuits) + 1))
+            updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+            
+            for circuit_id, new_name in updates.items():
+                Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+            last_number = new_names[-1] if new_names else 0
+            new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+            updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+            for circuit_id, new_name in updates_index2.items():
+                Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
             print('funciona por fin 380')
             flash("Circuito agregado correctamente", "circuit_success")
             time.sleep(1)
             return redirect('/loadbox')
-
 
 
 # ---------------------------------------------- AJAX ID CIRCUITS----------------------------------------------------------------
@@ -684,6 +908,7 @@ def get_tds():
     print("---------------")
 
     return jsonify(tgs, circuit_tg, total_tds)
+
 
 
 @app.route('/api/circuits_td', methods=['POST'])
@@ -1225,7 +1450,46 @@ def delete_load():
             print('funciona por fin 380')
         return redirect('/loadbox/')
     else:
-        Circuit.delete_circuit_by_id({'circuit_id': request.form['circuit']})
+        print(request.form)
+        tg = Tgs.tg_id_by_circuit({'circuit_id': request.form['circuit']})
+        td = Tds.td_id_by_circuits({'circuit_id': request.form['circuit']})
+        if not td[0]['td_id']:
+            print(tg)
+            print(td)
+            Circuit.delete_circuit_by_id({'circuit_id': request.form['circuit']})
+            index = Tgs.total_name_tg({'tg_id': tg[0]['tg_id']})
+            index2 = Total_tds.name_total_tds({'tab_secondary': tg[0]['tg_id']})
+            ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+            
+            new_names = list(range(1, len(ordered_circuits) + 1))
+            updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+            
+            for circuit_id, new_name in updates.items():
+                Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+            last_number = new_names[-1] if new_names else 0
+            new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+            updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+            for circuit_id, new_name in updates_index2.items():
+                Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
+                
+            print("borrado del lado de loads 1")      
+            return redirect('/loadbox/')
+        else:
+            print(tg)
+            print(td)
+            Circuit.delete_circuit_by_id({'circuit_id': request.form['circuit']})
+            index = Tds.total_name_td({'td_id': td[0]['td_id']})
+            ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+            
+            new_names = list(range(1, len(ordered_circuits) + 1))
+            updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+            
+            for circuit_id, new_name in updates.items():
+                Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+            print("borrado del lado de loads 2")      
+        return redirect('/loadbox/')
 
 @app.route('/api/delete/circuit', methods=['POST'])
 def delete_circuit():
@@ -1239,7 +1503,7 @@ def delete_circuit():
         Circuit.delete_circuit_by_id({'circuit_id': request.form['circuitv2']})
         index = Tgs.total_name_tg({'tg_id': tg[0]['tg_id']})
         index2 = Total_tds.name_total_tds({'tab_secondary': tg[0]['tg_id']})
-        ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+        ordered_circuits = sorted(index, key=lambda x: int(x['id']))
         
         new_names = list(range(1, len(ordered_circuits) + 1))
         updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
@@ -1260,7 +1524,7 @@ def delete_circuit():
         Load.delete_load_by_circuit_id({'circuit_id': request.form['circuitv2']})
         Circuit.delete_circuit_by_id({'circuit_id': request.form['circuitv2']})
         index = Tds.total_name_td({'td_id': td[0]['td_id']})
-        ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+        ordered_circuits = sorted(index, key=lambda x: int(x['id']))
         
         new_names = list(range(1, len(ordered_circuits) + 1))
         updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
@@ -1271,7 +1535,6 @@ def delete_circuit():
         return redirect('/loadbox/')
 
 
-
 @app.route('/api/delete/tgs', methods=['POST'])
 def delete_tgs():
     Tgs.delete_load_by_tgId({'tg_id':request.form['tgs_delete']})
@@ -1279,34 +1542,87 @@ def delete_tgs():
     Tgs.delete_total_tgs_by_tgId({'tab_secondary':request.form['tgs_delete']})
     Tgs.delete_tds_by_tgId({'tg_id':request.form['tgs_delete']})
     Tgs.delete_tgs_by_tgId({'id':request.form['tgs_delete']})
+    # Obtener circuitos y total_tds después de la eliminación
+    index = Tgs.total_name_tg({'tg_id': request.form['tgs_delete']})
+    index2 = Total_tds.name_total_tds({'tab_secondary': request.form['tgs_delete']})
+
+    # Verificar si hay un único circuito y cumple la condición de tg_id con td_id=None
+    if len(index) == 1 and (index2[0]['td_id'] is None or not index2[0]['td_id']):
+        circuit_id = index[0]['id']
+        Tgs.update_name({'id': circuit_id, 'name': 1})
+        last_number = 1
+
+    elif len(index2) == 1:  # Si solo hay un total_tds con tab_secondary
+        circuit_id = index2[0]['id']
+        Total_tds.update_name_total_td({'id': circuit_id, 'name': 1})
+        last_number = 1
+
+    else:
+        # Ordenar y renombrar si hay más de un circuito
+        ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+        new_names = list(range(1, len(ordered_circuits) + 1))
+        updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+
+        for circuit_id, new_name in updates.items():
+            Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+        last_number = new_names[-1] if new_names else 0
+
+        # Renombrar total_tds de manera correlativa
+        new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+        updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+
+        for circuit_id, new_name in updates_index2.items():
+            Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
     return redirect('/loadbox/')
 
 @app.route('/api/delete/tds', methods=['POST'])
 def delete_tds():
-    td = Tds.tg_id_by_td_id({'id':request.form['tds_delete']})
-    print(td)
-    Tds.delete_load_by_tdId({'td_id':request.form['tds_delete']})
-    Tds.delete_circuits_by_tdId({'td_id':request.form['tds_delete']})
-    Tds.delete_total_tds_by_tdId({'td_id':request.form['tds_delete']})
-    Tds.delete_tds_by_tdId({'id':request.form['tds_delete']})
+    td = Tds.tg_id_by_td_id({'id': request.form['tds_delete']})
+
+    # Eliminar datos relacionados con el TD
+    Tds.delete_load_by_tdId({'td_id': request.form['tds_delete']})
+    Tds.delete_circuits_by_tdId({'td_id': request.form['tds_delete']})
+    Tds.delete_total_tds_by_tdId({'td_id': request.form['tds_delete']})
+    Tds.delete_tds_by_tdId({'id': request.form['tds_delete']})
+
+    # Obtener circuitos y total_tds después de la eliminación
     index = Tgs.total_name_tg({'tg_id': td[0]['tg_id']})
     index2 = Total_tds.name_total_tds({'tab_secondary': td[0]['tg_id']})
-    ordered_circuits = sorted(index, key=lambda x: int(x['name']))
-    
-    new_names = list(range(1, len(ordered_circuits) + 1))
-    updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
-    
-    for circuit_id, new_name in updates.items():
-        Tgs.update_name({'id': circuit_id, 'name': new_name})
 
-    last_number = new_names[-1] if new_names else 0
-    new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
-    updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+    # Verificar si hay un único circuito y cumple la condición de tg_id con td_id=None
+    if len(index) == 1 and (index2[0]['td_id'] is None or not index2[0]['td_id']):
+        circuit_id = index[0]['id']
+        Tgs.update_name({'id': circuit_id, 'name': 1})
+        last_number = 1
 
-    for circuit_id, new_name in updates_index2.items():
-        Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
+    elif len(index2) == 1:  # Si solo hay un total_tds con tab_secondary
+        circuit_id = index2[0]['id']
+        Total_tds.update_name_total_td({'id': circuit_id, 'name': 1})
+        last_number = 1
+
+    else:
+        # Ordenar y renombrar si hay más de un circuito
+        ordered_circuits = sorted(index, key=lambda x: int(x['name']))
+        new_names = list(range(1, len(ordered_circuits) + 1))
+        updates = {circuit['id']: new_name for circuit, new_name in zip(ordered_circuits, new_names)}
+
+        for circuit_id, new_name in updates.items():
+            Tgs.update_name({'id': circuit_id, 'name': new_name})
+
+        last_number = new_names[-1] if new_names else 0
+
+        # Renombrar total_tds de manera correlativa
+        new_names_index2 = list(range(last_number + 1, last_number + len(index2) + 1))
+        updates_index2 = {circuit['id']: new_name for circuit, new_name in zip(index2, new_names_index2)}
+
+        for circuit_id, new_name in updates_index2.items():
+            Total_tds.update_name_total_td({'id': circuit_id, 'name': new_name})
 
     return redirect('/loadbox/')
+
+
+
 
 @app.route('/api/delete/proyect', methods=['POST'])
 def delete_pro():
@@ -1327,11 +1643,59 @@ def delete_pro():
 @app.route('/api/excel_tds/<int:td_id>')
 def tds_to_excel(td_id):
     data_list = Tds.detail_to_excel({'td_id': td_id})
-    name_td = Tds.get_td_by_id({'id':td_id})
+    name_td = Tds.get_td_by_id({'id': td_id})
+
+    def balancear_cargas(df):
+        print("BALANCEANDO...")
+        total_r = df['R [A]'].sum(skipna=True)
+        total_s = df['S [A]'].sum(skipna=True)
+        total_t = df['T [A]'].sum(skipna=True)
+
+        fase_totales = {'R [A]': total_r, 'S [A]': total_s, 'T [A]': total_t}
+        media = sum(fase_totales.values()) / 3
+        fases_ordenadas = sorted(fase_totales, key=lambda x: fase_totales[x], reverse=True)
+        print(media)
+        iteraciones = 0
+        while True:
+            iteraciones += 1
+            max_diff = max(abs(fase_totales[fases_ordenadas[0]] - media),
+                        abs(fase_totales[fases_ordenadas[2]] - media))
+            if max_diff < 0.05 * media:
+                print(f"Desbalance aceptable alcanzado: {max_diff} (iteración {iteraciones})")
+                break
+
+            for fase_origen in fases_ordenadas:
+                for fase_destino in fases_ordenadas[::-1]:
+                    if fase_origen == fase_destino:
+                        continue
+
+                    diferencia = fase_totales[fase_origen] - fase_totales[fase_destino]
+                    if diferencia < 0.02 * media:
+                        continue
+
+                    for i, row in df.iterrows():
+                        if pd.notna(row[fase_origen]) and pd.isna(row[fase_destino]) and all(
+                            pd.isna(row[f]) for f in ['R [A]', 'S [A]', 'T [A]'] if f != fase_origen
+                        ):
+                            valor_mover = row[fase_origen]
+                            df.at[i, fase_destino] = valor_mover
+                            df.at[i, fase_origen] = None
+
+                            fase_totales[fase_origen] -= valor_mover
+                            fase_totales[fase_destino] += valor_mover
+
+                            fases_ordenadas = sorted(fase_totales, key=lambda x: fase_totales[x], reverse=True)
+                            break
+
+            if iteraciones > 10:
+                print(f"Se alcanzó el límite de iteraciones (10) con un desbalance de {round(max_diff,2)}.")
+                break
+        return df
+
     if data_list:
         numeric_fields = [
-            'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]', 
-            'R [A]', 'S [A]', 'T [A]', 'Tensión [V]', 'Largo [m]', 'Vp [V]', 
+            'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]',
+            'R [A]', 'S [A]', 'T [A]', 'Tensión [V]', 'Largo [m]', 'Vp [V]',
             'Conductor [mm2]', 'Canalización [mm]'
         ]
         data = []
@@ -1352,14 +1716,21 @@ def tds_to_excel(td_id):
 
         df = pd.DataFrame(data)
 
-        # Verificar si existe voltaje 380
+        desbalance_porcentaje = None
+
         if 380 not in df['Tensión [V]'].values:
+            print("No hay trifásico, cargas monofasicas solamente")
             df['Intensidad [A]'] = df[['R [A]', 'S [A]', 'T [A]']].sum(axis=1)
             df = df.drop(columns=['R [A]', 'S [A]', 'T [A]'])
             cols = df.columns.tolist()
             pos = cols.index('Tensión [V]')
             cols.insert(pos, cols.pop(cols.index('Intensidad [A]')))
             df = df[cols]
+
+            if 220 in df['Tensión [V]'].values:
+                print("Voltaje 0.220 detectado: ajustando formato de Intensidad [A]...")
+                df['Intensidad [A]'] = df['Intensidad [A]'].round(2)
+
             sum_values = {
                 'Circuito': 'Total',
                 'Cantidad': df['Cantidad'].sum(),
@@ -1367,13 +1738,24 @@ def tds_to_excel(td_id):
                 'Intensidad [A]': df['Intensidad [A]'].sum()
             }
         else:
+            has_trifasico = df[['R [A]', 'S [A]', 'T [A]']].notna().all(axis=1).any()
+            if has_trifasico:
+                print("Hay trifásico, se balancearán las cargas monofásicas...")
+                df = balancear_cargas(df)
+
+            total_r = df['R [A]'].sum(skipna=True)
+            total_s = df['S [A]'].sum(skipna=True)
+            total_t = df['T [A]'].sum(skipna=True)
+            promedio = (total_r + total_s + total_t) / 3
+            max_diff = max(abs(total_r - promedio), abs(total_s - promedio), abs(total_t - promedio))
+            desbalance_porcentaje = round((max_diff / promedio) * 100, 2) if promedio else 0.0
             sum_values = {
                 'Circuito': 'Total',
                 'Cantidad': df['Cantidad'].sum(),
                 'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
-                'R [A]': df['R [A]'].sum(),
-                'S [A]': df['S [A]'].sum(),
-                'T [A]': df['T [A]'].sum()
+                'R [A]': total_r,
+                'S [A]': total_s,
+                'T [A]': total_t
             }
 
         sum_df = pd.DataFrame(sum_values, index=[0])
@@ -1384,6 +1766,7 @@ def tds_to_excel(td_id):
         with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, startrow=3, startcol=1, sheet_name=sheet_name)
             worksheet = writer.sheets[sheet_name]
+
             for col in worksheet.iter_cols(min_row=4, min_col=2, max_row=worksheet.max_row):
                 max_length = 0
                 column = col[0].column_letter
@@ -1396,7 +1779,7 @@ def tds_to_excel(td_id):
             specific_columns = ['R [A]', 'S [A]', 'T [A]', 'Fp']
             for col_name in specific_columns:
                 if col_name in df.columns:
-                    col_idx = df.columns.get_loc(col_name) + 2 
+                    col_idx = df.columns.get_loc(col_name) + 2
                     col_letter = worksheet.cell(row=4, column=col_idx).column_letter
                     if col_name == 'Fp':
                         worksheet.column_dimensions[col_letter].width = 5
@@ -1406,25 +1789,44 @@ def tds_to_excel(td_id):
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row):
                 for cell in row:
                     cell.alignment = Alignment(horizontal='center', vertical='center')
+
             last_row = worksheet.max_row
             for cell in worksheet[last_row]:
                 cell.font = Font(bold=True)
-            
+
             thin = Side(border_style="thin", color="000000")
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row, max_col=worksheet.max_column):
                 for cell in row:
                     cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
 
-            last_row = worksheet.max_row
-            for cell in worksheet[last_row]:
+            for cell in worksheet[worksheet.max_row]:
                 cell.font = Font(bold=True)
-        
+
+            if desbalance_porcentaje is not None:
+                mensaje = f"Desbalance: {desbalance_porcentaje}%"
+                fila_desbalance = worksheet.max_row + 1
+                col_inicio = 2
+                col_fin = worksheet.max_column
+
+                worksheet.merge_cells(start_row=fila_desbalance, start_column=col_inicio,
+                                    end_row=fila_desbalance, end_column=col_fin)
+
+                celda = worksheet.cell(row=fila_desbalance, column=col_inicio)
+                celda.value = mensaje
+                celda.font = Font(bold=True, color="FF0000")
+                celda.alignment = Alignment(horizontal='left', vertical='center')
+
+                for col in range(col_inicio, col_fin + 1):
+                    celda_borde = worksheet.cell(row=fila_desbalance, column=col)
+                    celda_borde.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+
         response = make_response(buffer.getvalue())
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         response.headers['Content-Disposition'] = f'attachment; filename=Cuadro_de_Cargas_{name_td[0]["name"]}.xlsx'
         return response
     else:
         return "No hay circuitos, tablero de distribucíon vacío."
+
 
 # -----------------------------------------------------
 
@@ -1433,10 +1835,58 @@ def tgs_to_excel(tg_id):
     data_list = Tgs.detail_to_excel({'tg_id': tg_id})
     name_tg = Tgs.name_tg({'tg_id': tg_id})
 
+
+    def balancear_cargas(df):
+        print("BALANCEANDO...")
+        total_r = df['R [A]'].sum(skipna=True)
+        total_s = df['S [A]'].sum(skipna=True)
+        total_t = df['T [A]'].sum(skipna=True)
+
+        fase_totales = {'R [A]': total_r, 'S [A]': total_s, 'T [A]': total_t}
+        media = sum(fase_totales.values()) / 3
+        fases_ordenadas = sorted(fase_totales, key=lambda x: fase_totales[x], reverse=True)
+        print(media)
+        iteraciones = 0
+        while True:
+            iteraciones += 1
+            max_diff = max(abs(fase_totales[fases_ordenadas[0]] - media),
+                        abs(fase_totales[fases_ordenadas[2]] - media))
+            if max_diff < 0.05 * media:
+                print(f"Desbalance aceptable alcanzado: {max_diff} (iteración {iteraciones})")
+                break
+
+            for fase_origen in fases_ordenadas:
+                for fase_destino in fases_ordenadas[::-1]:
+                    if fase_origen == fase_destino:
+                        continue
+
+                    diferencia = fase_totales[fase_origen] - fase_totales[fase_destino]
+                    if diferencia < 0.02 * media:
+                        continue
+
+                    for i, row in df.iterrows():
+                        if pd.notna(row[fase_origen]) and pd.isna(row[fase_destino]) and all(
+                            pd.isna(row[f]) for f in ['R [A]', 'S [A]', 'T [A]'] if f != fase_origen
+                        ):
+                            valor_mover = row[fase_origen]
+                            df.at[i, fase_destino] = valor_mover
+                            df.at[i, fase_origen] = None
+
+                            fase_totales[fase_origen] -= valor_mover
+                            fase_totales[fase_destino] += valor_mover
+
+                            fases_ordenadas = sorted(fase_totales, key=lambda x: fase_totales[x], reverse=True)
+                            break
+
+            if iteraciones > 10:
+                print(f"Se alcanzó el límite de iteraciones (10) con un desbalance de {round(max_diff,2)}.")
+                break
+        return df
+
     if data_list:
         numeric_fields = [
-            'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]', 
-            'R [A]', 'S [A]', 'T [A]', 'Tensión [V]', 'Largo [m]', 'Vp [V]', 
+            'Potencia por Carga [W]', 'Fp', 'Frecuencia [Hz]', 'Potencia Total [Kw]',
+            'R [A]', 'S [A]', 'T [A]', 'Tensión [V]', 'Largo [m]', 'Vp [V]',
             'Conductor [mm2]', 'Canalización [mm]'
         ]
         data = []
@@ -1457,14 +1907,21 @@ def tgs_to_excel(tg_id):
 
         df = pd.DataFrame(data)
 
-        # Verificar si existe voltaje 380
+        desbalance_porcentaje = None
+
         if 380 not in df['Tensión [V]'].values:
+            print("No hay trifásico, cargas monofasicas solamente")
             df['Intensidad [A]'] = df[['R [A]', 'S [A]', 'T [A]']].sum(axis=1)
             df = df.drop(columns=['R [A]', 'S [A]', 'T [A]'])
             cols = df.columns.tolist()
             pos = cols.index('Tensión [V]')
             cols.insert(pos, cols.pop(cols.index('Intensidad [A]')))
             df = df[cols]
+
+            if 220 in df['Tensión [V]'].values:
+                print("Voltaje 0.220 detectado: ajustando formato de Intensidad [A]...")
+                df['Intensidad [A]'] = df['Intensidad [A]'].round(2)
+
             sum_values = {
                 'Circuito': 'Total',
                 'Cantidad': df['Cantidad'].sum(),
@@ -1472,13 +1929,24 @@ def tgs_to_excel(tg_id):
                 'Intensidad [A]': df['Intensidad [A]'].sum()
             }
         else:
+            has_trifasico = df[['R [A]', 'S [A]', 'T [A]']].notna().all(axis=1).any()
+            if has_trifasico:
+                print("Hay trifásico, se balancearán las cargas monofásicas...")
+                df = balancear_cargas(df)
+
+            total_r = df['R [A]'].sum(skipna=True)
+            total_s = df['S [A]'].sum(skipna=True)
+            total_t = df['T [A]'].sum(skipna=True)
+            promedio = (total_r + total_s + total_t) / 3
+            max_diff = max(abs(total_r - promedio), abs(total_s - promedio), abs(total_t - promedio))
+            desbalance_porcentaje = round((max_diff / promedio) * 100, 2) if promedio else 0.0
             sum_values = {
                 'Circuito': 'Total',
                 'Cantidad': df['Cantidad'].sum(),
                 'Potencia Total [Kw]': df['Potencia Total [Kw]'].sum(),
-                'R [A]': df['R [A]'].sum(),
-                'S [A]': df['S [A]'].sum(),
-                'T [A]': df['T [A]'].sum()
+                'R [A]': total_r,
+                'S [A]': total_s,
+                'T [A]': total_t
             }
 
         sum_df = pd.DataFrame(sum_values, index=[0])
@@ -1489,6 +1957,7 @@ def tgs_to_excel(tg_id):
         with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, startrow=3, startcol=1, sheet_name=sheet_name)
             worksheet = writer.sheets[sheet_name]
+
             for col in worksheet.iter_cols(min_row=4, min_col=2, max_row=worksheet.max_row):
                 max_length = 0
                 column = col[0].column_letter
@@ -1501,7 +1970,7 @@ def tgs_to_excel(tg_id):
             specific_columns = ['R [A]', 'S [A]', 'T [A]', 'Fp']
             for col_name in specific_columns:
                 if col_name in df.columns:
-                    col_idx = df.columns.get_loc(col_name) + 2 
+                    col_idx = df.columns.get_loc(col_name) + 2
                     col_letter = worksheet.cell(row=4, column=col_idx).column_letter
                     if col_name == 'Fp':
                         worksheet.column_dimensions[col_letter].width = 5
@@ -1511,35 +1980,51 @@ def tgs_to_excel(tg_id):
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row):
                 for cell in row:
                     cell.alignment = Alignment(horizontal='center', vertical='center')
+
             last_row = worksheet.max_row
             for cell in worksheet[last_row]:
                 cell.font = Font(bold=True)
-            # ++++++++++++ bordes++++++++
+
             thin = Side(border_style="thin", color="000000")
             for row in worksheet.iter_rows(min_row=4, min_col=2, max_row=worksheet.max_row, max_col=worksheet.max_column):
                 for cell in row:
                     cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
 
-            last_row = worksheet.max_row
-            for cell in worksheet[last_row]:
+            for cell in worksheet[worksheet.max_row]:
                 cell.font = Font(bold=True)
-        
+
+            if desbalance_porcentaje is not None:
+                mensaje = f"Desbalance: {desbalance_porcentaje}%"
+                fila_desbalance = worksheet.max_row + 1
+                col_inicio = 2
+                col_fin = worksheet.max_column
+
+                worksheet.merge_cells(start_row=fila_desbalance, start_column=col_inicio,
+                                    end_row=fila_desbalance, end_column=col_fin)
+
+                celda = worksheet.cell(row=fila_desbalance, column=col_inicio)
+                celda.value = mensaje
+                celda.font = Font(bold=True, color="FF0000")
+                celda.alignment = Alignment(horizontal='left', vertical='center')
+
+                for col in range(col_inicio, col_fin + 1):
+                    celda_borde = worksheet.cell(row=fila_desbalance, column=col)
+                    celda_borde.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+
         response = make_response(buffer.getvalue())
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         response.headers['Content-Disposition'] = f'attachment; filename=Cuadro_de_Cargas_{name_tg[0]["name"]}.xlsx'
         return response
     else:
-        return "No hay circuitos, tablero general vacío."
+        return "No hay circuitos, tablero de distribucíon vacío.", 
 
 
 
-
-# ------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
 
 @app.route('/api/summary-tds/', methods=["POST"])
 def allcircuits_tds():
     detail = Tds.summary_circuits_tds({'td_id': request.form['id']})
-    print(detail)
     return jsonify(detail)
 
 

@@ -51,6 +51,12 @@ class Total_tds:
         query = "SELECT * FROM total_tds WHERE tab_secondary = %(tab_secondary)s;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
+
+    @classmethod
+    def get_rst_total_tds_by_tg_id(cls, data):
+        query = "SELECT COUNT(current_r) AS R, COUNT(current_s) AS S, COUNT(current_t) AS T FROM total_tds WHERE tab_secondary = %(tab_secondary)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
     
     @classmethod
     def update_total_tds(cls, data):
@@ -134,7 +140,7 @@ class Total_tds:
 
     @classmethod
     def name_total_tds(cls, data):
-        query = "SELECT name, id FROM total_tds WHERE tab_secondary = %(tab_secondary)s;"
+        query = "SELECT name, id, td_id FROM total_tds WHERE tab_secondary = %(tab_secondary)s ORDER BY name ASC;"
         result = connectToMySQL(cls.db).query_db(query, data)
         return result
 

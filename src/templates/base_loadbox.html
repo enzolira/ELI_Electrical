@@ -50,6 +50,34 @@
     <!-- JQUERY -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    {% set flashes = get_flashed_messages(with_categories=true) %}
+    {% for category, message in flashes %}
+        {% set icon =
+        'success' if category in [
+            'success_pro','tg_success','new_td',
+            'td_success','circuit_success','load_success', 'success_edit_td','success_edit_tg'
+        ]
+        else 'warning' if category in [
+            'error_edit_tg','error_edit_td'
+            ,'load_new'
+        ]
+        else 'info'
+        %}
+        Swal.fire({
+        position: 'top',
+        icon: '{{ icon }}',
+        title: '{{ "Atención" if icon == "warning" else "" }}',
+        text: {{ message|tojson }},
+        timer: {{ 3000 if icon == 'warning' else 2000 }},
+        width: '35em'
+        });
+    {% endfor %}
+    });
+    </script>
+
+
 
     {% endblock %}
 
@@ -62,7 +90,7 @@
 
     <!-- II) Main Panel -->
     <main>
-        <div class="container-fluid" style="margin-top: 3.5rem;">
+        <div class="container-fluid mb-5" style="margin-top: 3.5rem;">
             {% block content %} {% endblock %}
         </div>
     </main>

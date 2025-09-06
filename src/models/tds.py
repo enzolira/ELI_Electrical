@@ -169,3 +169,9 @@ class Tds:
             flash("Ingresa la nueva identificación del Tablero", "error_edit_td")
             is_valid = False
         return is_valid
+
+    @classmethod
+    def sum_all_current_td_tg(cls, tg_id):
+        query = "SELECT SUM(current_r) AS R, SUM(current_s) AS S, SUM(current_t) AS T FROM circuits WHERE tg_id  = %(tg_id)s AND td_id = %(td_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, tg_id)
+        return result

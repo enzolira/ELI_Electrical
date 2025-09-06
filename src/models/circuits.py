@@ -60,6 +60,17 @@ class Circuit:
         return circuit_tg_id
 
     @classmethod
+    def get_all_circuits_by_tg_id_v2(cls, data):
+        query = "SELECT * FROM circuits WHERE tg_id = %(tg_id)s;"
+        results = connectToMySQL(cls.db).query_db(query, data)
+        if (not results):
+            return []
+        circuit_tg_id = []
+        for ct_tg in results:
+            circuit_tg_id.append(ct_tg)
+        return circuit_tg_id
+
+    @classmethod
     def get_all_circuit_and_tds_by_tg(cls, data):
         query = "SELECT *, circuits.id FROM loads LEFT JOIN circuits ON circuits.id = loads.circuit_id WHERE circuits.tg_id = %(tg_id)s AND circuits.td_id = %(td_id)s;"
         results = connectToMySQL(cls.db).query_db(query, data)
@@ -329,3 +340,21 @@ class Circuit:
                 is_valid = False
         return is_valid
 
+
+    @staticmethod
+    def count_rst_td_id(cls,data):
+        query = """SELECT 
+                    COUNT(current_r) AS R,
+                    COUNT(current_s) AS S,
+                    COUNT(current_t) AS T
+                    FROM circuits WHERE circuits.td_id = %(td_id)s ;
+                    """
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result
+    
+    
+    @classmethod
+    def update_name_all_in_tgs(cls, data):
+        query = "UPDATE circuits SET name = %(name)s WHERE id = %(circuit_id)s AND circuits.tg_id = %(tg_id)s;"
+        result = connectToMySQL(cls.db).query_db(query, data)
+        return result

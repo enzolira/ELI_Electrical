@@ -172,7 +172,7 @@
                     <th class="border border-dark-subtle px-1 table-header">Metodo de Instalación</th>
                     <th class="border border-dark-subtle px-1 table-header">Tipo de Aislacion</th>
                     <th class="border border-dark-subtle px-1 table-header">Conductor [mm2]</th>
-                    <th class="border border-dark-subtle px-1 table-header">Canalizacion [mm]</th>
+                    <th class="border border-dark-subtle px-1 table-header">Canalizacion ø [mm]</th>
                     <th class="border border-dark-subtle px-1 table-header3">Disyuntor</th>
                     <th class="border border-dark-subtle px-1 table-header3">Diferencial</th>
                   </tr>
@@ -259,7 +259,7 @@
                     <th class="border border-dark-subtle px-1 table-header">Metodo de Instalación</th>
                     <th class="border border-dark-subtle px-1 table-header">Tipo de Aislacion</th>
                     <th class="border border-dark-subtle px-1 table-header">Conductor [mm2]</th>
-                    <th class="border border-dark-subtle px-1 table-header">Canalizacion [mm]</th>
+                    <th class="border border-dark-subtle px-1 table-header">Canalizacion ø [mm]</th>
                     <th class="border border-dark-subtle px-1 table-header3">Disyuntor</th>
                     <th class="border border-dark-subtle px-1 table-header3">Diferencial</th>
                   </tr>
@@ -278,44 +278,6 @@
   </div>
 </div>
 
-
-<!------------ EDIT NAME TG ---------------->
-
- <!-- error -->
- <script>
-  {% with messages = get_flashed_messages(category_filter=['error_edit_tg']) %}
-      {% if messages %}
-          {% for message in messages %}
-              Swal.fire({
-                  position: 'top',
-                  icon: 'warning',
-                  title: 'Error',
-                  text: '{{ message }}',
-                  timer: 3000,
-                  width: '35em'
-              });
-          {% endfor %}
-      {% endif %}
-  {% endwith %}
-</script>
-
-<!-- success -->
-
-<script>
-  {% with messages = get_flashed_messages(category_filter=['success_edit_tg']) %}
-      {% if messages %}
-          {% for message in messages %}
-              Swal.fire({
-                  position: 'top',
-                  icon: 'success',
-                  text: '{{ message }}',
-                  timer: 3000,
-                  width: '35em'
-              });
-          {% endfor %}
-      {% endif %}
-  {% endwith %}
-</script>
 
 <div class="modal fade" id="staticEditNametg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -338,7 +300,7 @@
 <!------------ EDIT NAME TD ---------------->
 
  <!-- error -->
- <script>
+ <!-- <script>
   {% with messages = get_flashed_messages(category_filter=['error_edit_td']) %}
       {% if messages %}
           {% for message in messages %}
@@ -353,10 +315,10 @@
           {% endfor %}
       {% endif %}
   {% endwith %}
-</script>
+</script> -->
 
 <!-- success -->
-
+<!-- 
 <script>
   {% with messages = get_flashed_messages(category_filter=['success_edit_td']) %}
       {% if messages %}
@@ -371,7 +333,7 @@
           {% endfor %}
       {% endif %}
   {% endwith %}
-</script>
+</script> -->
 
 <div class="modal fade" id="staticEditNametd" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">

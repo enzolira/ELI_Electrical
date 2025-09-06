@@ -1,0 +1,350 @@
+{% extends "base_plan.html" %}
+
+{% block title %} Informes de Recepción {% endblock%}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header simple -->
+  <div class="mb-4 text-center">
+    <h2 class="mb-2">Informes de Recepción</h2>
+    <p class="text-muted mb-0">Crea un PDF con el registro fotográfico y las observaciones - Cencomalls 😉</p>
+  </div>
+
+  <!-- Botón gigante -->
+  <div class="d-flex justify-content-center my-5">
+    <button class="btn btn-primary btn-lg px-5 py-3"
+            data-bs-toggle="modal"
+            data-bs-target="#addinforme">
+      ➕ Crear informe
+    </button>
+  </div>
+</div>
+    <style>
+        .badge {
+            font-size: 0.9rem;
+        }
+        .composer-section {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .observation-item {
+            transition: all 0.3s ease;
+        }
+        .observation-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+
+<!-- Modal crear informe-->
+<div class="modal fade" id="addinforme" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="modalCrearInformeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-light">
+        <h1 class="modal-title fs-5" id="modalCrearInformeLabel">Crear informe</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <form id="informeForm" action="/add_observacion" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+
+          <!-- Nombres en lugar de IDs -->
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Centro Comercial</label>
+              <input type="text" class="form-control" name="shopping_id" placeholder="Ej: Costanera" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Piso</label>
+              <input type="text" class="form-control" name="floor_id" placeholder="Ej: Nivel 2" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Local</label>
+              <input type="text" class="form-control" name="local_id" placeholder="Ej: Nike Store 2030" required>
+            </div>
+          </div>
+
+        <!-- Correo electrónico -->
+        <div class="mb-3 mt-2">
+            <label class="form-label fw-bold">Correos destinatarios</label>
+            <input type="text" class="form-control" name="correo" placeholder="ejemplo1@correo.com, ejemplo2@correo.com" multiple required>
+            <div class="form-text">
+                Puedes agregar uno o varios correos separados por comas.
+            </div>
+        </div>
+
+          <hr class="my-3">
+
+            <!-- Observaciones -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">Observaciones</h5>
+                <span class="badge bg-primary rounded-pill" id="obsCount">0</span>
+            </div>
+
+            <!-- Composer (texto obligatorio, foto opcional) -->
+            <div class="composer-section p-3 mb-3">
+                <div class="mb-3">
+                    <input type="file" accept="image/*" class="form-control" id="fotoInput">
+                </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="obsInput" rows="3" maxlength="240"
+                            placeholder="Escribe la observación aquí..." style="resize: none;"></textarea>
+                    </div>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                        <button type="button" class="btn btn-success" id="addObsBtn">Añadir</button>
+                        <button type="button" class="btn btn-outline-danger" id="clearAllBtn">Limpiar todo</button>
+                    </div>
+                    <div class="form-text mt-2 text-start">Se requiere <b>texto</b>. La foto es opcional.</div>
+
+                <!-- <div class="form-text mt-2">Se requiere <b>texto</b>. La foto es opcional.</div> -->
+            </div>
+
+            <!-- Lista de observaciones -->
+            <div class="mb-3">
+                <ul class="list-group" id="obsList"></ul>
+            </div>
+
+        </div> <!-- Fin del modal-body -->
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar informe</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+(() => {
+  // --- REFERENCIAS A ELEMENTOS ---
+  const form = document.getElementById('informeForm');
+  const list = document.getElementById('obsList');
+  const countTag = document.getElementById('obsCount');
+  const addBtn = document.getElementById('addObsBtn');
+  const guardarBtn = document.getElementById('guardarBtn');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+
+  const STORAGE_KEY = 'savedObservationTexts'; // Guardamos solo los textos
+  let rows = []; // Array principal en memoria
+
+  // --- UTILIDAD: SweetAlert seguro ---
+  const safeSwal = (o) => {
+    if (window.Swal) { return Swal.fire(o); }
+    console.log(o.text || o.title);
+    return Promise.resolve({ isConfirmed: true });
+  };
+
+  // --- UTILIDAD: cerrar TODOS los modales y limpiar backdrop ---
+  function closeAllModals() {
+    const openModals = document.querySelectorAll('.modal.show');
+    openModals.forEach(el => {
+      try {
+        const m = bootstrap.Modal.getOrCreateInstance(el);
+        m.hide();
+      } catch (_) {}
+    });
+    // Limpia clases/backdrops residuales por seguridad
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+  }
+
+  // --- PERSISTENCIA SOLO DE TEXTOS ---
+  const saveTextsToStorage = () => {
+    const texts = rows.map(r => r.text);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(texts));
+  };
+
+  // --- RENDER DE LISTA ---
+  function render() {
+    list.innerHTML = '';
+    rows.forEach((row, idx) => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center observation-item';
+
+      let content = '';
+      if (row.file) {
+        content += '<i class="bi bi-image text-primary me-2" title="Imagen adjunta"></i>';
+      }
+      content += `<span>${row.text}</span>`;
+
+      li.innerHTML = `
+        <div>${content}</div>
+        <button type="button" class="btn-eliminar btn btn-sm btn-danger" aria-label="Eliminar">&times;</button>
+      `;
+
+      li.querySelector('.btn-eliminar').addEventListener('click', () => {
+        rows.splice(idx, 1);
+        render();
+        saveTextsToStorage();
+      });
+
+      list.appendChild(li);
+    });
+    countTag.textContent = rows.length;
+  }
+
+  // --- AÑADIR OBSERVACIÓN (texto obligatorio, foto opcional) ---
+  function addObservation() {
+    const textIn = document.getElementById('obsInput');   // textarea
+    const fotoIn = document.getElementById('fotoInput');  // input file
+    const text = textIn.value.trim();
+
+    if (!text) {
+      safeSwal({
+        icon: 'warning',
+        title: 'Atención',
+        text: 'El texto de la observación es obligatorio.',
+        position: 'top',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      return;
+    }
+
+    const file = fotoIn.files.length > 0 ? fotoIn.files[0] : null;
+    rows.push({ text, file });
+
+    render();
+    saveTextsToStorage();
+
+    textIn.value = '';
+    fotoIn.value = '';
+    textIn.focus();
+  }
+
+  // --- LISTENERS ---
+  addBtn.addEventListener('click', addObservation);
+
+  // Enter = añadir, Shift+Enter = salto de línea
+  document.getElementById('obsInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      addBtn.click();
+    }
+  });
+
+  // Limpiar todo
+  clearAllBtn.addEventListener('click', () => {
+    if (rows.length === 0) return;
+
+    safeSwal({
+      title: '¿Estás seguro?',
+      text: 'Se borrarán todas las observaciones de la lista.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Sí, borrar todo'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        rows.length = 0;
+        localStorage.removeItem(STORAGE_KEY);
+        render();
+      }
+    });
+  });
+
+  // SUBMIT DEL FORM
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Si quedó texto en el textarea, agréguese
+    const textIn = document.getElementById('obsInput');
+    if (textIn.value.trim()) { addObservation(); }
+
+    if (rows.length === 0) {
+      safeSwal({
+        icon: 'info',
+        text: 'Agrega al menos una observación.',
+        position: 'top',
+        timer: 1800,
+        showConfirmButton: false
+      });
+      return;
+    }
+
+    const fd = new FormData(form);
+    const blankFile = new Blob([''], { type: 'image/png' });
+
+    // Enviar SIEMPRE lo que hay en 'rows'
+    rows.forEach(r => {
+      fd.append('obs_text[]', r.text);
+      fd.append('obs_foto[]', r.file || blankFile, r.file ? r.file.name : 'blank.png');
+    });
+
+    guardarBtn.disabled = true;
+    guardarBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+
+    fetch(form.action, { method: 'POST', body: fd })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // 1) Cierra modales y limpia backdrops
+          closeAllModals();
+
+          // 2) SweetAlert de éxito único visible
+          safeSwal({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: data.message || 'Informe enviado correctamente.',
+            position: 'top',
+            timer: 3000,
+            timerProgressBar: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            position: 'center'
+          });
+
+          // 3) Limpia storage y recarga a los 3s
+          localStorage.removeItem(STORAGE_KEY);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+
+        } else {
+          safeSwal({
+            icon: 'error',
+            title: 'Atención',
+            text: data.message || 'Ocurrió un error.'
+          });
+        }
+      })
+      .catch(() => {
+        safeSwal({
+          icon: 'error',
+          title: 'Error de Conexión',
+          text: 'No se pudo contactar al servidor. Tu trabajo de texto ha sido guardado.'
+        });
+      })
+      .finally(() => {
+        guardarBtn.disabled = false;
+        guardarBtn.textContent = 'Guardar informe';
+      });
+  });
+
+  // --- CARGA INICIAL DESDE localStorage (solo textos) ---
+  const savedTexts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  if (savedTexts.length > 0) {
+    rows = savedTexts.map(text => ({ text, file: null }));
+    render();
+    safeSwal({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Se recuperaron textos no guardados. Por favor, vuelve a adjuntar las fotos.',
+      showConfirmButton: false,
+      timer: 4000
+    });
+  }
+})();
+</script>
+
+
+{% endblock %}

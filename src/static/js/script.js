@@ -6,7 +6,53 @@
 
 // ------------------------------------------------------------------------------------------------
 
-// -------------------------CONFIRMACION CIERRE DE SESION---------------------------------
+// CIERRE DE SESION POR INACTIVIDAD ------------
+// 15 minutos de inactividad y se cierra la sesion
+
+const INACTIVITY_TIME = 15 * 60 * 1000;
+const ALERT_TIME =  14 * 60 * 1000;
+
+let inactivityTimer;
+let alertTimer;
+
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(showAlert, ALERT_TIME);
+    inactivityTimer = setTimeout(logout, INACTIVITY_TIME);
+}
+
+function showAlert() {
+    Swal.fire({
+        title: 'Atención',
+        text: 'Tu sesión está a punto de expirar por inactividad. Tienes 1 minuto para seguir activo.',
+        icon: 'warning',
+        confirmButtonText: 'Continuar',
+        position:'top'
+    });
+}
+
+function logout() {
+    Swal.fire({
+        title: 'Sesión Expirada',
+        text: 'Tu sesión ha expirado debido a inactividad.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        position:'top'
+    }).then(() => {
+        window.location.href = '/logout';
+    });
+}
+
+window.onload = resetInactivityTimer;
+document.onmousemove = resetInactivityTimer;
+document.onkeydown = resetInactivityTimer;
+document.onclick = resetInactivityTimer;
+document.onscroll = resetInactivityTimer;
+
+
+
+// -------------------------CONFIRMACION CIERRE DE SESION VOLUNTARIAMENTE---------------------------------
 
 function confirmar(event) {
   event.preventDefault();
@@ -19,7 +65,7 @@ function confirmar(event) {
     cancelButtonColor: '#6c757d',
     cancelButtonText: 'Cancelar',
     confirmButtonText: 'Salir',
-    width: '50%',
+    // width: '50%',
     position:'top'
   }).then((result) => {
     if (result.isConfirmed){
@@ -510,7 +556,7 @@ function select_circuitTD(tgsSelectedValues, tdsSelectedValues) {
             content += `
                     <td>
                         <button type="button" onclick="detail_circuit(this)" class="btn btn-sm btn-outline-secondary me-2 my-1" data-circuit-id="${xl.circuit_id}" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Ver</button>
-                        <button class="btn btn-sm btn-outline-danger my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
+                        <button class="btn btn-outline-danger my-1" data_circuit_delete2="${xl.circuit_id}" onclick="deleteCircuit(this)">Borrar</button>
                     </td>
                 </tr>`;
             addedNames.push(xl.circuit_id);
@@ -725,7 +771,6 @@ function deleteLoad(element) {
   Swal.fire({
     title: '¿Seguro que quieres Borrar esta Carga?',
     icon: 'warning',
-    width: '50%',
     showCancelButton: true,
     confirmButtonColor: '#0d6efd',
     cancelButtonColor: '#6c757d',
@@ -774,7 +819,6 @@ function deleteCircuit(element) {
     title: '¿Estás seguro de que deseas borrar el circuito?',
     text: 'Si hay cargas asociadas, ¡también se eliminarán!',
     icon: 'warning',
-    width: '60%' ,
     showCancelButton: true,
     confirmButtonColor: '#0d6efd',
     cancelButtonColor: '#6c757d',
@@ -825,7 +869,6 @@ function deleteTgs() {
     title: '¿Estás seguro de que deseas borrar el tablero general?',
     text: 'Si hay circuitos y/o tableros de distribución asociados, ¡también se eliminarán!',
     icon: 'warning',
-    width: '60%' ,
     showCancelButton: true,
     confirmButtonColor: '#0d6efd',
     cancelButtonColor: '#6c757d',
@@ -878,7 +921,6 @@ function deleteTds() {
     title: '¿Estás seguro de que deseas borrar el tablero de distribución?',
     text: 'Si hay circuitos asociados, ¡también se eliminarán!',
     icon: 'warning',
-    width: '60%' ,
     showCancelButton: true,
     confirmButtonColor: '#0d6efd',
     cancelButtonColor: '#6c757d',
@@ -918,7 +960,6 @@ function deleteProyect() {
   Swal.fire({
     title: '¿Estás seguro de que deseas borrar el Proyecto?',
     icon: 'warning',
-    width: '60%' ,
     showCancelButton: true,
     confirmButtonColor: '#0d6efd',
     cancelButtonColor: '#6c757d',
@@ -966,46 +1007,93 @@ function deleteProyect() {
 
 //  --------------- DOWNLOAD EXCEL DISTRIBUTION TABLE --------------
 
-document.getElementById("download-excel-td").addEventListener("click", function(event) {
-  event.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+  const downloadBtn = document.getElementById("download-excel-td");
+  const selectElement = document.getElementById("tds-id");
 
-  var selectElement = document.getElementById("tds-id");
-  var td = selectElement.value;
-  
-  if (!td) {
-    Swal.fire({
-      title: 'Selecciona un tablero de distribución',
-      text: 'Selecciona un tablero de distribución para descargar Cuadro de Cargas.',
-      icon: 'question',
-      position: 'top'
-    });
+  // Verificar que los elementos existen
+  if (!downloadBtn || !selectElement) {
     return;
   }
 
-  var url = "/api/excel_tds/" + encodeURIComponent(td);
-
-  fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Problemas con el servidor');
-      }
-      return response.text();
-    })
-    .then(data => {
-      if (data === "No hay circuitos, tablero de distribucíon vacío.") {
+  downloadBtn.addEventListener("click", async function(event) {
+    event.preventDefault();
+    
+    const td = selectElement.value.trim();
+    
+    // Validar selección
+    if (!td) {
+      if (typeof Swal !== 'undefined') {
         Swal.fire({
-          title: 'Tablero de distribución vacío',
-          text: 'No hay circuitos en el tablero seleccionado.',
+          title: 'Selección requerida',
+          text: 'Por favor selecciona un tablero de distribución',
           icon: 'warning',
           position: 'top'
         });
       } else {
-        window.location.href = url;
+        alert('Por favor selecciona un tablero de distribución');
       }
-    })
-    .catch(error => {
-      console.error('tuvimos problemas con fetch:', error);
-    });
+      return;
+    }
+
+    const url = `/api/excel_tds/${encodeURIComponent(td)}`;
+    
+    try {
+      // Mostrar carga
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: 'Generando archivo',
+          html: 'Por favor espera...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+      }
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      const blob = await response.blob();
+
+      // Ocultar carga
+      if (typeof Swal !== 'undefined') Swal.close();
+
+      // Manejar diferentes tipos de respuesta
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        if (data.message === "No hay circuitos") {
+          Swal.fire({
+            title: 'Tablero vacío',
+            text: 'El tablero seleccionado no tiene circuitos',
+            icon: 'info'
+          });
+          return;
+        }
+      } else {
+        // Descargar archivo
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `cuadro_cargas_${td}_${new Date().toISOString().slice(0,10)}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
+      }
+    } catch (error) {
+      console.error('Error en la descarga:', error);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo generar el archivo',
+          icon: 'error'
+        });
+      }
+    }
+  });
 });
 //  --------------- DOWNLOAD EXCEL GENERAL TABLE --------------
 
@@ -1073,265 +1161,438 @@ function detail_tds(element){
 
 //  --------------- DOWNLOAD EXCEL GENERAL TABLE --------------
 
-document.getElementById("download-excel-tg").addEventListener("click", function(event) {
-  event.preventDefault();
-
-  var selectElement = document.getElementById("tgs-id");
-  var tg = selectElement.value;
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+  const downloadButton = document.getElementById("download-excel-tg");
   
-  if (!tg) {
-    Swal.fire({
-      title: 'Selecciona un tablero general',
-      text: 'Selecciona un tablero general para descargar Cuadro de Carga.',
-      icon: 'question',
-      position: 'top'
-    });
-    return;
-  }
-
-  var url = "/api/excel_tgs/" + encodeURIComponent(tg);
-
-  fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Problemas con el servidor');
+  if (downloadButton) {
+    downloadButton.addEventListener("click", async function(event) {
+      event.preventDefault();
+      
+      // Verificar que SweetAlert está disponible
+      if (typeof Swal === 'undefined') {
+        console.error('SweetAlert no está cargado');
+        alert('Selecciona un tablero general para descargar');
+        return;
       }
-      return response.text();
-    })
-    .then(data => {
-      if (data === "No hay circuitos, tablero general vacío.") {
+      
+      const selectElement = document.getElementById("tgs-id");
+      
+      // Verificar que el select existe
+      if (!selectElement) {
+        console.error('Elemento tgs-id no encontrado');
         Swal.fire({
-          title: 'Tablero general vacío',
-          text: 'No hay circuitos en el tablero seleccionado.',
-          icon: 'warning',
+          title: 'Error',
+          text: 'No se encontró el selector de tableros generales',
+          icon: 'error'
+        });
+        return;
+      }
+      
+      const tg = selectElement.value.trim();
+      
+      if (!tg) {
+        Swal.fire({
+          title: 'Selecciona un tablero general',
+          text: 'Selecciona un tablero general para descargar Cuadro de Carga.',
+          icon: 'question',
           position: 'top'
         });
-      } else {
-        window.location.href = url;
+        return;
       }
-    })
-    .catch(error => {
-      console.error('tuvimos problemas con fetch:', error);
+
+      const url = "/api/excel_tgs/" + encodeURIComponent(tg);
+      
+      try {
+        // Mostrar loader mientras se procesa
+        Swal.fire({
+          title: 'Generando archivo',
+          html: 'Por favor espera...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        
+        // Manejar diferentes tipos de respuesta
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          Swal.close();
+          
+          if (data.message === "No hay circuitos, tablero general vacío.") {
+            Swal.fire({
+              title: 'Tablero general vacío',
+              text: 'No hay circuitos en el tablero seleccionado.',
+              icon: 'warning',
+              position: 'top'
+            });
+          }
+          return;
+        }
+        
+        // Si es un archivo, descargarlo
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `cuadro_carga_tg_${tg}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(a);
+        
+        Swal.close();
+        
+      } catch (error) {
+        console.error('Error en la descarga:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Ocurrió un problema al generar el archivo',
+          icon: 'error'
+        });
+      }
     });
+  } else {
+  }
 });
 
 //  --------------------- EDIT NAME TGS --------------------------------------------
 
-document.getElementById("edit_name_tg").addEventListener("click", function(event){
-  event.preventDefault();
-  var selectElemen12 = document.getElementById("tgs-id");
-  var tg_edit = selectElemen12.value;
-  console.log(tg_edit)
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+  const editButton = document.getElementById("edit_name_tg");
+  
+  if (editButton) {
+    editButton.addEventListener("click", function(event) {
+      event.preventDefault();
+      
+      // Verificar que SweetAlert está disponible
+      if (typeof Swal === 'undefined') {
+        console.error('SweetAlert no está cargado');
+        alert('Error: La funcionalidad de alertas no está disponible');
+        return;
+      }
+      
+      const selectElement = document.getElementById("tgs-id");
+      
+      // Verificar que el select existe
+      if (!selectElement) {
+        console.error('Elemento tgs-id no encontrado');
+        Swal.fire({
+          title: 'Error',
+          text: 'No se encontró el selector de tableros generales',
+          icon: 'error'
+        });
+        return;
+      }
+      
+      const tg_edit = selectElement.value.trim();
+      console.log('Tablero seleccionado:', tg_edit);
 
-  if (!tg_edit){
-    Swal.fire({
-      title: 'Selecciona un Tablero General',
-      text: 'Selecciona un tablero para editarlo.',
-      icon: 'question',
-      position: 'top'
+      if (!tg_edit) {
+        Swal.fire({
+          title: 'Selecciona un Tablero General',
+          text: 'Selecciona un tablero para editarlo.',
+          icon: 'question',
+          position: 'top'
+        });
+        return;
+      }
+      
+      try {
+        // Generar el contenido del modal
+        editNametg(tg_edit);
+        
+        // Mostrar el modal
+        const modalElement = document.getElementById('staticEditNametg');
+        if (modalElement) {
+          const myModal = new bootstrap.Modal(modalElement);
+          myModal.show();
+        } else {
+          throw new Error('Modal staticEditNametg no encontrado');
+        }
+      } catch (error) {
+        console.error('Error al mostrar el modal:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo cargar el formulario de edición',
+          icon: 'error'
+        });
+      }
     });
-  } 
-  else {
-    editNametg();
-    var myModal = new bootstrap.Modal(document.getElementById('staticEditNametg'));
-    myModal.show();
+  } else {
   }
 });
 
-function editNametg(){
+function editNametg(tgName) {
+  try {
+    const modalname = document.getElementById('edit_tg');
     
-  let tgName = document.getElementById("tgs-id").value;
-  let modalname = document.getElementById('edit_tg');
-  modalname.innerHTML = `
-    <div class="input-group my-3">
-      <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nuevo Nombre</span>
-      <input type="text" class="form-control" placeholder="Nuevo nombre del tablero" aria-label="Username" aria-describedby="basic-addon1" name="name">
-    </div>
-    <div class="input-group my-3">
-      <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nueva Referencia o Tag</span>
-      <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-      <input type="hidden" name="id" value="${tgName}"></input>
-    </div>`; 
+    if (!modalname) {
+      throw new Error('Elemento edit_tg no encontrado');
+    }
+    
+    // Validar que tgName no esté vacío
+    if (!tgName) {
+      throw new Error('Nombre del tablero no proporcionado');
+    }
+    
+    modalname.innerHTML = `
+      <div class="input-group my-3">
+        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nuevo Nombre</span>
+        <input type="text" class="form-control" placeholder="Nuevo nombre del tablero" 
+               aria-label="Username" aria-describedby="basic-addon1" name="name" required>
+      </div>
+      <div class="input-group my-3">
+        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nueva Referencia o Tag</span>
+        <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" 
+               aria-label="Username" aria-describedby="basic-addon1" name="tag" required>
+        <input type="hidden" name="id" value="${tgName}">
+      </div>`;
+    
+  } catch (error) {
+    console.error('Error en editNametg:', error);
+    throw error; // Re-lanzar el error para manejarlo en el llamador
+  }
 }
 
 
 //  --------------------- EDIT NAME TDS --------------------------------------------
 
-document.getElementById("edit_name_td").addEventListener("click", function(event){
-  event.preventDefault();
-  var selectElemen21 = document.getElementById("tds-id");
-  var td_edit = selectElemen21.value;
-  console.log(td_edit)
-
-  if (!td_edit){
-    Swal.fire({
-      title: 'Selecciona un Tablero de Distribución',
-      text: 'Selecciona un tablero para editarlo.',
-      icon: 'question',
-      position: 'top'
-    });
-  } 
-  else {
-    editNametd();
-    var myModal = new bootstrap.Modal(document.getElementById('staticEditNametd'));
-    myModal.show();
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+  const editButton = document.getElementById("edit_name_td");
+  
+  // Verificar si el botón existe
+  if (!editButton) {
+    return;
   }
+
+  editButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    
+    // Verificar que SweetAlert está disponible
+    if (typeof Swal === 'undefined') {
+      console.error('SweetAlert no está cargado');
+      alert('Error: La funcionalidad de alertas no está disponible');
+      return;
+    }
+    
+    const selectElement = document.getElementById("tds-id");
+    
+    // Verificar que el select existe
+    if (!selectElement) {
+      console.error('Elemento tds-id no encontrado');
+      Swal.fire({
+        title: 'Error',
+        text: 'No se encontró el selector de tableros',
+        icon: 'error'
+      });
+      return;
+    }
+    
+    const td_edit = selectElement.value.trim();
+    console.log('Tablero seleccionado para editar:', td_edit);
+
+    if (!td_edit) {
+      Swal.fire({
+        title: 'Selecciona un Tablero de Distribución',
+        text: 'Selecciona un tablero para editarlo.',
+        icon: 'question',
+        position: 'top',
+        timer: 3000
+      });
+      return;
+    }
+    
+    try {
+      // Generar el contenido del modal
+      if (!editNametd(td_edit)) {
+        throw new Error('Error al generar el formulario de edición');
+      }
+      
+      // Mostrar el modal
+      const modalElement = document.getElementById('staticEditNametd');
+      if (!modalElement) {
+        throw new Error('Modal staticEditNametd no encontrado');
+      }
+      
+      const myModal = new bootstrap.Modal(modalElement);
+      myModal.show();
+      
+    } catch (error) {
+      console.error('Error al mostrar el modal de edición:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo cargar el formulario de edición',
+        icon: 'error',
+        timer: 3000
+      });
+    }
+  });
 });
 
-function editNametd(){
-  let tdName = document.getElementById("tds-id").value;
-  console.log(tdName)
-  let modalname2 = document.getElementById('edit_td');
-    modalname2.innerHTML = `
+function editNametd(tdName) {
+  try {
+    if (!tdName) {
+      throw new Error('Nombre del tablero no proporcionado');
+    }
+    
+    const modalContainer = document.getElementById('edit_td');
+    if (!modalContainer) {
+      throw new Error('Contenedor edit_td no encontrado');
+    }
+    
+    modalContainer.innerHTML = `
       <div class="input-group my-3">
-        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nuevo Nombre</span>
-        <input type="text" class="form-control" placeholder="Nuevo nombre del tablero" aria-label="Username" aria-describedby="basic-addon1" name="name">
+        <span class="input-group-text" id="td-name-label" style="width: 200px;">Nuevo Nombre</span>
+        <input type="text" class="form-control" placeholder="Nuevo nombre del tablero" 
+               aria-label="Nuevo nombre" aria-describedby="td-name-label" name="name" required>
       </div>
       <div class="input-group my-3">
-        <span class="input-group-text" id="basic-addon1" style="width: 200px;">Nueva Referencia o Tag</span>
-        <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" aria-label="Username" aria-describedby="basic-addon1" name="tag">
-        <input type="hidden" name="id" value="${tdName}"></input>
-      </div> `;}
+        <span class="input-group-text" id="td-tag-label" style="width: 200px;">Nueva Referencia o Tag</span>
+        <input type="text" class="form-control" placeholder="Nueva ubicación o identificativo" 
+               aria-label="Nueva referencia" aria-describedby="td-tag-label" name="tag" required>
+        <input type="hidden" name="id" value="${tdName}">
+      </div>`;
+    
+    return true;
+    
+  } catch (error) {
+    console.error('Error en editNametd:', error);
+    return false;
+  }
+}
 
-  // ------------------- Dinamycs fullcalendar selection -------------------------*/
-  
-    function viewFullcalendar(element){
-      let projectId = element.value
-      let daTable = document.getElementById('pro-date');
-      let callCalendar = document.getElementById('calCalendar');
-      let jobTable = document.getElementById('job_in_proyect');
-      let emptyCalendar = document.getElementById('empty-calendar');
-      let selectPro = document.getElementById('select-proyect');
-      content = "";
-      $.ajax({
-        url:'/api/info_jobs',
-        type:'POST',
-        data: {'project_id': projectId},
-        success: (data, textStatus, xhr) => {         
-        if(data.length > 0 ){
-          emptyCalendar.style.display = "none";
-          selectPro.style.display = "none";
-          daTable.style.display = "block";
-          let eventArray = [];
-          let eventDescription ="";
-          data.forEach(lx => {
-            if (String(lx['proyect_id']) === projectId ) {
-              console.log(lx['start']);
-              console.log(lx['end']);
-              let start = moment.utc(lx['start']).format(); // Formato por defecto (ISO 8601)
-              let end = moment.utc(lx['end']).format();
-              eventArray.push({
-                title: lx['title'], 
-                start: start, 
-                end: end,
-              });
-              eventDescription += `<h5>${lx.description}</h5>`;
-              callCalendar.style.display = "block";
-              daTable.style.display = "block";
-              let startDate = new Date(lx.start);
-              let options = { weekday: 'short', year: '2-digit', month: 'short', day: 'numeric' };
-              let formatter = new Intl.DateTimeFormat(navigator.language, options);
-              let startDateInLocale = formatter.format(startDate);
-              let endDate = new Date(lx.end);
-              let endDateInLocale = formatter.format(endDate);
-              content += `
-              <tr>
-                <th scope="row">${lx.title}</th>
-                <td>${truncateDescription(lx.description, 15)}</td>
-                <td>${startDateInLocale}</td>
-                <td>${endDateInLocale}</td>
-                <td class="d-flex text-center">
-                  <button class="fa-solid fa-eye btn bg-white border" data-view="${lx.description}" data-bs-toggle="modal" data-bs-target="#staticDescription" onclick="viewDesc(this)"></button>
-                  <button class="fa-solid fa-pen-to-square btn bg-white border mx-1"></button>
-                  <button class="fa-solid fa-trash-can btn bg-white border"></button>
-                </td>
-              </tr>`;
-            jobTable.innerHTML = content;
-            function truncateDescription(description, maxLength) { 
-              if (description.length > maxLength) {
-                return description.substring(0, maxLength) + '...';
-              } else {
-                return description;
-              }
-            }
-            
-          }else {
-              console.log('no hay nada');
-            }
-          });
-        //   let hereFullc = document.getElementById('calendar')
-        //   const calendar = new FullCalendar.Calendar(hereFullc, {
-        //     slotMinTime: '08:00:00',
-        //     slotMaxTime:'17:30:00',
-        //     businessHours: {
-        //       daysOfWeek: [ 1, 2, 3, 4, 5 ],
-        //       startTime: '08:00',
-        //       endTime: '17:30',
-        //     },
-        //     locale: 'es',
-        //     timeZone: 'UTC',
-        //     headerToolbar: {
-        //       left: 'dayGridMonth,timeGridWeek,timeGridDay',
-        //       center: 'title',
-        //       right: 'today prev,next'
-        //     },
-        //     buttonText: {
-        //       today:    'Hoy',
-        //       month:    'Mes',
-        //       week:     'Semana',
-        //       day:      'Día',
-        //       list:     'Lista'
-        //     },
-        //     firstDay: 1,
-        //     allDayText: 'Todo el día',
-        //     selectable: true,
-        //     // editable: true,
-        //     events:eventArray,
-        //     eventColor: 'gray',
-        //     eventDidMount: function(info) {
-        //       var today = new Date().getTime();
-        //       var eventEnd = new Date(info.event.end).getTime();
-        //       var eventStart = new Date(info.event.start).getTime();
-      
-        //       if (!info.event.end) {
-        //           if (eventStart > today) {
-        //               info.el.style.backgroundColor = '#FFB347';
-        //           }
-        //       } else {
-        //           if (eventEnd < today) {
-        //               info.el.style.backgroundColor = '#77DD77';
-        //           }
-        //       }
-        //     }
-        //   });
-        // calendar.render();
-        } else {
-          callCalendar.style.display = "none";
-          daTable.style.display = "none";
-          emptyCalendar.style.display = "block";
-        }
+  // ------------------- INFORME DE RECEPCION -------------------------*/
+
+function pisos(element) {
+  $.ajax({
+    url: '/api/mall',
+    method: 'POST',
+    data: { mall: element.value },
+    success: (data, textStatus, xhr) => {
+      let floor1 = document.getElementById("floor-id-1");
+      let floor2 = document.getElementById("floor-id-2");
+      let local1 = document.getElementById("local-id-1");
+      let local2 = document.getElementById("local-id-2");
+      let selecContent = document.getElementById("selec-floor");
+      let content = "";
+      if (Array.isArray(data) && data.length > 0) {
+        floor1.style.display = 'none';
+        floor2.style.display = 'block';
+        local1.style.display = 'block';
+        local2.style.display = 'none';
+        data.map(el => {
+          content += `<option value=${el.id}>${el.piso}</option>`
+        });
+        selecContent.innerHTML = content;
       }
-    });
-  };
-
-
-
-// indicador de carga planning ----//
-function mostrarIndicadorDeCarga() {
-  Swal.fire({
-    title: 'Cargando...',
-    allowOutsideClick: false,
-    onBeforeOpen: () => {
-      Swal.showLoading();
-    }
+      else {
+        floor1.style.display = 'block';
+        floor2.style.display = 'none';
+        local1.style.display = 'block';
+        local2.style.display = 'none';
+      }
+    },
+    error: (xhr, textStatus, error) => {
+      console.log(xhr, textStatus, error);
+    },
   });
 }
 
 
-// ------- Take one color row in table -----------
-
-function viewDesc(element){
-  let lxInfo = document.getElementById('info-view');
-  lxInfo.innerHTML = element.getAttribute('data-view');
+function pisoLocal(element) {
+  $.ajax({
+    url: '/api/mall',
+    method: 'POST',
+    data: { mall: element.value },
+    success: (data, textStatus, xhr) => {
+    let Pisos = document.getElementById("floor");
+    let Pisos1 = document.getElementById("floor1");
+    let content = "<option selected>-Seleccione el piso-</option>";
+    if (Array.isArray(data) && data.length > 0) {
+      data.map(eli => {
+        content += `<option value=${eli.id}>${eli.piso}</option>`;
+      });
+      Pisos.innerHTML = content;
+      Pisos1.innerHTML = content;
+      }
+    else {
+      content = "<option selected>-Seleccione el piso-</option>";
+      }
+      Pisos.innerHTML = content;
+      Pisos1.innerHTML = content;
+    },
+    error: (xhr, textStatus, error) => {
+      console.log(xhr, textStatus, error);
+    },
+  });
 }
 
+
+function locales(element) {
+  $.ajax({
+    url: '/api/floors',
+    method: 'POST',
+    data: { floor: element.value },
+    success: (data, textStatus, xhr) => {
+      let local1 = document.getElementById("local-id-1");
+      let local2 = document.getElementById("local-id-2");
+      let selecLocal = document.getElementById("selec-local");
+      let content = "";
+      if (Array.isArray(data) && data.length > 0) {
+        local1.style.display = 'none';
+        local2.style.display = 'block';
+        data.map(eli => {
+          content += `<option value=${eli.id}>${eli.marca} ${eli.numero}</option>`
+        });
+        selecLocal.innerHTML = content;
+      }
+      else {
+        local1.style.display = 'block';
+        local2.style.display = 'none';
+      }
+    },
+    error: (xhr, textStatus, error) => {
+      console.log(xhr, textStatus, error);
+    },
+  });
+}
+
+function locales2(element) {
+  $.ajax({
+    url: '/api/floors',
+    method: 'POST',
+    data: { floor: element.value },
+    success: (data, textStatus, xhr) => {
+      let loCal = document.getElementById("local1");
+      let content = "<option selected>-Seleccione un local-</option>";
+      if (Array.isArray(data) && data.length > 0) {
+        data.map(eli => {
+          content += `<option value=${eli.id}>${eli.marca} ${eli.numero}</option>`
+        });
+        loCal.innerHTML = content;
+      }
+      else {
+
+      }
+      loCal.innerHTML = content;
+    },
+    error: (xhr, textStatus, error) => {
+      console.log(xhr, textStatus, error);
+    },
+  });
+}
+
+
+
+// ------------------------------------------------------------------------------------------------------------------------------------

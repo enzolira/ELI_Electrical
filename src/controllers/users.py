@@ -8,13 +8,14 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 bcrypt = Bcrypt(app)
 
-"
+app.config["SECRET_KEY"] = "wedefergewvgetrgw492890348t2vnwc"
+app.config["SECRET_SALT"] = "mkonjibhu65544321"
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = ''
-app.config['MAIL_PASSWORD'] = 'xxxxxxx'
+app.config['MAIL_USERNAME'] = 'contacto@elisolutions.cl'
+app.config['MAIL_PASSWORD'] = 'xjns snbu azpi wrml'
 
 
 @app.route('/')
